@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Show the Evie anchor fields on the lead/opportunity form -->
+    <record id="crm_lead_view_form_inherit_evie" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.evie</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Evie" name="evie">
+                    <group>
+                        <field name="x_evie_capsule_id" readonly="1"/>
+                        <field name="x_evie_phase" readonly="1"/>
+                        <field name="x_evie_last_synced" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

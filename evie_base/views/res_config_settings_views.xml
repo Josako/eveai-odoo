@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.evie</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='companies']" position="after">
+                <div class="app_settings_block" id="evie_settings">
+                    <h2>Evie (Ask Eve AI)</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Webhook URL</span>
+                                <div class="text-muted">
+                                    Base URL of the Evie webhook endpoints
+                                </div>
+                                <div class="content-group">
+                                    <field name="evie_webhook_url" placeholder="https://evie.example.com/api/v1/integrations/odoo"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">API Key</span>
+                                <div class="text-muted">
+                                    TenantProject API key for Odoo → Evie webhooks
+                                </div>
+                                <div class="content-group">
+                                    <field name="evie_api_key" password="True"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

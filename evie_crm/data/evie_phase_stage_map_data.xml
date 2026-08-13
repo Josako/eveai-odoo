@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default Evie phase ↔ stage mapping (funnel design v2.2 §4.2).
+         noupdate: tenant edits survive module upgrades. Stage refs are the
+         standard stages shipped with the crm module. -->
+    <data noupdate="1">
+        <record id="map_suspect" model="evie.phase_stage_map">
+            <field name="sequence">10</field>
+            <field name="phase">Suspect</field>
+            <field name="odoo_type">lead</field>
+        </record>
+        <record id="map_prospect" model="evie.phase_stage_map">
+            <field name="sequence">20</field>
+            <field name="phase">Prospect</field>
+            <field name="odoo_type">lead</field>
+        </record>
+        <record id="map_cold_lead" model="evie.phase_stage_map">
+            <field name="sequence">30</field>
+            <field name="phase">Cold Lead</field>
+            <field name="odoo_type">lead</field>
+        </record>
+        <record id="map_warm_lead" model="evie.phase_stage_map">
+            <field name="sequence">40</field>
+            <field name="phase">Warm Lead</field>
+            <field name="odoo_type">lead</field>
+        </record>
+        <record id="map_mql" model="evie.phase_stage_map">
+            <field name="sequence">50</field>
+            <field name="phase">MQL</field>
+            <field name="odoo_type">lead</field>
+        </record>
+        <record id="map_sql" model="evie.phase_stage_map">
+            <field name="sequence">60</field>
+            <field name="phase">SQL</field>
+            <field name="odoo_type">opportunity</field>
+            <field name="odoo_stage_id" ref="crm.stage_lead2"/>
+        </record>
+        <record id="map_opportunity" model="evie.phase_stage_map">
+            <field name="sequence">70</field>
+            <field name="phase">Opportunity</field>
+            <field name="odoo_type">opportunity</field>
+            <field name="odoo_stage_id" ref="crm.stage_lead3"/>
+        </record>
+        <record id="map_converted" model="evie.phase_stage_map">
+            <field name="sequence">80</field>
+            <field name="phase">Converted</field>
+            <field name="odoo_type">opportunity</field>
+            <field name="odoo_stage_id" ref="crm.stage_lead4"/>
+        </record>
+        <record id="map_disqualified" model="evie.phase_stage_map">
+            <field name="sequence">90</field>
+            <field name="phase">Disqualified</field>
+            <field name="odoo_type">lead</field>
+        </record>
+    </data>
+</odoo>

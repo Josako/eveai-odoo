@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie menu root: all evie_* modules hang their menus here -->
+    <menuitem id="menu_evie_root"
+              name="Evie"
+              sequence="100"
+              groups="base.group_system"/>
+    <menuitem id="menu_evie_configuration"
+              name="Configuration"
+              parent="menu_evie_root"
+              sequence="10"
+              groups="base.group_system"/>
+</odoo>

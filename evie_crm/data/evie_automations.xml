@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- [AUTO] Evie automation rules. All logic lives in Python model methods;
+         these rules only delegate, so behaviour stays versioned and testable. -->
+
+    <!-- Stage change → reverse-translate phase, update anchor, notify Evie -->
+    <record id="action_evie_stage_to_phase" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: stage → phase</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_apply_stage_to_phase()</field>
+    </record>
+
+    <record id="automation_evie_stage_to_phase" model="base.automation">
+        <field name="name">[AUTO] Evie: stage → phase</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[(4, ref('crm.field_crm_lead__stage_id'))]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_stage_to_phase'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Mapping changes → invalidate Evie-side state.
+         Let op: base.automation.action_server_ids is een one2many — elke rule
+         heeft zijn eigen action-record nodig (delen 'steelt' de koppeling). -->
+    <record id="action_evie_mapping_changed_write" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: mapping changed (write)</field>
+        <field name="model_id" ref="model_evie_phase_stage_map"/>
+        <field name="state">code</field>
+        <field name="code">model.evie_notify_mapping_changed()</field>
+    </record>
+
+    <record id="action_evie_mapping_changed_unlink" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: mapping changed (delete)</field>
+        <field name="model_id" ref="model_evie_phase_stage_map"/>
+        <field name="state">code</field>
+        <field name="code">model.evie_notify_mapping_changed()</field>
+    </record>
+
+    <record id="automation_evie_mapping_written" model="base.automation">
+        <field name="name">[AUTO] Evie: mapping changed (write)</field>
+        <field name="model_id" ref="model_evie_phase_stage_map"/>
+        <field name="trigger">on_create_or_write</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_mapping_changed_write'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="automation_evie_mapping_unlinked" model="base.automation">
+        <field name="name">[AUTO] Evie: mapping changed (delete)</field>
+        <field name="model_id" ref="model_evie_phase_stage_map"/>
+        <field name="trigger">on_unlink</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_mapping_changed_unlink'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
