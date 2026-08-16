@@ -15,9 +15,17 @@
     vertical-align: -0.125em;
 }
 
-// Stat buttons render the icon on <i class="fa fa-fw o_button_icon ...">:
-// keep the FontAwesome box model, the glyph itself is never defined for our
-// class so only the background image shows.
+// Stat buttons: Odoo 19 renders a non-fa/oi icon attribute as an <img> —
+// without any usable class (view_button.js sets none for image icons), so
+// scope on our asset path. Without this the image renders at natural size
+// and blows up the button.
+.oe_stat_button img[src^="/evie_"] {
+    height: 20px;
+    width: 20px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 0.25em;
+}
 
 // Logo in the Evie notebook tab title. Pure CSS on the stable core hook:
 // Odoo's Notebook renders each tab link with t-att-name = the page's name
@@ -26,24 +34,25 @@
 .o_notebook .nav-link[name="evie"]::before {
     content: "";
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    width: 1.3em;
+    height: 1.3em;
     margin-right: 0.35em;
     background-image: url("/evie_base/static/src/img/evie.svg");
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    vertical-align: -0.125em;
+    vertical-align: -0.2em;
 }
 
-// Banner at the top of the Evie tab content.
-.o_evie_banner {
-    max-height: 48px;
-    margin-bottom: 8px;
-}
-
-// evie_link field widget: compact icon button next to the value.
+// evie_link field widget: the reference renders as one clearly clickable
+// button — Evie icon first, then the identifier.
 .o_evie_link__button {
-    padding: 0 0.25rem;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.2;
+
+    .o_evie_icon {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
 }

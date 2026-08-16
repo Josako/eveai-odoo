@@ -7,19 +7,19 @@
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
             <!-- Stat buttons: open the research documents in Evie. Only
-                 visible when the sync provided a document reference. The
-                 o_evie_icon class renders the Evie logo instead of a
-                 FontAwesome icon. -->
+                 visible when the sync provided a document reference. Odoo 19
+                 renders a non-fa/oi icon attribute as an <img>, so the logo
+                 asset path goes straight into the icon attribute. -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_evie_view_report" type="object"
-                        class="oe_stat_button" icon="o_evie_icon"
+                        class="oe_stat_button" icon="/evie_base/static/src/img/evie.svg"
                         invisible="not x_evie_report_doc_version_id">
                     <div class="o_stat_info">
                         <span class="o_stat_text">Research Report</span>
                     </div>
                 </button>
                 <button name="action_evie_view_rationale" type="object"
-                        class="oe_stat_button" icon="o_evie_icon"
+                        class="oe_stat_button" icon="/evie_base/static/src/img/evie.svg"
                         invisible="not x_evie_rationale_doc_version_id">
                     <div class="o_stat_info">
                         <span class="o_stat_text">Qualification Rationale</span>
@@ -28,8 +28,6 @@
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Evie" name="evie">
-                    <img src="/evie_base/static/src/img/evie_banner.png"
-                         class="o_evie_banner" alt="Evie"/>
                     <group string="Synchronisation" name="evie_sync">
                         <field name="x_evie_capsule_id" readonly="1"
                                widget="evie_link" options="{'kind': 'capsule'}"/>

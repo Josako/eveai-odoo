@@ -2,15 +2,15 @@
 <templates xml:space="preserve">
 
     <t t-name="evie_base.EvieLinkField">
-        <span t-if="hasValue" class="o_evie_link d-inline-flex align-items-center">
+        <!-- The whole reference is one clearly clickable button:
+             Evie icon first, then the identifier. -->
+        <button t-if="hasValue" type="button"
+                class="btn btn-outline-secondary btn-sm o_evie_link__button"
+                title="Open in Evie"
+                t-on-click="onOpen">
+            <i class="o_evie_icon me-1" role="img" aria-label="Evie"/>
             <span class="o_evie_link__value" t-esc="rawValue"/>
-            <button type="button"
-                    class="btn btn-link o_evie_link__button"
-                    title="Open in Evie"
-                    t-on-click="onOpen">
-                <i class="o_evie_icon" role="img" aria-label="Evie"/>
-            </button>
-        </span>
+        </button>
         <span t-if="!hasValue" class="text-muted">—</span>
     </t>
 

@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.2.0.0',
+    'version': '19.0.1.2.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
