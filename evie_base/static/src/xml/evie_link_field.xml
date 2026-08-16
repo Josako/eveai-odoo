@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EvieLinkField">
+        <span t-if="hasValue" class="o_evie_link d-inline-flex align-items-center">
+            <span class="o_evie_link__value" t-esc="rawValue"/>
+            <button type="button"
+                    class="btn btn-link o_evie_link__button"
+                    title="Open in Evie"
+                    t-on-click="onOpen">
+                <i class="o_evie_icon" role="img" aria-label="Evie"/>
+            </button>
+        </span>
+        <span t-if="!hasValue" class="text-muted">—</span>
+    </t>
+
+</templates>

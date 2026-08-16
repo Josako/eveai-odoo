@@ -12,6 +12,11 @@ automation rule when a user changes the stage (e.g. drags a card in the
 Kanban). It reverse-maps the stage via ``evie.phase_stage_map``, updates the
 anchor and notifies Evie with the already-translated phase — Evie never
 performs a stage lookup itself.
+
+``action_evie_open`` is the single dispatcher behind every "open in Evie"
+link on the form (stat buttons and ``evie_link`` field widgets). New Evie
+reference types only need a new entry in ``EVIE_OPEN_KINDS``
+(extend-odoo-lead-sync-2).
 """
 
 import logging
@@ -24,6 +29,13 @@ _logger = logging.getLogger(__name__)
 #: Context flag set by Evie's own writes so the automation rule does not
 #: echo Evie-originated stage changes back to Evie.
 EVIE_SYNC_CONTEXT_KEY = 'evie_skip_phase_event'
+
+#: Evie entity kinds the lead form can open, mapped to the request field the
+#: Evie view-token endpoint expects for that kind.
+EVIE_OPEN_KINDS = {
+    'document': 'document_version_id',
+    'capsule': 'capsule_id',
+}
 
 
 class CrmLead(models.Model):
@@ -57,60 +69,81 @@ class CrmLead(models.Model):
         string='Evie Source',
         copy=False,
         readonly=True,
+        tracking=True,
         help="Lead source in Evie (enum value, as-is).",
     )
     x_evie_linkedin_url = fields.Char(
         string='LinkedIn URL',
         copy=False,
         readonly=True,
+        tracking=True,
         help="LinkedIn profile or company page of the lead in Evie.",
     )
     x_evie_qualification_score = fields.Integer(
         string='Evie Qualification Score',
         copy=False,
         readonly=True,
+        tracking=True,
         help="Current qualification score (0-100) assigned by Evie lead research.",
     )
     x_evie_report_doc_version_id = fields.Integer(
         string='Evie Report Document Version',
         copy=False,
         readonly=True,
+        tracking=True,
         help="Evie document version ID of the latest lead research report.",
     )
     x_evie_rationale_doc_version_id = fields.Integer(
         string='Evie Rationale Document Version',
         copy=False,
         readonly=True,
+        tracking=True,
         help="Evie document version ID of the latest qualification rationale.",
     )
 
     def action_evie_view_report(self):
         """Open the latest research report in Evie (new browser tab)."""
         self.ensure_one()
-        return self._evie_open_document(self.x_evie_report_doc_version_id)
+        return self.action_evie_open('document', self.x_evie_report_doc_version_id)
 
     def action_evie_view_rationale(self):
         """Open the latest qualification rationale in Evie (new browser tab)."""
         self.ensure_one()
-        return self._evie_open_document(self.x_evie_rationale_doc_version_id)
+        return self.action_evie_open('document', self.x_evie_rationale_doc_version_id)
 
-    def _evie_open_document(self, document_version_id):
-        """Exchange the API key for a view token and open the view URL.
+    def action_evie_view_capsule(self):
+        """Open the linked Data Capsule in Evie (new browser tab)."""
+        self.ensure_one()
+        return self.action_evie_open('capsule', self.x_evie_capsule_id)
+
+    def action_evie_open(self, kind, reference):
+        """Single dispatcher behind every "open in Evie" link on the form.
+
+        Exchanges the integration API key for a short-lived view token for
+        the given entity kind and opens the returned view URL in a new
+        browser tab. New reference types only need a new entry in
+        ``EVIE_OPEN_KINDS``.
 
         The current Odoo user's identity is sent along so Evie can audit who
-        viewed the document. Failures surface as a visible, non-blocking
+        viewed the entity. Failures surface as a visible, non-blocking
         error dialog.
         """
-        if not document_version_id:
-            raise UserError(_("No Evie document is linked to this lead yet."))
+        self.ensure_one()
+
+        request_key = EVIE_OPEN_KINDS.get(kind)
+        if not request_key:
+            raise UserError(_("Unknown Evie reference type '%s'.") % kind)
+        if not reference:
+            raise UserError(_("No Evie %s is linked to this lead yet.") % kind)
 
         user = self.env.user
         ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
-            'document_version_id': document_version_id,
+            'kind': kind,
+            request_key: int(reference),
             'user': {'name': user.name, 'email': user.email},
         })
         if not ok:
-            raise UserError(_("Could not open the Evie document (%s).") % data)
+            raise UserError(_("Could not open the Evie %s (%s).") % (kind, data))
 
         return {
             'type': 'ir.actions.act_url',

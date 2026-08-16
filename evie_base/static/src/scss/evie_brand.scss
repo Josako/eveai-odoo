@@ -1,0 +1,49 @@
+// Evie brand assets (extend-odoo-lead-sync-2).
+//
+// .o_evie_icon turns any `icon="o_evie_icon"` button attribute into the real
+// Evie logo: Odoo applies the attribute value as a CSS class on the button's
+// <i> element, and this class backs it with the shipped SVG.
+
+.o_evie_icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-image: url("/evie_base/static/src/img/evie.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    vertical-align: -0.125em;
+}
+
+// Stat buttons render the icon on <i class="fa fa-fw o_button_icon ...">:
+// keep the FontAwesome box model, the glyph itself is never defined for our
+// class so only the background image shows.
+
+// Logo in the Evie notebook tab title. Pure CSS on the stable core hook:
+// Odoo's Notebook renders each tab link with t-att-name = the page's name
+// attribute (verified against the Odoo 19 web addon), so a page declared
+// with name="evie" gets a branded tab without any JavaScript.
+.o_notebook .nav-link[name="evie"]::before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.35em;
+    background-image: url("/evie_base/static/src/img/evie.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    vertical-align: -0.125em;
+}
+
+// Banner at the top of the Evie tab content.
+.o_evie_banner {
+    max-height: 48px;
+    margin-bottom: 8px;
+}
+
+// evie_link field widget: compact icon button next to the value.
+.o_evie_link__button {
+    padding: 0 0.25rem;
+    line-height: 1;
+}

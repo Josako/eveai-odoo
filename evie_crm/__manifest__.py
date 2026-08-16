@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.1.0',
+    'version': '19.0.2.0.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -10,6 +10,8 @@ Evie CRM
 Everything Evie adds to Odoo CRM:
 
 * ``x_evie_`` fields on ``crm.lead`` (capsule link, Evie phase anchor, last sync)
+  with chatter tracking, rendered as branded "open in Evie" links via the
+  shared ``evie_link`` widget and brand assets from ``evie_base``
 * ``evie.phase_stage_map``: tenant-maintained translation between the stable
   Evie funnel phases and this database's CRM stages, with seeded defaults
 * Automation rules keeping the anchor consistent and notifying Evie on
