@@ -49,7 +49,10 @@ fi
 
 # Detached checkout, hard reset and clean: guarantees the mounted tree is
 # exactly the requested commit, also after a working-tree (rsync) deploy.
-git checkout --quiet --detach "$TARGET"
+# The checkout must be forced: sync_odoo_modules_dev.sh deliberately leaves
+# the tree dirty, and a plain checkout aborts when those dirty files differ
+# between the current checkout and the target — before the reset could run.
+git checkout --quiet --detach --force "$TARGET"
 git reset --quiet --hard "$TARGET"
 git clean -fdq -- integrations/Odoo
 
