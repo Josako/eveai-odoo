@@ -18,7 +18,7 @@
 # Configuration via environment:
 #   ODOO_DEPLOY_DIR   compose project dir (/home/pieter/containers/odoo)
 #
-# Installation on Minty: /usr/local/bin/update_odoo_modules.sh symlinks to
+# Installation on Minty: ~/.local/bin/update_odoo_modules.sh symlinks to
 # $DEPLOY_DIR/deploy/update_odoo_modules.sh — a persistent copy OUTSIDE the
 # git checkout (a ref switch hard-resets/cleans the checkout, which would
 # otherwise delete the scripts themselves). After every fetch the persistent

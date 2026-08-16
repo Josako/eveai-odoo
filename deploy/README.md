@@ -11,7 +11,7 @@ running a module upgrade per database.
 | `sync_odoo_modules_dev.sh` | dev machine | Rsync the local working tree (incl. uncommitted changes) and upgrade |
 | `odoo_module_upgrade.sh` | Minty | Shared upgrade step; called by both, not run directly |
 
-On Minty, `/usr/local/bin/update_odoo_modules.sh` is a symlink to
+On Minty, `~/.local/bin/update_odoo_modules.sh` is a symlink to
 `containers/odoo/deploy/update_odoo_modules.sh` — a persistent copy **outside**
 the git checkout (a ref switch hard-resets/cleans the checkout and would
 delete the scripts themselves). That copy is refreshed from the checked-out
