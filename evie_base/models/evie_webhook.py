@@ -81,3 +81,50 @@ class EvieWebhook(models.AbstractModel):
 
         _logger.debug("Evie webhook POST %s succeeded (event %s)", path, payload['event_id'])
         return True, payload['event_id']
+
+    @api.model
+    def post_for_json(self, path, payload):
+        """POST a JSON payload and parse the JSON response body.
+
+        Unlike :meth:`post` (fire-and-forget events), this variant is for
+        request/response calls such as the external document view-token
+        exchange.
+
+        Args:
+            path: endpoint path relative to the configured base URL
+            payload: dict
+
+        Returns:
+            tuple (ok: bool, data: dict | detail: str). Never raises for
+            transport or HTTP errors.
+        """
+        url, api_key = self._connection()
+        if not url or not api_key:
+            _logger.warning("Evie webhook not configured (evie.webhook_url / evie.api_key); "
+                            "skipping POST %s", path)
+            return False, 'not_configured'
+
+        try:
+            response = requests.post(
+                f"{url}/{path.lstrip('/')}",
+                data=json.dumps(payload),
+                headers={
+                    'Content-Type': 'application/json',
+                    'X-API-Key': api_key,
+                },
+                timeout=WEBHOOK_TIMEOUT_SECONDS,
+            )
+        except requests.RequestException as exc:
+            _logger.exception("Evie POST %s failed: %s", path, exc)
+            return False, f'transport_error: {exc}'
+
+        if response.status_code >= 400:
+            _logger.warning("Evie POST %s -> HTTP %s: %s",
+                            path, response.status_code, response.text[:500])
+            return False, f'http_{response.status_code}'
+
+        try:
+            return True, response.json()
+        except ValueError:
+            _logger.warning("Evie POST %s returned non-JSON body", path)
+            return False, 'invalid_json'

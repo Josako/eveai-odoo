@@ -6,12 +6,37 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
+            <!-- Stat buttons: open the research documents in Evie. Only
+                 visible when the sync provided a document reference. -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_evie_view_report" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not x_evie_report_doc_version_id">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Research Report</span>
+                    </div>
+                </button>
+                <button name="action_evie_view_rationale" type="object"
+                        class="oe_stat_button" icon="fa-check-square-o"
+                        invisible="not x_evie_rationale_doc_version_id">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Qualification Rationale</span>
+                    </div>
+                </button>
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Evie" name="evie">
                     <group>
                         <field name="x_evie_capsule_id" readonly="1"/>
                         <field name="x_evie_phase" readonly="1"/>
                         <field name="x_evie_last_synced" readonly="1"/>
+                    </group>
+                    <group string="Lead context" name="evie_context">
+                        <field name="x_evie_source" readonly="1"/>
+                        <field name="x_evie_linkedin_url" widget="url" readonly="1"/>
+                        <field name="x_evie_qualification_score" readonly="1"/>
+                        <field name="x_evie_report_doc_version_id" readonly="1"/>
+                        <field name="x_evie_rationale_doc_version_id" readonly="1"/>
                     </group>
                 </page>
             </xpath>

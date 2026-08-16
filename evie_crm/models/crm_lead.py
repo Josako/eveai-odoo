@@ -17,6 +17,7 @@ performs a stage lookup itself.
 import logging
 
 from odoo import _, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -49,6 +50,73 @@ class CrmLead(models.Model):
         readonly=True,
         help="Timestamp of the last Evie → Odoo sync for this record.",
     )
+
+    # Lead context (19.0.1.1.0, extend-odoo-lead-sync-1). All written by the
+    # Evie → Odoo sync; empty document references mean "no research yet".
+    x_evie_source = fields.Char(
+        string='Evie Source',
+        copy=False,
+        readonly=True,
+        help="Lead source in Evie (enum value, as-is).",
+    )
+    x_evie_linkedin_url = fields.Char(
+        string='LinkedIn URL',
+        copy=False,
+        readonly=True,
+        help="LinkedIn profile or company page of the lead in Evie.",
+    )
+    x_evie_qualification_score = fields.Integer(
+        string='Evie Qualification Score',
+        copy=False,
+        readonly=True,
+        help="Current qualification score (0-100) assigned by Evie lead research.",
+    )
+    x_evie_report_doc_version_id = fields.Integer(
+        string='Evie Report Document Version',
+        copy=False,
+        readonly=True,
+        help="Evie document version ID of the latest lead research report.",
+    )
+    x_evie_rationale_doc_version_id = fields.Integer(
+        string='Evie Rationale Document Version',
+        copy=False,
+        readonly=True,
+        help="Evie document version ID of the latest qualification rationale.",
+    )
+
+    def action_evie_view_report(self):
+        """Open the latest research report in Evie (new browser tab)."""
+        self.ensure_one()
+        return self._evie_open_document(self.x_evie_report_doc_version_id)
+
+    def action_evie_view_rationale(self):
+        """Open the latest qualification rationale in Evie (new browser tab)."""
+        self.ensure_one()
+        return self._evie_open_document(self.x_evie_rationale_doc_version_id)
+
+    def _evie_open_document(self, document_version_id):
+        """Exchange the API key for a view token and open the view URL.
+
+        The current Odoo user's identity is sent along so Evie can audit who
+        viewed the document. Failures surface as a visible, non-blocking
+        error dialog.
+        """
+        if not document_version_id:
+            raise UserError(_("No Evie document is linked to this lead yet."))
+
+        user = self.env.user
+        ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
+            'document_version_id': document_version_id,
+            'user': {'name': user.name, 'email': user.email},
+        })
+        if not ok:
+            raise UserError(_("Could not open the Evie document (%s).") % data)
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': data['view_url'],
+            'target': 'new',
+        }
 
     def evie_apply_stage_to_phase(self):
         """Reverse-map stage → phase, update the anchor and notify Evie.

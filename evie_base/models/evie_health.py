@@ -20,7 +20,17 @@ EXPECTED_MODELS = {
 }
 EXPECTED_FIELDS = {
     'evie_crm': {
-        'crm.lead': ['x_evie_capsule_id', 'x_evie_phase', 'x_evie_last_synced'],
+        'crm.lead': [
+            'x_evie_capsule_id',
+            'x_evie_phase',
+            'x_evie_last_synced',
+            # Lead context (evie_crm 19.0.1.1.0, extend-odoo-lead-sync-1)
+            'x_evie_source',
+            'x_evie_linkedin_url',
+            'x_evie_qualification_score',
+            'x_evie_report_doc_version_id',
+            'x_evie_rationale_doc_version_id',
+        ],
     },
 }
 
