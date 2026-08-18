@@ -20,6 +20,76 @@
         <field name="active" eval="True"/>
     </record>
 
+    <!-- Inbound sync (add-inbound-odoo-sync): lead lifecycle → Evie.
+         The events are hints; Evie reads the record fresh and reconciles
+         value-based. All rules respect the echo-guard context flag. -->
+
+    <!-- Lead created → notify Evie (creates the capsule, writes anchor back) -->
+    <record id="action_evie_lead_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: lead upsert (create)</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_lead_created" model="base.automation">
+        <field name="name">[AUTO] Evie: lead upsert (create)</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_lead_created'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Mirrored-field writes + archive/unarchive → notify Evie.
+         trigger_field_ids fires once per write, even when several watched
+         fields change in one form save (natural debounce). -->
+    <record id="action_evie_lead_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: lead upsert (write)</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_lead_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: lead upsert (write)</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('crm.field_crm_lead__name')),
+            (4, ref('crm.field_crm_lead__contact_name')),
+            (4, ref('crm.field_crm_lead__email_from')),
+            (4, ref('crm.field_crm_lead__phone')),
+            (4, ref('crm.field_crm_lead__street')),
+            (4, ref('crm.field_crm_lead__street2')),
+            (4, ref('crm.field_crm_lead__zip')),
+            (4, ref('crm.field_crm_lead__city')),
+            (4, ref('crm.field_crm_lead__website')),
+            (4, ref('crm.field_crm_lead__country_id')),
+            (4, ref('crm.field_crm_lead__lang_id')),
+            (4, ref('crm.field_crm_lead__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_lead_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Direct phase edit (e.g. Suspect → Cold Lead after a connection
+         request — early phases have no stage) → stage-change channel -->
+    <record id="action_evie_phase_edited" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: phase edited</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_phase_change()</field>
+    </record>
+
+    <record id="automation_evie_phase_edited" model="base.automation">
+        <field name="name">[AUTO] Evie: phase edited</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[(4, ref('field_crm_lead__x_evie_phase'))]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_phase_edited'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
     <!-- Mapping changes → invalidate Evie-side state.
          Let op: base.automation.action_server_ids is een one2many — elke rule
          heeft zijn eigen action-record nodig (delen 'steelt' de koppeling). -->

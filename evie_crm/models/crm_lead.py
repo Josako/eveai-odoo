@@ -24,6 +24,8 @@ import logging
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.evie_base.consts import EVIE_PHASE_SELECTION
+
 _logger = logging.getLogger(__name__)
 
 #: Context flag set by Evie's own writes so the automation rule does not
@@ -48,13 +50,15 @@ class CrmLead(models.Model):
         tracking=True,
         help="ID of the linked Evie Data Capsule (source-of-truth coupling).",
     )
-    x_evie_phase = fields.Char(
+    x_evie_phase = fields.Selection(
+        selection=EVIE_PHASE_SELECTION,
         string='Evie Phase',
         index=True,
         copy=False,
         tracking=True,
-        help="Stable Evie funnel phase. Written by every Evie sync and kept "
-             "consistent when the stage changes.",
+        help="Stable Evie funnel phase. Written by every Evie sync, kept "
+             "consistent when the stage changes, and directly editable — "
+             "edits are notified to Evie via the stage-change channel.",
     )
     x_evie_last_synced = fields.Datetime(
         string='Evie Last Synced',
@@ -181,8 +185,90 @@ class CrmLead(models.Model):
             if lead.x_evie_phase == phase:
                 continue
 
-            lead.x_evie_phase = phase
+            # Echo-guard: without the flag this write would retrigger the
+            # on_write(x_evie_phase) automation and double-notify Evie.
+            lead.with_context(**{EVIE_SYNC_CONTEXT_KEY: True}) \
+                .write({'x_evie_phase': phase})
             lead._evie_notify_phase(phase)
+
+    def evie_notify_phase_change(self):
+        """Notify Evie of a direct edit of ``x_evie_phase``.
+
+        Called by the ``[AUTO] Evie: phase edited`` automation rule. Uses the
+        same stage-change channel as stage-driven changes; Evie applies the
+        (already stable) phase value-based. No-op for writes carrying the
+        echo-guard context (Evie sync writes and the stage→phase rule above).
+        """
+        if self.env.context.get(EVIE_SYNC_CONTEXT_KEY):
+            return
+
+        for lead in self:
+            if not lead.x_evie_phase:
+                continue
+            lead._evie_notify_phase(lead.x_evie_phase)
+
+    def evie_notify_upsert(self):
+        """Notify Evie of a lead create / mirrored-field write / archive.
+
+        Called by the ``[AUTO] Evie: lead upsert`` automation rules. The
+        event is a hint only — Evie reads the record fresh (including the
+        ``active`` flag, which drives the capsule status) and reconciles
+        value-based. No-op for writes carrying the echo-guard context.
+        """
+        if self.env.context.get(EVIE_SYNC_CONTEXT_KEY):
+            return
+
+        for lead in self:
+            payload = {
+                'capsule_id': lead.x_evie_capsule_id or None,
+                'odoo_lead_id': lead.id,
+            }
+            ok, detail = self.env['evie.webhook'].post('/lead-upsert', payload)
+            if not ok and detail != 'not_configured':
+                lead.activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=lead.user_id.id or self.env.user.id,
+                    note=_("Evie: notifying the lead change failed (%s). "
+                           "Evie may be out of sync for this record.") % detail,
+                )
+
+    def _merge_opportunity(self, *args, **kwargs):
+        """Report the merge to Evie after the records have merged.
+
+        Overrides the private worker so every entry path is covered (the
+        public ``merge_opportunity`` and dedup flows both delegate here).
+
+        The merge itself is pure Odoo: the surviving record (highest
+        confidence level) keeps/absorbs field values per Odoo's merge
+        strategies — head value wins per field, description concatenated,
+        address taken as a whole from the most complete record, ``x_evie_*``
+        not merged (the head's anchor survives) — and the merged-away
+        records are unlinked. Evie reconciles the survivor and
+        administratively marks the losers' capsules (DELETED + merge
+        lineage) — Evie never re-merges field values. A failed notification
+        never blocks or rolls back the merge.
+        """
+        merged_away_ids = set(self.ids)
+        survivor = super()._merge_opportunity(*args, **kwargs)
+
+        if survivor:
+            merged_away_ids.discard(survivor.id)
+        if not survivor or not merged_away_ids:
+            return survivor
+
+        ok, detail = self.env['evie.webhook'].post('/leads-merged', {
+            'survivor_odoo_lead_id': survivor.id,
+            'merged_odoo_lead_ids': sorted(merged_away_ids),
+        })
+        if not ok and detail != 'not_configured':
+            survivor.activity_schedule(
+                'mail.mail_activity_data_todo',
+                user_id=survivor.user_id.id or self.env.user.id,
+                note=_("Evie: reporting the merge of records %s failed (%s). "
+                       "Evie may be out of sync for the merged records.")
+                % (sorted(merged_away_ids), detail),
+            )
+        return survivor
 
     def _evie_notify_phase(self, phase):
         """Send the translated phase to Evie; schedule an activity on failure."""

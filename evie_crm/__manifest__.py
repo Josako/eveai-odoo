@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -16,6 +16,10 @@ Everything Evie adds to Odoo CRM:
   Evie funnel phases and this database's CRM stages, with seeded defaults
 * Automation rules keeping the anchor consistent and notifying Evie on
   stage changes and mapping changes
+* Inbound sync (add-inbound-odoo-sync): automations notify Evie of lead
+  creation, mirrored-field writes and archive/unarchive; ``x_evie_phase``
+  is directly editable (Selection of the mapped phases); lead merges are
+  reported to Evie (survivor + merged ids)
 
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.

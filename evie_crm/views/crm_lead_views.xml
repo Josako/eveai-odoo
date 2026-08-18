@@ -34,7 +34,10 @@
                         <field name="x_evie_last_synced" readonly="1"/>
                     </group>
                     <group string="Evie Context" name="evie_context">
-                        <field name="x_evie_phase" readonly="1"/>
+                        <!-- Editable (add-inbound-odoo-sync): direct phase
+                             edits post via the stage-change channel. The other
+                             x_evie_* fields stay readonly = Evie-master. -->
+                        <field name="x_evie_phase"/>
                         <field name="x_evie_source" readonly="1"/>
                         <field name="x_evie_linkedin_url" widget="url" readonly="1"/>
                         <field name="x_evie_qualification_score" readonly="1"/>
