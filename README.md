@@ -89,8 +89,8 @@ never requires a module upgrade here. Behaviour:
 - An action with no active specialist in Evie renders **disabled** with the
   reason; with several specialists a selection dialog is offered.
 - Clicking executes via `POST <base>/action-execute` (the current Odoo user
-  is sent as audit info only). Errors surface as a dialog, acceptance as a
-  notification.
+  is sent as audit info only, together with the provisioned integration
+  service id). Errors surface as a dialog, acceptance as a notification.
 - While an action runs, the synced `x_evie_action_status` (`RESEARCHING`)
   disables the buttons; on completion the `[AUTO] Evie: action completed`
   rule posts the outcome to the chatter.
@@ -120,7 +120,16 @@ Existing kinds: `document` (document version) and `capsule` (Data Capsule).
   the mapping, updates `x_evie_phase` and POSTs the translated phase to
   `<base>/stage-change`. Mapping changes POST to `<base>/mapping-changed`.
 - Health: `evie.health.get_status` (callable via the JSON-2 API) reports
-  installed `evie_*` versions and missing fields/models.
+  installed `evie_*` versions and missing fields/models. The call doubles as
+  the integration identity handshake (integration-run-attention-audit): Evie
+  passes its `integration_service_id`, which the module persists as the
+  `evie.integration_service_id` config parameter and sends with every
+  `action-execute`; the response carries `database_uuid`, which Evie stores
+  as a read-only system field in the integration configuration (refreshed
+  automatically, e.g. after a database restore). Evie validates the reported
+  id against the authenticated tenant; attentions created by Odoo-initiated
+  runs are audit-only records (immediately closed, carrying the Odoo user,
+  integration and event id) because follow-up happens in Odoo itself.
 - Actions: discovery via `GET <base>/capsule-actions?capsule_type=...`,
   execution via `POST <base>/action-execute` — both generic over the
   action kinds configured in Evie.

@@ -62,9 +62,11 @@ class EvieActions(models.AbstractModel):
         """Execute an action via the generic action-execute endpoint.
 
         The current Odoo user is sent as audit information only (Evie never
-        resolves it to an Evie user). Returns the endpoint's result data on
-        success; raises ``UserError`` with the endpoint's message on failure
-        so the user sees a meaningful dialog.
+        resolves it to an Evie user), together with the integration service
+        id provisioned via the health-check handshake (absent on older
+        installs — Evie tolerates that). Returns the endpoint's result data
+        on success; raises ``UserError`` with the endpoint's message on
+        failure so the user sees a meaningful dialog.
         """
         user = self.env.user
         payload = {
@@ -72,6 +74,10 @@ class EvieActions(models.AbstractModel):
             'action_type': action_type,
             'user': {'name': user.name, 'email': user.email},
         }
+        integration_service_id = self.env['ir.config_parameter'].sudo() \
+            .get_param('evie.integration_service_id')
+        if integration_service_id:
+            payload['integration_service_id'] = int(integration_service_id)
         if capsule_id:
             payload['capsule_id'] = int(capsule_id)
         if remote_id:

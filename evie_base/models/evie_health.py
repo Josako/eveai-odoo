@@ -48,8 +48,16 @@ class EvieHealth(models.AbstractModel):
     _description = 'Evie Integration Health'
 
     @api.model
-    def get_status(self):
+    def get_status(self, integration_service_id=None):
         """Return module versions and contract presence.
+
+        ``integration_service_id`` is the integration identity handshake
+        (integration-run-attention-audit): Evie passes its integration
+        service id with the health check; the module persists it as
+        ``evie.integration_service_id`` so action executions can carry it
+        as audit metadata. The response always includes ``database_uuid``
+        so Evie can key the identity to this exact database (a restored or
+        duplicated database re-handshakes on the next check).
 
         Returns a dict::
 
@@ -58,9 +66,12 @@ class EvieHealth(models.AbstractModel):
                 'missing_modules': ['evie_crm', ...],
                 'missing_models': ['evie.phase_stage_map', ...],
                 'missing_fields': {'crm.lead': ['x_evie_phase', ...]},
+                'database_uuid': '...',
                 'ok': bool,
             }
         """
+        if integration_service_id:
+            self._store_integration_service_id(integration_service_id)
         module_names = ['evie_base'] + list(EXPECTED_MODELS)
         modules = self.env['ir.module.module'].sudo().search([
             ('name', 'in', module_names),
@@ -92,7 +103,19 @@ class EvieHealth(models.AbstractModel):
             'missing_modules': missing_modules,
             'missing_models': missing_models,
             'missing_fields': missing_fields,
+            'database_uuid': self.env['ir.config_parameter'].sudo()
+                .get_param('database.uuid'),
             'ok': ok,
         }
         _logger.info("Evie health status: %s", status)
         return status
+
+    @api.model
+    def _store_integration_service_id(self, integration_service_id):
+        """Persist the Evie integration service id (idempotent)."""
+        param = self.env['ir.config_parameter'].sudo()
+        key = 'evie.integration_service_id'
+        value = str(int(integration_service_id))
+        if param.get_param(key) != value:
+            param.set_param(key, value)
+            _logger.info("Evie integration service id provisioned: %s", value)
