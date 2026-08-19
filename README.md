@@ -12,8 +12,8 @@ instance and a TenantProject API key they do nothing.
 
 | Module | Purpose |
 |--------|---------|
-| `evie_base` | Namespace conventions, Evie settings (webhook URL + API key), health surface (`evie.health.get_status`), shared webhook client, Evie menu root, shared brand assets (`o_evie_icon`, `evie_link` widget, notebook tab branding) |
-| `evie_crm` | `x_evie_*` anchor fields on `crm.lead` (chatter-tracked, rendered as branded open-in-Evie links), `evie.phase_stage_map` (tenant phase ↔ stage mapping, seeded), `[AUTO] Evie` automation rules |
+| `evie_base` | Namespace conventions, Evie settings (webhook URL + API key), health surface (`evie.health.get_status`), shared webhook client, Evie menu root, shared brand assets (`o_evie_icon`, `evie_link` widget, notebook tab branding), generic `evie_actions` widget (dynamic capsule actions) |
+| `evie_crm` | `x_evie_*` anchor fields on `crm.lead` (chatter-tracked, rendered as branded open-in-Evie links), `evie.phase_stage_map` (tenant phase ↔ stage mapping, seeded), `[AUTO] Evie` automation rules, Evie actions on the lead form |
 
 ## Conventions
 
@@ -78,6 +78,25 @@ Master logos live in `brand/logos/`; module copies under `static/` are
 derived from them (colour variant by default). When the master logos change,
 refresh the derived copies.
 
+## Capsule actions on the lead form (evie_crm ≥ 19.0.1.4.0)
+
+The lead form (Evie tab, *Actions*) offers the data capsule actions Evie
+has configured for `CRM_LEAD` (e.g. *Research lead*, *Rescore lead*) —
+discovered **live** from Evie via `GET <base>/capsule-actions` and cached
+server-side for 30 minutes, so adding an action in the Evie configuration
+never requires a module upgrade here. Behaviour:
+
+- An action with no active specialist in Evie renders **disabled** with the
+  reason; with several specialists a selection dialog is offered.
+- Clicking executes via `POST <base>/action-execute` (the current Odoo user
+  is sent as audit info only). Errors surface as a dialog, acceptance as a
+  notification.
+- While an action runs, the synced `x_evie_action_status` (`RESEARCHING`)
+  disables the buttons; on completion the `[AUTO] Evie: action completed`
+  rule posts the outcome to the chatter.
+- The `evie_actions` widget lives in `evie_base`; future verticals reuse it
+  with their own `capsule_type` view option.
+
 ## Adding a new "open in Evie" reference type
 
 The lead form renders Evie references via the `evie_link` widget, which calls
@@ -102,6 +121,9 @@ Existing kinds: `document` (document version) and `capsule` (Data Capsule).
   `<base>/stage-change`. Mapping changes POST to `<base>/mapping-changed`.
 - Health: `evie.health.get_status` (callable via the JSON-2 API) reports
   installed `evie_*` versions and missing fields/models.
+- Actions: discovery via `GET <base>/capsule-actions?capsule_type=...`,
+  execution via `POST <base>/action-execute` — both generic over the
+  action kinds configured in Evie.
 
 ## Licence
 

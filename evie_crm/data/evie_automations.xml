@@ -90,6 +90,25 @@
         <field name="active" eval="True"/>
     </record>
 
+    <!-- Action completion (odoo-capsule-actions): chatter message when the
+         synced action status transitions into DONE/FAILED. The outbound
+         sync is hash-diffed, so the rule only fires on real transitions. -->
+    <record id="action_evie_action_completed" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: action completed</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_action_completed()</field>
+    </record>
+
+    <record id="automation_evie_action_completed" model="base.automation">
+        <field name="name">[AUTO] Evie: action completed</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[(4, ref('field_crm_lead__x_evie_action_status'))]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_action_completed'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
     <!-- Mapping changes → invalidate Evie-side state.
          Let op: base.automation.action_server_ids is een one2many — elke rule
          heeft zijn eigen action-record nodig (delen 'steelt' de koppeling). -->

@@ -21,6 +21,18 @@ _logger = logging.getLogger(__name__)
 WEBHOOK_TIMEOUT_SECONDS = 10
 
 
+def _error_detail(response):
+    """Best-effort error detail for a failed call: Evie's message when the
+    body carries one (meaningful for the user), else the HTTP status."""
+    try:
+        body = response.json()
+        if isinstance(body, dict) and body.get('message'):
+            return body['message']
+    except ValueError:
+        pass
+    return f'http_{response.status_code}'
+
+
 class EvieWebhook(models.AbstractModel):
     _name = 'evie.webhook'
     _description = 'Evie Webhook Client'
@@ -121,10 +133,53 @@ class EvieWebhook(models.AbstractModel):
         if response.status_code >= 400:
             _logger.warning("Evie POST %s -> HTTP %s: %s",
                             path, response.status_code, response.text[:500])
-            return False, f'http_{response.status_code}'
+            return False, _error_detail(response)
 
         try:
             return True, response.json()
         except ValueError:
             _logger.warning("Evie POST %s returned non-JSON body", path)
+            return False, 'invalid_json'
+
+    @api.model
+    def get_for_json(self, path, params=None):
+        """GET a JSON endpoint and parse the JSON response body.
+
+        GET variant of :meth:`post_for_json`, for read-only endpoints such
+        as the capsule action discovery.
+
+        Args:
+            path: endpoint path relative to the configured base URL
+            params: optional query parameters dict
+
+        Returns:
+            tuple (ok: bool, data: dict | detail: str). Never raises for
+            transport or HTTP errors.
+        """
+        url, api_key = self._connection()
+        if not url or not api_key:
+            _logger.warning("Evie webhook not configured (evie.webhook_url / evie.api_key); "
+                            "skipping GET %s", path)
+            return False, 'not_configured'
+
+        try:
+            response = requests.get(
+                f"{url}/{path.lstrip('/')}",
+                params=params,
+                headers={'X-API-Key': api_key},
+                timeout=WEBHOOK_TIMEOUT_SECONDS,
+            )
+        except requests.RequestException as exc:
+            _logger.exception("Evie GET %s failed: %s", path, exc)
+            return False, f'transport_error: {exc}'
+
+        if response.status_code >= 400:
+            _logger.warning("Evie GET %s -> HTTP %s: %s",
+                            path, response.status_code, response.text[:500])
+            return False, _error_detail(response)
+
+        try:
+            return True, response.json()
+        except ValueError:
+            _logger.warning("Evie GET %s returned non-JSON body", path)
             return False, 'invalid_json'

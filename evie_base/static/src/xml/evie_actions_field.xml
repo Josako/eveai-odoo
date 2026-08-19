@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EvieActionsField">
+        <div class="o_evie_actions">
+            <!-- Evie unreachable: unobtrusive placeholder, form keeps working -->
+            <span t-if="!state.ok" class="text-muted fst-italic">
+                Evie actions unavailable
+            </span>
+            <t t-else="">
+                <span t-if="running" class="badge text-bg-info me-2 mb-1">
+                    <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Running"/>
+                    Evie action running…
+                </span>
+                <t t-foreach="state.actions" t-as="action" t-key="action.action_type">
+                    <button type="button"
+                            t-att-class="buttonClass(action)"
+                            t-att-disabled="!action.available || running || state.executing || null"
+                            t-att-title="action.available ? false : action.unavailable_reason"
+                            t-on-click="() => this.onAction(action)">
+                        <t t-esc="action.text"/>
+                    </button>
+                </t>
+                <span t-if="state.actions.length === 0" class="text-muted">—</span>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="evie_base.EvieSpecialistDialog">
+        <Dialog title="props.title">
+            <div class="mb-3">
+                <label class="form-label">Specialist</label>
+                <select class="form-select"
+                        t-on-change="(ev) => this.state.specialistId = parseInt(ev.target.value, 10)">
+                    <t t-foreach="props.specialists" t-as="spec" t-key="spec.id">
+                        <option t-att-value="spec.id"
+                                t-att-selected="spec.id === state.specialistId ? true : null"
+                                t-esc="spec.name"/>
+                    </t>
+                </select>
+                <p class="form-text" t-if="state.specialistId">
+                    <t t-esc="props.specialists.find(s => s.id === state.specialistId)?.description || ''"/>
+                </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="onConfirm">Start</button>
+                <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

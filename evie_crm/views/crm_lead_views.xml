@@ -6,28 +6,24 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
-            <!-- Stat buttons: open the research documents in Evie. Only
-                 visible when the sync provided a document reference. Odoo 19
-                 renders a non-fa/oi icon attribute as an <img>, so the logo
-                 asset path goes straight into the icon attribute. -->
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_evie_view_report" type="object"
-                        class="oe_stat_button" icon="/evie_base/static/src/img/evie.svg"
-                        invisible="not x_evie_report_doc_version_id">
-                    <div class="o_stat_info">
-                        <span class="o_stat_text">Research Report</span>
-                    </div>
-                </button>
-                <button name="action_evie_view_rationale" type="object"
-                        class="oe_stat_button" icon="/evie_base/static/src/img/evie.svg"
-                        invisible="not x_evie_rationale_doc_version_id">
-                    <div class="o_stat_info">
-                        <span class="o_stat_text">Qualification Rationale</span>
-                    </div>
-                </button>
-            </xpath>
+            <!-- No stat buttons for the research documents (19.0.1.4.0,
+                 odoo-capsule-actions): the document reference fields on the
+                 Evie tab already open them via the evie_link widget — one
+                 clear place beats two. -->
             <xpath expr="//notebook" position="inside">
                 <page string="Evie" name="evie">
+                    <!-- Evie actions (19.0.1.4.0, odoo-capsule-actions): the
+                         widget discovers the configured CRM_LEAD actions
+                         live from Evie; x_evie_action_status doubles as the
+                         running-state indicator. -->
+                    <!-- No x_evie_action_message field on the form: the
+                         chatter (automation below) is the natural place for
+                         the outcome; the field itself stays for the sync. -->
+                    <group string="Actions" name="evie_actions">
+                        <field name="x_evie_action_status" nolabel="1"
+                               widget="evie_actions"
+                               options="{'capsule_type': 'CRM_LEAD'}"/>
+                    </group>
                     <group string="Synchronisation" name="evie_sync">
                         <field name="x_evie_capsule_id" readonly="1"
                                widget="evie_link" options="{'kind': 'capsule'}"/>

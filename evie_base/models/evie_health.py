@@ -5,6 +5,9 @@ Odoo API (JSON-2) to verify a tenant's Odoo side: which ``evie_*`` modules
 are installed at which version, and whether the fields/models the integration
 requires actually exist. This doubles as the deployment-tier detector:
 no ``evie_base`` installed → the tenant is not on Tier 1.
+
+NOTE: EXPECTED_FIELDS below is kept in evie_base but describes the contract
+of the vertical modules — bump it together with the vertical's fields.
 """
 
 import logging
@@ -30,6 +33,9 @@ EXPECTED_FIELDS = {
             'x_evie_qualification_score',
             'x_evie_report_doc_version_id',
             'x_evie_rationale_doc_version_id',
+            # Action lifecycle (evie_crm 19.0.1.4.0, odoo-capsule-actions)
+            'x_evie_action_status',
+            'x_evie_action_message',
         ],
     },
 }

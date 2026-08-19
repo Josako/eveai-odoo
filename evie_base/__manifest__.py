@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -18,6 +18,10 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
 * Evie brand assets and web extensions shared by all verticals: the
   ``o_evie_icon`` CSS icon class, the ``evie_link`` field widget and the
   notebook tab branding (pure CSS on the core ``[name]`` tab hook)
+* The generic ``evie_actions`` field widget (odoo-capsule-actions): renders
+  the data capsule actions discovered live from Evie for the record's
+  capsule type, with specialist selection and running-state feedback —
+  no hardcoded action definitions in Odoo
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.
@@ -35,6 +39,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/scss/evie_brand.scss',
             'evie_base/static/src/js/evie_link_field.js',
             'evie_base/static/src/xml/evie_link_field.xml',
+            'evie_base/static/src/js/evie_actions_field.js',
+            'evie_base/static/src/xml/evie_actions_field.xml',
         ],
     },
     'installable': True,

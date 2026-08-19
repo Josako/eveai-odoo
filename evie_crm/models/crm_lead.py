@@ -14,7 +14,8 @@ anchor and notifies Evie with the already-translated phase — Evie never
 performs a stage lookup itself.
 
 ``action_evie_open`` is the single dispatcher behind every "open in Evie"
-link on the form (stat buttons and ``evie_link`` field widgets). New Evie
+link on the form (the ``evie_link`` field widgets; the earlier stat buttons
+were removed in 19.0.1.4.0 — the Evie tab is the single place). New Evie
 reference types only need a new entry in ``EVIE_OPEN_KINDS``
 (extend-odoo-lead-sync-2).
 """
@@ -104,6 +105,43 @@ class CrmLead(models.Model):
         tracking=True,
         help="Evie document version ID of the latest qualification rationale.",
     )
+
+    # Action lifecycle (19.0.1.4.0, odoo-capsule-actions). Written by the
+    # Evie → Odoo sync; the evie_actions widget renders the running state,
+    # the completion automation posts the chatter message.
+    x_evie_action_status = fields.Char(
+        string='Evie Action Status',
+        copy=False,
+        readonly=True,
+        tracking=True,
+        help="Lifecycle of the running/last Evie background action "
+             "(RESEARCHING/DONE/FAILED).",
+    )
+    x_evie_action_message = fields.Text(
+        string='Evie Action Message',
+        copy=False,
+        readonly=True,
+        help="Result message of the last finished Evie action.",
+    )
+
+    def evie_notify_action_completed(self):
+        """Post a chatter message when a synced action run finishes or fails.
+
+        Called by the ``[AUTO] Evie: action completed`` automation rule on
+        writes of ``x_evie_action_status``. The outbound sync is hash-diffed,
+        so the rule only fires on actual transitions; RESEARCHING writes are
+        ignored (no chatter noise while running).
+        """
+        for lead in self:
+            status = lead.x_evie_action_status
+            if status not in ('DONE', 'FAILED'):
+                continue
+            message = lead.x_evie_action_message or ''
+            if status == 'DONE':
+                body = _("Evie action finished: %s") % message
+            else:
+                body = _("Evie action failed: %s") % message
+            lead.message_post(body=body, subtype_xmlid='mail.mt_note')
 
     def action_evie_view_report(self):
         """Open the latest research report in Evie (new browser tab)."""
