@@ -93,7 +93,7 @@ class CrmLead(models.Model):
         copy=False,
         readonly=True,
         tracking=True,
-        group_operator='avg',
+        aggregator='avg',
         help="Current qualification score (0-100) assigned by Evie lead research.",
     )
     x_evie_report_doc_version_id = fields.Integer(
