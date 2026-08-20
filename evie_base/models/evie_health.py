@@ -41,6 +41,8 @@ EXPECTED_FIELDS = {
         'mail.activity': [
             'x_evie_capsule_id',
             'x_evie_activity_type',
+            # Outcome sync (evie_crm 19.0.1.7.0, add-activity-sequences)
+            'x_evie_outcome',
         ],
     },
 }
