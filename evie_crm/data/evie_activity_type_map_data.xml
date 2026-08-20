@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default Evie activity type ↔ Odoo activity type mapping
+         (add-crm-activity-sync). Keys match the CRM_ACTIVITY_TYPE dynamic
+         list on the Evie side. noupdate: tenant edits survive upgrades. -->
+    <data noupdate="1">
+        <record id="map_call" model="evie.activity_type_map">
+            <field name="sequence">10</field>
+            <field name="evie_activity_type">Call</field>
+            <field name="odoo_activity_type_id" ref="mail.mail_activity_data_call"/>
+        </record>
+        <record id="map_email" model="evie.activity_type_map">
+            <field name="sequence">20</field>
+            <field name="evie_activity_type">Email</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_email"/>
+        </record>
+        <record id="map_meeting" model="evie.activity_type_map">
+            <field name="sequence">30</field>
+            <field name="evie_activity_type">Meeting</field>
+            <field name="odoo_activity_type_id" ref="mail.mail_activity_data_meeting"/>
+        </record>
+        <record id="map_todo" model="evie.activity_type_map">
+            <field name="sequence">40</field>
+            <field name="evie_activity_type">To-Do</field>
+            <field name="odoo_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="map_note" model="evie.activity_type_map">
+            <field name="sequence">50</field>
+            <field name="evie_activity_type">Note</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_note"/>
+        </record>
+        <record id="map_linkedin_connect" model="evie.activity_type_map">
+            <field name="sequence">60</field>
+            <field name="evie_activity_type">LinkedIn Connect</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_linkedin_connect"/>
+        </record>
+        <record id="map_linkedin_follow_up" model="evie.activity_type_map">
+            <field name="sequence">70</field>
+            <field name="evie_activity_type">LinkedIn Follow-Up</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_linkedin_follow_up"/>
+        </record>
+        <record id="map_linkedin_message_in" model="evie.activity_type_map">
+            <field name="sequence">80</field>
+            <field name="evie_activity_type">LinkedIn Message Received</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_linkedin_message_in"/>
+        </record>
+        <record id="map_other" model="evie.activity_type_map">
+            <field name="sequence">90</field>
+            <field name="evie_activity_type">Other</field>
+            <field name="odoo_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+    </data>
+</odoo>

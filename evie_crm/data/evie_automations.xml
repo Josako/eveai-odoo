@@ -141,4 +141,74 @@
         <field name="action_server_ids" eval="[(4, ref('action_evie_mapping_changed_unlink'))]"/>
         <field name="active" eval="True"/>
     </record>
+
+    <!-- Activity sync (add-crm-activity-sync): lead activities → Evie.
+         Events are hints; Evie reads the record fresh (active_test: False,
+         so done = archived activities are found, including feedback).
+         All rules respect the echo-guard context flag and are scoped to
+         activities on crm.lead records. -->
+
+    <!-- Activity created on a lead → notify Evie -->
+    <record id="action_evie_activity_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: activity upsert (create)</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_activity_created" model="base.automation">
+        <field name="name">[AUTO] Evie: activity upsert (create)</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="trigger">on_create</field>
+        <field name="filter_domain">[('res_model', '=', 'crm.lead')]</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_activity_created'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Activity written / done (archive writes active=False) → notify Evie.
+         trigger_field_ids fires once per write, even when several watched
+         fields change in one save (natural debounce). -->
+    <record id="action_evie_activity_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: activity upsert (write)</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_activity_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: activity upsert (write)</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="trigger">on_write</field>
+        <field name="filter_domain">[('res_model', '=', 'crm.lead')]</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('mail.field_mail_activity__summary')),
+            (4, ref('mail.field_mail_activity__note')),
+            (4, ref('mail.field_mail_activity__date_deadline')),
+            (4, ref('mail.field_mail_activity__user_id')),
+            (4, ref('mail.field_mail_activity__activity_type_id')),
+            (4, ref('mail.field_mail_activity__active')),
+            (4, ref('mail.field_mail_activity__feedback')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_activity_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Activity cancelled (true unlink) → generic remote-delete channel.
+         The record is gone afterwards, so the event carries the remote id
+         and the Evie anchor with it. -->
+    <record id="action_evie_activity_unlinked" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: activity deleted</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_unlinked()</field>
+    </record>
+
+    <record id="automation_evie_activity_unlinked" model="base.automation">
+        <field name="name">[AUTO] Evie: activity deleted</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="trigger">on_unlink</field>
+        <field name="filter_domain">[('res_model', '=', 'crm.lead')]</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_activity_unlinked'))]"/>
+        <field name="active" eval="True"/>
+    </record>
 </odoo>

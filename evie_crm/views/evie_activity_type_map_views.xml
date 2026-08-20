@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="evie_activity_type_map_view_list" model="ir.ui.view">
+        <field name="name">evie.activity_type_map.list</field>
+        <field name="model">evie.activity_type_map</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" string="Evie Activity Type Mapping">
+                <field name="sequence" widget="handle"/>
+                <field name="evie_activity_type" readonly="1"/>
+                <field name="odoo_activity_type_id"
+                       options="{'no_create': True}"
+                      />
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="evie_activity_type_map_view_form" model="ir.ui.view">
+        <field name="name">evie.activity_type_map.form</field>
+        <field name="model">evie.activity_type_map</field>
+        <field name="arch" type="xml">
+            <form string="Evie Activity Type Mapping">
+                <sheet>
+                    <group>
+                        <field name="evie_activity_type" readonly="1"/>
+                        <field name="odoo_activity_type_id"
+                               options="{'no_create': True}"
+                              />
+                        <field name="active" widget="boolean_toggle"/>
+                    </group>
+                    <group string="About">
+                        <p class="text-muted">
+                            Evie is master over the activity-type vocabulary. This mapping
+                            translates each stable Evie activity-type key to an Odoo
+                            activity type in this database. Types are referenced by ID,
+                            so renaming a type never breaks the mapping. Unmapped keys
+                            fall back to the generic To-Do type; the Evie key is always
+                            preserved on the activity itself.
+                        </p>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="evie_activity_type_map_action" model="ir.actions.act_window">
+        <field name="name">Activity Type Mapping</field>
+        <field name="res_model">evie.activity_type_map</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                The activity type mapping is seeded at install.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_evie_activity_type_map"
+              name="Activity Type Mapping"
+              parent="evie_base.menu_evie_configuration"
+              action="evie_activity_type_map_action"
+              sequence="20"/>
+</odoo>

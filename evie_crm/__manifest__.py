@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.6.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -32,6 +32,13 @@ Everything Evie adds to Odoo CRM:
   qualification score on the cards, and drill-down reporting (count and
   average score per phase)
 
+* Activities (add-crm-activity-sync): ``x_evie_`` anchors on
+  ``mail.activity`` (capsule link + stable Evie activity-type key),
+  ``evie.activity_type_map`` translating Evie type keys to this database's
+  activity types (seeded defaults, tenant-editable), Evie-native activity
+  types (LinkedIn outreach) as module data, and automation rules notifying
+  Evie of activity create/write/done and cancel (unlink)
+
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.
 """,
@@ -42,8 +49,12 @@ this tenant's stages on stable IDs — never on display names.
     'data': [
         'security/ir.model.access.csv',
         'data/evie_phase_stage_map_data.xml',
+        'data/evie_activity_types.xml',
+        'data/evie_activity_type_map_data.xml',
         'data/evie_automations.xml',
         'views/evie_phase_stage_map_views.xml',
+        'views/evie_activity_type_map_views.xml',
+        'views/mail_activity_views.xml',
         'views/crm_lead_views.xml',
         'views/evie_lead_pipeline_views.xml',
     ],

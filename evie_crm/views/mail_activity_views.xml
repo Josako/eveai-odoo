@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie anchors on the activity form (popup): read-only, grouped so
+         they stay out of the rep's way but remain inspectable. -->
+    <record id="mail_activity_view_form_popup_evie" model="ir.ui.view">
+        <field name="name">mail.activity.view.form.popup.evie</field>
+        <field name="model">mail.activity</field>
+        <field name="inherit_id" ref="mail.mail_activity_view_form_popup"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='note']" position="after">
+                <group string="Evie" colspan="2"
+                       invisible="not x_evie_capsule_id and not x_evie_activity_type">
+                    <field name="x_evie_capsule_id" readonly="1"/>
+                    <field name="x_evie_activity_type" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_evie_phase_stage_map_user,evie.phase_stage_map (read for sales),model_evie_phase_stage_map,sales_team.group_sale_salesman,1,0,0,0
 access_evie_phase_stage_map_manager,evie.phase_stage_map (manage),model_evie_phase_stage_map,sales_team.group_sale_manager,1,1,1,1
+access_evie_activity_type_map_user,evie.activity_type_map (read for sales),model_evie_activity_type_map,sales_team.group_sale_salesman,1,0,0,0
+access_evie_activity_type_map_manager,evie.activity_type_map (manage),model_evie_activity_type_map,sales_team.group_sale_manager,1,1,1,1
