@@ -31,6 +31,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Module Versions</span>
+                                <div class="text-muted">
+                                    Installed evie_* modules in this database — check these first when the integration reports problems
+                                </div>
+                                <div class="content-group">
+                                    <field name="evie_module_versions" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </xpath>
