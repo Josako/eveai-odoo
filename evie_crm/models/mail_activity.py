@@ -48,6 +48,24 @@ class MailActivity(models.Model):
         help="Stable Evie activity-type key (Evie is master over the type "
              "vocabulary; activity_type_id is the Odoo presentation).",
     )
+    x_evie_outcome = fields.Selection(
+        string='Evie Outcome',
+        selection='_selection_evie_outcome',
+        copy=False,
+        help="Optional outcome of this activity (add-activity-sequences). "
+             "Set it before marking the activity done: the stable key syncs "
+             "to Evie with the completion and drives sequence branching. "
+             "Informational for Odoo — it does not alter Odoo behaviour.",
+    )
+
+    def _selection_evie_outcome(self):
+        """Outcome options from the evie.activity_outcome module data.
+
+        Dynamic selection so tenants can relabel/deactivate outcomes;
+        the stored value is always the stable key.
+        """
+        outcomes = self.env['evie.activity_outcome'].sudo().search([])
+        return [(o.key, o.name) for o in outcomes]
 
     def evie_notify_upsert(self):
         """Notify Evie of an activity create / write / done (archive).

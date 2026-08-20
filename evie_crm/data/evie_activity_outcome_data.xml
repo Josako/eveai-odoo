@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie activity outcome keys (add-activity-sequences).
+         The stable keys back x_evie_outcome on mail.activity and are
+         referenced by the Evie-side sequence configs. noupdate: label
+         edits survive module upgrades; keys are stable identifiers. -->
+    <data noupdate="1">
+
+        <record id="evie_activity_outcome_accepted" model="evie.activity_outcome">
+            <field name="key">accepted</field>
+            <field name="name">Accepted</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="evie_activity_outcome_not_accepted" model="evie.activity_outcome">
+            <field name="key">not_accepted</field>
+            <field name="name">Not accepted</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="evie_activity_outcome_no_answer" model="evie.activity_outcome">
+            <field name="key">no_answer</field>
+            <field name="name">No answer</field>
+            <field name="sequence">30</field>
+        </record>
+
+    </data>
+</odoo>

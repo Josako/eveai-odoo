@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.6.0',
+    'version': '19.0.1.7.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -39,6 +39,12 @@ Everything Evie adds to Odoo CRM:
   types (LinkedIn outreach) as module data, and automation rules notifying
   Evie of activity create/write/done and cancel (unlink)
 
+* Activity outcomes (add-activity-sequences): ``x_evie_outcome`` selection
+  on ``mail.activity`` backed by the ``evie.activity_outcome`` module data
+  (stable keys: accepted / not_accepted / no_answer), editable on the
+  activity form before marking done and synced to Evie with the
+  completion, where it drives sequence branching
+
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.
 """,
@@ -51,6 +57,7 @@ this tenant's stages on stable IDs — never on display names.
         'data/evie_phase_stage_map_data.xml',
         'data/evie_activity_types.xml',
         'data/evie_activity_type_map_data.xml',
+        'data/evie_activity_outcome_data.xml',
         'data/evie_automations.xml',
         'views/evie_phase_stage_map_views.xml',
         'views/evie_activity_type_map_views.xml',

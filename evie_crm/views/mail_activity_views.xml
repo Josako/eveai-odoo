@@ -8,6 +8,10 @@
         <field name="inherit_id" ref="mail.mail_activity_view_form_popup"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='note']" position="after">
+                <!-- Outcome capture (add-activity-sequences): the rep sets
+                     the outcome before marking the activity done; the key
+                     syncs to Evie with the completion. Editable, optional. -->
+                <field name="x_evie_outcome"/>
                 <group string="Evie" colspan="2"
                        invisible="not x_evie_capsule_id and not x_evie_activity_type">
                     <field name="x_evie_capsule_id" readonly="1"/>
