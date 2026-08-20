@@ -22,10 +22,11 @@ reference types only need a new entry in ``EVIE_OPEN_KINDS``
 
 import logging
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import SQL
 
-from odoo.addons.evie_base.consts import EVIE_PHASE_SELECTION
+from odoo.addons.evie_base.consts import EVIE_PHASE_SELECTION, EVIE_PHASES
 
 _logger = logging.getLogger(__name__)
 
@@ -57,6 +58,9 @@ class CrmLead(models.Model):
         index=True,
         copy=False,
         tracking=True,
+        # Kanban expansion: one column per phase, in definition (= funnel)
+        # order, including empty phases.
+        group_expand=True,
         help="Stable Evie funnel phase. Written by every Evie sync, kept "
              "consistent when the stage changes, and directly editable — "
              "edits are notified to Evie via the stage-change channel.",
@@ -89,6 +93,7 @@ class CrmLead(models.Model):
         copy=False,
         readonly=True,
         tracking=True,
+        group_operator='avg',
         help="Current qualification score (0-100) assigned by Evie lead research.",
     )
     x_evie_report_doc_version_id = fields.Integer(
@@ -123,6 +128,55 @@ class CrmLead(models.Model):
         readonly=True,
         help="Result message of the last finished Evie action.",
     )
+
+    # Lead pipeline board (19.0.1.5.0, odoo-lead-pipeline-board). Colour index
+    # for the kanban card strip and score badge, derived from the
+    # qualification score. Non-stored: purely presentational. Note that an
+    # Integer field reads 0 when unset, so a score of 0 is treated as
+    # "no score yet" (no colour).
+    x_evie_score_color = fields.Integer(
+        string='Evie Score Colour',
+        compute='_compute_x_evie_score_color',
+        store=False,
+        help="Kanban colour index derived from the qualification score "
+             "(red < 40, orange 40-69, green >= 70). A score of 0 means "
+             "'no score yet' and renders uncoloured.",
+    )
+
+    @api.model
+    def _read_group_orderby(self, order, groupby_terms, query):
+        """Order x_evie_phase groups by funnel position, not alphabetically.
+
+        read_group orders selection groupbys by raw column value
+        (alphabetical), which scrambles the pipeline in graph/pivot/list
+        views — the kanban is covered by group_expand. A CASE over the
+        stable phase order fixes the default order; explicit order strings
+        are left untouched. Empty/unknown phases sort last (ELSE).
+        """
+        if not order and 'x_evie_phase' in groupby_terms:
+            cases = SQL(' ').join(
+                SQL('WHEN %s THEN %s', phase, index)
+                for index, phase in enumerate(EVIE_PHASES)
+            )
+            return SQL(
+                'CASE %s %s ELSE %s END',
+                groupby_terms['x_evie_phase'], cases, len(EVIE_PHASES),
+            )
+        return super()._read_group_orderby(order, groupby_terms, query)
+
+    @api.depends('x_evie_qualification_score')
+    def _compute_x_evie_score_color(self):
+        """Map the qualification score to an Odoo kanban colour index."""
+        for lead in self:
+            score = lead.x_evie_qualification_score
+            if not score:
+                lead.x_evie_score_color = 0   # no colour (no score yet)
+            elif score < 40:
+                lead.x_evie_score_color = 1   # red
+            elif score < 70:
+                lead.x_evie_score_color = 2   # orange
+            else:
+                lead.x_evie_score_color = 6   # green
 
     def evie_notify_action_completed(self):
         """Post a chatter message when a synced action run finishes or fails.

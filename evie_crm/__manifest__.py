@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -26,6 +26,12 @@ Everything Evie adds to Odoo CRM:
   lifecycle fields ``x_evie_action_status``/``x_evie_action_message``, and a
   chatter notification when an action finishes or fails
 
+* Evie Lead Pipeline (odoo-lead-pipeline-board): kanban, graph and pivot
+  views over Evie-linked leads, grouped by the stable Evie phase — drag &
+  drop phase changes via the existing phase-edit channel, a colour-coded
+  qualification score on the cards, and drill-down reporting (count and
+  average score per phase)
+
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.
 """,
@@ -39,6 +45,7 @@ this tenant's stages on stable IDs — never on display names.
         'data/evie_automations.xml',
         'views/evie_phase_stage_map_views.xml',
         'views/crm_lead_views.xml',
+        'views/evie_lead_pipeline_views.xml',
     ],
     'installable': True,
     'application': False,

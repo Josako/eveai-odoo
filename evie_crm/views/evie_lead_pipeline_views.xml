@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie Lead Pipeline (19.0.1.5.0, odoo-lead-pipeline-board).
+         Kanban/graph/pivot over Evie-linked leads, grouped by the stable
+         Evie phase (selection order = funnel order). Drag & drop between
+         columns writes x_evie_phase; the existing [AUTO] Evie: phase edited
+         automation notifies Evie (value-based, idempotent — dragging back
+         undoes a mistake). No quick_create: a card created here would have
+         no capsule link yet and would immediately vanish from the board
+         (domain below), which is confusing UX. -->
+
+    <record id="crm_lead_view_kanban_evie_pipeline" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.evie.pipeline</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <kanban highlight_color="x_evie_score_color"
+                    default_group_by="x_evie_phase" quick_create="false"
+                    sample="1" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="contact_name"/>
+                <field name="x_evie_phase"/>
+                <field name="x_evie_source"/>
+                <field name="x_evie_linkedin_url"/>
+                <field name="x_evie_qualification_score"/>
+                <field name="x_evie_score_color"/>
+                <templates>
+                    <!-- Odoo 19 card structure (cf. crm.crm_case_kanban_view_leads):
+                         no wrapper div, colour strip via highlight_color. -->
+                    <t t-name="card">
+                        <field class="fw-bold fs-5" name="name"/>
+                        <field name="contact_name" invisible="not contact_name"/>
+                        <div class="small text-muted" invisible="not x_evie_source">
+                            Evie source: <field name="x_evie_source"/>
+                        </div>
+                        <footer class="pt-1">
+                            <div class="d-flex mt-auto align-items-center">
+                                <a t-if="record.x_evie_linkedin_url.raw_value"
+                                   t-att-href="record.x_evie_linkedin_url.raw_value"
+                                   target="_blank" title="Open LinkedIn profile">
+                                    <i class="fa fa-linkedin"/>
+                                </a>
+                            </div>
+                            <div class="ms-auto d-flex">
+                                <span t-if="record.x_evie_qualification_score.raw_value"
+                                      t-attf-class="badge rounded-pill {{record.x_evie_score_color.raw_value == 6 and 'text-bg-success' or (record.x_evie_score_color.raw_value == 2 and 'text-bg-warning' or 'text-bg-danger')}}"
+                                      title="Evie qualification score">
+                                    Score: <field name="x_evie_qualification_score"/>
+                                </span>
+                            </div>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Graph: bar per phase, count by default; the qualification score is
+         a selectable measure and averages (group_operator on the field).
+         Clicking a bar drills down to the underlying leads. -->
+    <record id="crm_lead_view_graph_evie_pipeline" model="ir.ui.view">
+        <field name="name">crm.lead.graph.evie.pipeline</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <graph string="Evie Leads per Phase" type="bar">
+                <field name="x_evie_phase"/>
+                <field name="x_evie_qualification_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot: same grouping, count + average score; cell click-through is
+         native (disable_linking stays off). -->
+    <record id="crm_lead_view_pivot_evie_pipeline" model="ir.ui.view">
+        <field name="name">crm.lead.pivot.evie.pipeline</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <pivot string="Evie Leads per Phase">
+                <field name="x_evie_phase" type="row"/>
+                <field name="x_evie_qualification_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Domain (design D2): only Evie-linked leads. The Undefined column can
+         therefore only hold linked records without a phase — dragging those
+         out always resolves a capsule in Evie. Non-Evie leads and
+         opportunities never appear. -->
+    <record id="action_evie_lead_pipeline" model="ir.actions.act_window">
+        <field name="name">Evie Lead Pipeline</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">kanban,graph,pivot,list,form</field>
+        <field name="domain">[('type', '=', 'lead'), ('x_evie_capsule_id', '!=', False)]</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('crm_lead_view_kanban_evie_pipeline')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('crm_lead_view_graph_evie_pipeline')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('crm_lead_view_pivot_evie_pipeline')}),
+            (0, 0, {'view_mode': 'list'}),
+            (0, 0, {'view_mode': 'form'}),
+        ]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Evie leads yet</p>
+            <p>Leads appear on this board as soon as they are synced from Evie.
+               Drag a card to another column to change its Evie phase — Evie is
+               notified automatically. Dragging into SQL, Opportunity or
+               Converted converts the lead to an opportunity at the next sync.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_evie_lead_pipeline"
+              name="Evie Lead Pipeline"
+              parent="crm.crm_menu_root"
+              action="action_evie_lead_pipeline"
+              sequence="15"/>
+</odoo>
