@@ -22,9 +22,10 @@ Everything Evie adds to Odoo CRM:
   reported to Evie (survivor + merged ids)
 
 * Mirrored standard fields (complete-lead-sync-fields): job position
-  (``function``), company name (``partner_name``), ``mobile`` and
-  salutation (``title``) are watched by the upsert automation so edits
-  on either side stay in sync (mapping CRM_LEAD_ODOO_CRM 1.4.0)
+  (``function``) and company name (``partner_name``) are watched by the
+  upsert automation so edits on either side stay in sync (mapping
+  CRM_LEAD_ODOO_CRM 1.4.0). NB: ``mobile``/``title`` were removed from
+  Odoo in 19.0 and are deliberately not mirrored
 
 * Capsule actions (odoo-capsule-actions): the ``evie_actions`` widget from
   ``evie_base`` on the lead form (capsule type ``CRM_LEAD``), the action
