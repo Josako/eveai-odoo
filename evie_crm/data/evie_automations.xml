@@ -54,11 +54,18 @@
         <field name="name">[AUTO] Evie: lead upsert (write)</field>
         <field name="model_id" ref="crm.model_crm_lead"/>
         <field name="trigger">on_write</field>
+        <!-- Keep this list in sync with the mirrored (in/both) fields of
+             the active CRM_LEAD_ODOO_CRM mapping — the repo test
+             test_odoo_automation_watchlist.py enforces it. -->
         <field name="trigger_field_ids" eval="[
             (4, ref('crm.field_crm_lead__name')),
             (4, ref('crm.field_crm_lead__contact_name')),
             (4, ref('crm.field_crm_lead__email_from')),
             (4, ref('crm.field_crm_lead__phone')),
+            (4, ref('crm.field_crm_lead__mobile')),
+            (4, ref('crm.field_crm_lead__function')),
+            (4, ref('crm.field_crm_lead__partner_name')),
+            (4, ref('crm.field_crm_lead__title')),
             (4, ref('crm.field_crm_lead__street')),
             (4, ref('crm.field_crm_lead__street2')),
             (4, ref('crm.field_crm_lead__zip')),
