@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.6.1',
+    'version': '19.0.1.7.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -13,6 +13,9 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
 * Evie settings (webhook URL + TenantProject API key) under Settings
 * Health/diagnostic surface (``evie.health``) so the Evie platform can verify
   installed module versions and required fields remotely
+* A full-duplex "Test connection" action in the Evie settings: pings Evie
+  with the configured credentials and reports both directions (Odoo → Evie
+  and the live reverse check Evie → Odoo) with actionable error detail
 * Shared phase vocabulary (stable Evie funnel phase keys)
 * Evie menu root (Evie ▸ Configuration)
 * Evie brand assets and web extensions shared by all verticals: the
