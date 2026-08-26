@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.7.0',
+    'version': '19.0.1.7.1',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -24,7 +24,10 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
 * The generic ``evie_actions`` field widget (odoo-capsule-actions): renders
   the data capsule actions discovered live from Evie for the record's
   capsule type, with specialist selection and running-state feedback —
-  no hardcoded action definitions in Odoo
+  no hardcoded action definitions in Odoo. The running state follows the
+  discovery payload's per-action busy metadata (busy_statuses matched
+  against the bound status field), with a fallback for older payloads
+  (sync-activity-proposal-to-odoo)
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.

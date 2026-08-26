@@ -58,6 +58,48 @@ class MailActivity(models.Model):
              "Informational for Odoo — it does not alter Odoo behaviour.",
     )
 
+    # Proposal content (sync-activity-proposal-to-odoo): Evie-master,
+    # read-only in Odoo. The specialist's draft and the rep-approved text
+    # are shown as two separate fields so the rep can see both what the
+    # specialist proposed and what was finally approved.
+    x_evie_proposed_content = fields.Html(
+        string='Evie Proposal (specialist draft)',
+        copy=False,
+        readonly=True,
+        sanitize=True,
+        help="Specialist-drafted proposal for this activity (synced from "
+             "Evie, read-only). The original draft — kept as the baseline "
+             "when the approved text differs.",
+    )
+    x_evie_final_content = fields.Html(
+        string='Evie Proposal (final)',
+        copy=False,
+        readonly=True,
+        sanitize=True,
+        help="The proposal as approved or edited by the rep (synced from "
+             "Evie, read-only). This is the text to use.",
+    )
+
+    # Action feedback (sync-activity-proposal-to-odoo): mirrors the lead's
+    # x_evie_action_status/x_evie_action_message — the run lifecycle of the
+    # activity's Evie actions (e.g. GENERATING while a proposal is being
+    # drafted). x_evie_action_status doubles as the binding field for the
+    # evie_actions widget on the activity form.
+    x_evie_action_status = fields.Char(
+        string='Evie Action Status',
+        copy=False,
+        readonly=True,
+        help="Lifecycle of the running/last Evie action on this activity "
+             "(e.g. GENERATING); synced from Evie, read-only.",
+    )
+    x_evie_action_message = fields.Text(
+        string='Evie Action Message',
+        copy=False,
+        readonly=True,
+        help="Feedback message of the running/last Evie action on this "
+             "activity; synced from Evie, read-only.",
+    )
+
     def _selection_evie_outcome(self):
         """Outcome options from the evie.activity_outcome module data.
 

@@ -9,12 +9,24 @@
  *
  * The widget is bound to the record's ``x_evie_action_status`` field: its
  * value drives the running state (buttons disabled + indicator while an
- * action is in flight). When Evie is unreachable the widget degrades to an
- * unobtrusive placeholder; the form always keeps working.
+ * action is in flight). Since sync-activity-proposal-to-odoo the running
+ * state is derived from the discovery payload: each action carries its
+ * ``busy_statuses`` (matched against the bound status field) instead of the
+ * widget hardcoding a status value. Fallback for discovery payloads
+ * predating that metadata: any non-empty status means running. When Evie
+ * is unreachable the widget degrades to an unobtrusive placeholder; the
+ * form always keeps working.
  *
  * Usage in a form view:
  *     <field name="x_evie_action_status" widget="evie_actions"
  *            options="{'capsule_type': 'CRM_LEAD'}"/>
+ *
+ * Options:
+ *     capsule_type (string, required): the Evie Data Capsule type whose
+ *         actions are discovered (e.g. 'CRM_LEAD', 'CRM_ACTIVITY').
+ *     capsule_id_field (string, optional): the record field holding the
+ *         Evie capsule id, passed to the execute endpoint. Defaults to
+ *         'x_evie_capsule_id' (the anchor contract on every synced model).
  */
 
 import { Component, useState, onWillStart } from "@odoo/owl";
@@ -77,7 +89,24 @@ export class EvieActionsField extends Component {
     }
 
     get running() {
-        return this.status === "RESEARCHING";
+        // Any action in flight? Drives the indicator badge; individual
+        // buttons disable via isActionRunning (per-action busy metadata).
+        return this.state.actions.some((action) => this.isActionRunning(action));
+    }
+
+    isActionRunning(action) {
+        // Busy-state metadata from the discovery payload
+        // (sync-activity-proposal-to-odoo): the action's declared
+        // busy_statuses matched against the bound status field.
+        const busyStatuses = action && Array.isArray(action.busy_statuses)
+            ? action.busy_statuses : [];
+        if (busyStatuses.length > 0) {
+            return busyStatuses.includes(this.status);
+        }
+        // Fallback for discovery payloads predating busy metadata (old
+        // Evie version or cache during rollout): any non-empty status
+        // means an action is in flight.
+        return Boolean(this.status);
     }
 
     buttonClass(action) {
@@ -86,7 +115,7 @@ export class EvieActionsField extends Component {
     }
 
     async onAction(action) {
-        if (!action.available || this.running || this.state.executing) {
+        if (!action.available || this.isActionRunning(action) || this.state.executing) {
             return;
         }
         const specialists = action.specialists || [];

@@ -15,7 +15,7 @@
                 <t t-foreach="state.actions" t-as="action" t-key="action.action_type">
                     <button type="button"
                             t-att-class="buttonClass(action)"
-                            t-att-disabled="!action.available || running || state.executing || null"
+                            t-att-disabled="!action.available || isActionRunning(action) || state.executing || null"
                             t-att-title="action.available ? false : action.unavailable_reason"
                             t-on-click="() => this.onAction(action)">
                         <t t-esc="action.text"/>

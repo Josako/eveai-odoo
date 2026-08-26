@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.8.0',
+    'version': '19.0.1.9.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -50,6 +50,15 @@ Everything Evie adds to Odoo CRM:
   (stable keys: accepted / not_accepted / no_answer), editable on the
   activity form before marking done and synced to Evie with the
   completion, where it drives sequence branching
+
+* Activity proposals (sync-activity-proposal-to-odoo): the specialist's
+  proposal (``x_evie_proposed_content``) and the rep-approved text
+  (``x_evie_final_content``) on ``mail.activity`` as two separate
+  read-only HTML fields, the action feedback fields
+  ``x_evie_action_status``/``x_evie_action_message`` (mirroring the lead),
+  and the ``evie_actions`` widget bound on the activity popup (capsule
+  type ``CRM_ACTIVITY``) so Evie actions like *Generate Proposal* run
+  straight from the activity (mapping CRM_ACTIVITY_ODOO_CRM 1.2.0)
 
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.
