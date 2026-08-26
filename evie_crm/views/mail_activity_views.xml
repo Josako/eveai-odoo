@@ -33,14 +33,14 @@
                            widget="evie_link" options="{'kind': 'capsule'}"/>
                     <field name="x_evie_activity_type" readonly="1"/>
                 </group>
-                <!-- Proposal content: two separate read-only fields so the
-                     rep sees both the specialist's original draft and the
-                     approved text (design D2). The final section shows only
-                     once approved content exists; the draft section shows
-                     whenever a draft exists that is not the final text
-                     (i.e. also when nothing is approved yet). -->
-                <group string="Evie proposal" colspan="2"
-                       invisible="not x_evie_final_content and not x_evie_proposed_content">
+                <!-- Proposal content: two separate fields so the rep sees
+                     both the specialist's original draft and the final
+                     text (design D2). The final field is EDITABLE (Odoo is
+                     the rep's playground) and always visible on Evie-linked
+                     activities: the rep must be able to write or adjust
+                     the final text even when no specialist draft exists. -->
+                <group string="Evie proposal (final — editable)" colspan="2"
+                       invisible="not x_evie_capsule_id">
                     <field name="x_evie_final_content" nolabel="1"
                            colspan="2"
                            placeholder="Write or adjust the final proposal here — it syncs back to Evie…"/>
