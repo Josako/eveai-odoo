@@ -52,13 +52,14 @@ Everything Evie adds to Odoo CRM:
   completion, where it drives sequence branching
 
 * Activity proposals (sync-activity-proposal-to-odoo): the specialist's
-  proposal (``x_evie_proposed_content``) and the rep-approved text
-  (``x_evie_final_content``) on ``mail.activity`` as two separate
-  read-only HTML fields, the action feedback fields
+  proposal (``x_evie_proposed_content``, read-only) and the rep's final
+  text (``x_evie_final_content``, editable and mirrored back to Evie) on
+  ``mail.activity`` as two separate fields, the action feedback fields
   ``x_evie_action_status``/``x_evie_action_message`` (mirroring the lead),
   and the ``evie_actions`` widget bound on the activity popup (capsule
-  type ``CRM_ACTIVITY``) so Evie actions like *Generate Proposal* run
-  straight from the activity (mapping CRM_ACTIVITY_ODOO_CRM 1.2.0)
+  type ``CRM_ACTIVITY``) so Evie actions like *Generate Proposal* and
+  *Approve Proposal* run straight from the activity (mapping
+  CRM_ACTIVITY_ODOO_CRM 1.2.0)
 
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.

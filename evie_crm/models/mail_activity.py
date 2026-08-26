@@ -72,13 +72,16 @@ class MailActivity(models.Model):
              "Evie, read-only). The original draft — kept as the baseline "
              "when the approved text differs.",
     )
+    # Mirrored (direction 'both' in mapping 1.2.0): the rep edits the final
+    # text here — Odoo is the rep's playground — and the edit syncs back
+    # to the capsule's final_content (html_to_markdown inbound). The
+    # upsert automation watches this field, so edits notify Evie directly.
     x_evie_final_content = fields.Html(
         string='Evie Proposal (final)',
         copy=False,
-        readonly=True,
         sanitize=True,
-        help="The proposal as approved or edited by the rep (synced from "
-             "Evie, read-only). This is the text to use.",
+        help="The proposal as approved or edited by the rep. Editable: "
+             "changes sync back to Evie. This is the text to use.",
     )
 
     # Action feedback (sync-activity-proposal-to-odoo): mirrors the lead's

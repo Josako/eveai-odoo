@@ -193,6 +193,7 @@
             (4, ref('mail.field_mail_activity__activity_type_id')),
             (4, ref('mail.field_mail_activity__active')),
             (4, ref('mail.field_mail_activity__feedback')),
+            (4, ref('mail.field_mail_activity__x_evie_final_content')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_activity_updated'))]"/>
         <field name="active" eval="True"/>
