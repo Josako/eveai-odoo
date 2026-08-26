@@ -116,8 +116,20 @@ export class EvieActionsField extends Component {
         return `${base} ${action.class === "btn-primary" ? "btn-primary" : "btn-outline-secondary"}`;
     }
 
+    isInteractive(action) {
+        // Interactive actions (interactive-activity-proposal-entry-points)
+        // open the Evie popup chat instead of enqueueing a background run.
+        return String(action?.execution || "").toLowerCase() === "interactive";
+    }
+
     async onAction(action) {
         if (!action.available || this.isActionRunning(action) || this.state.executing) {
+            return;
+        }
+        // Interactive actions resolve their specialist per capsule (the
+        // activity type's item configuration) — no picker.
+        if (this.isInteractive(action)) {
+            await this._execute(action, null);
             return;
         }
         const specialists = action.specialists || [];
@@ -144,6 +156,16 @@ export class EvieActionsField extends Component {
                     remote_id: this.props.record.resId,
                     specialist_id: specialistId,
                 });
+            if (data && data.kind === "chat" && data.url) {
+                // Interactive action: open the Evie chat bound to the
+                // record's proposal session in a popup window.
+                window.open(
+                    data.url,
+                    "evie_proposal_chat",
+                    "width=520,height=720,popup=yes",
+                );
+                return;
+            }
             this.notification.add(
                 data.message || _t("The action was accepted by Evie."),
                 { type: "success" });

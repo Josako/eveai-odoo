@@ -64,15 +64,18 @@ class EvieActions(models.AbstractModel):
         The current Odoo user is sent as audit information only (Evie never
         resolves it to an Evie user), together with the integration service
         id provisioned via the health-check handshake (absent on older
-        installs — Evie tolerates that). Returns the endpoint's result data
-        on success; raises ``UserError`` with the endpoint's message on
-        failure so the user sees a meaningful dialog.
+        installs — Evie tolerates that). For interactive actions the user's
+        ``lang`` travels along so the popup chat session speaks the user's
+        language. Returns the endpoint's result data on success — for
+        interactive actions that is ``{'kind': 'chat', 'url', ...}`` (the
+        popup chat URL to open); raises ``UserError`` with the endpoint's
+        message on failure so the user sees a meaningful dialog.
         """
         user = self.env.user
         payload = {
             'event_id': str(uuid.uuid4()),
             'action_type': action_type,
-            'user': {'name': user.name, 'email': user.email},
+            'user': {'name': user.name, 'email': user.email, 'lang': user.lang},
         }
         integration_service_id = self.env['ir.config_parameter'].sudo() \
             .get_param('evie.integration_service_id')
@@ -88,6 +91,16 @@ class EvieActions(models.AbstractModel):
         ok, data = self.env['evie.webhook'].post_for_json('/action-execute', payload)
         if not ok:
             raise UserError(_("Could not execute the Evie action: %s") % data)
+        # Interactive actions (interactive-activity-proposal-entry-points):
+        # the endpoint resolved-or-created the capsule's proposal session and
+        # returned a popup chat URL instead of enqueueing a background run —
+        # pass it through for the widget to open.
+        if isinstance(data, dict) and data.get('kind') == 'chat' and data.get('url'):
+            _logger.info(
+                "Evie interactive action %s returned a chat URL (remote id %s)",
+                action_type, remote_id)
+            return {'kind': 'chat', 'url': data['url'],
+                    'expires_in': data.get('expires_in')}
         _logger.info("Evie action %s executed (remote id %s): %s",
                      action_type, remote_id, data)
         return data
