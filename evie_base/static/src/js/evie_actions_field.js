@@ -97,11 +97,13 @@ export class EvieActionsField extends Component {
     isActionRunning(action) {
         // Busy-state metadata from the discovery payload
         // (sync-activity-proposal-to-odoo): the action's declared
-        // busy_statuses matched against the bound status field.
-        const busyStatuses = action && Array.isArray(action.busy_statuses)
-            ? action.busy_statuses : [];
-        if (busyStatuses.length > 0) {
-            return busyStatuses.includes(this.status);
+        // busy_statuses matched against the bound status field. An
+        // explicitly EMPTY list means the action has no busy concept —
+        // the bound status field holds the LAST run's terminal state
+        // (e.g. DONE), which must never mark this action as running.
+        if (action && Array.isArray(action.busy_statuses)) {
+            return action.busy_statuses.length > 0
+                && action.busy_statuses.includes(this.status);
         }
         // Fallback for discovery payloads predating busy metadata (old
         // Evie version or cache during rollout): any non-empty status
