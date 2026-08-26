@@ -12,29 +12,39 @@
                      the outcome before marking the activity done; the key
                      syncs to Evie with the completion. Editable, optional. -->
                 <field name="x_evie_outcome"/>
-                <group string="Evie" colspan="2"
-                       invisible="not x_evie_capsule_id and not x_evie_activity_type">
-                    <!-- Evie actions (sync-activity-proposal-to-odoo): the
-                         evie_actions widget renders the configured capsule
-                         actions (e.g. Generate Proposal) and doubles as the
-                         running-state indicator via x_evie_action_status. -->
-                    <field name="x_evie_action_status" nolabel="1"
+                <!-- Evie actions (sync-activity-proposal-to-odoo): the
+                     evie_actions widget renders the configured capsule
+                     actions (e.g. Generate Proposal) and doubles as the
+                     running-state indicator via x_evie_action_status. Own
+                     group, like on the lead form: inline in a two-column
+                     group the button row breaks the grid layout of the
+                     following fields. -->
+                <group string="Actions" name="evie_actions" colspan="2"
+                       invisible="not x_evie_capsule_id">
+                    <field name="x_evie_action_status" nolabel="1" colspan="2"
                            widget="evie_actions"
                            options="{'capsule_type': 'CRM_ACTIVITY'}"/>
-                    <field name="x_evie_action_message" readonly="1"
+                    <field name="x_evie_action_message" readonly="1" colspan="2"
                            invisible="not x_evie_action_message"/>
-                    <field name="x_evie_capsule_id" readonly="1"/>
+                </group>
+                <group string="Evie" colspan="2"
+                       invisible="not x_evie_capsule_id and not x_evie_activity_type">
+                    <field name="x_evie_capsule_id" readonly="1"
+                           widget="evie_link" options="{'kind': 'capsule'}"/>
                     <field name="x_evie_activity_type" readonly="1"/>
                 </group>
                 <!-- Proposal content: two separate read-only fields so the
                      rep sees both the specialist's original draft and the
-                     approved text (design D2). -->
+                     approved text (design D2). The final section shows only
+                     once approved content exists; the draft section shows
+                     whenever a draft exists that is not the final text
+                     (i.e. also when nothing is approved yet). -->
                 <group string="Evie proposal" colspan="2"
-                       invisible="not x_evie_final_content and not x_evie_proposed_content">
+                       invisible="not x_evie_final_content">
                     <field name="x_evie_final_content" readonly="1" nolabel="1"/>
                 </group>
                 <group string="Original proposal (specialist draft)" colspan="2"
-                       invisible="not x_evie_proposed_content or (x_evie_proposed_content == x_evie_final_content)">
+                       invisible="not x_evie_proposed_content or (x_evie_final_content and x_evie_proposed_content == x_evie_final_content)">
                     <field name="x_evie_proposed_content" readonly="1" nolabel="1"/>
                 </group>
             </xpath>

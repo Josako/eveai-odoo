@@ -22,6 +22,7 @@ the anchor when present.
 import logging
 
 from odoo import _, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -108,6 +109,35 @@ class MailActivity(models.Model):
         """
         outcomes = self.env['evie.activity_outcome'].sudo().search([])
         return [(o.key, o.name) for o in outcomes]
+
+    def action_evie_open(self, kind, reference):
+        """Open the linked Evie entity in a new browser tab.
+
+        Activity-side counterpart of ``crm.lead.action_evie_open`` (the
+        ``evie_link`` widget on the activity form calls it on this
+        model). Only ``capsule`` is a valid kind here: the capsule is the
+        activity's own anchor.
+        """
+        self.ensure_one()
+        if kind != 'capsule':
+            raise UserError(_("Unknown Evie reference type '%s'.") % kind)
+        if not reference:
+            raise UserError(_("No Evie capsule is linked to this activity yet."))
+
+        user = self.env.user
+        ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
+            'kind': 'capsule',
+            'capsule_id': int(reference),
+            'user': {'name': user.name, 'email': user.email},
+        })
+        if not ok:
+            raise UserError(_("Could not open the Evie capsule (%s).") % (data,))
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': data['view_url'],
+            'target': 'new',
+        }
 
     def evie_notify_upsert(self):
         """Notify Evie of an activity create / write / done (archive).
