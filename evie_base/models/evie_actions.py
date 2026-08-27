@@ -75,7 +75,8 @@ class EvieActions(models.AbstractModel):
         payload = {
             'event_id': str(uuid.uuid4()),
             'action_type': action_type,
-            'user': {'name': user.name, 'email': user.email, 'lang': user.lang},
+            'user': {'name': user.name, 'email': user.email, 'lang': user.lang,
+                     'id': user.id},
         }
         integration_service_id = self.env['ir.config_parameter'].sudo() \
             .get_param('evie.integration_service_id')

@@ -140,7 +140,7 @@ class MailActivity(models.Model):
         ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
             'kind': 'capsule',
             'capsule_id': int(reference),
-            'user': {'name': user.name, 'email': user.email},
+            'user': {'name': user.name, 'email': user.email, 'id': user.id},
         })
         if not ok:
             raise UserError(_("Could not open the Evie capsule (%s).") % (data,))
