@@ -7,6 +7,8 @@ The ``x_evie_`` fields are the anchor contract with the Evie platform:
 * ``x_evie_activity_type`` — the stable Evie activity-type key (Evie is
   master over the type vocabulary; ``activity_type_id`` is the Odoo-side
   presentation resolved via ``evie.activity_type_map``)
+* ``x_evie_last_synced`` — last push-sync timestamp written by Evie
+  (display-only metadata, like on crm.lead; excluded from payload hashes)
 
 ``evie_notify_upsert`` is called by the ``[AUTO] Evie: activity upsert``
 automation rules (create / write / archive). The event is a hint only —
@@ -48,6 +50,13 @@ class MailActivity(models.Model):
         readonly=True,
         help="Stable Evie activity-type key (Evie is master over the type "
              "vocabulary; activity_type_id is the Odoo presentation).",
+    )
+    x_evie_last_synced = fields.Datetime(
+        string='Evie Last Synced',
+        copy=False,
+        readonly=True,
+        help="Timestamp of the last Evie → Odoo sync for this record "
+             "(odoo-evie-form-branding — same anchor as on crm.lead).",
     )
     x_evie_outcome = fields.Selection(
         string='Evie Outcome',

@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Evie anchors on the activity form (popup): read-only, grouped so
-         they stay out of the rep's way but remain inspectable. -->
+    <!-- Evie section on the activity form (popup): branded with the
+         evie_brand_header widget (odoo-evie-form-branding) and laid out
+         with the canonical Evie groups — Actions, Synchronisation, Evie
+         Context — mirroring the lead's Evie tab. The activity popup has
+         no core notebook, and Odoo hides a single tab, so the branded
+         tab trick from crm.lead is unavailable here. -->
     <record id="mail_activity_view_form_popup_evie" model="ir.ui.view">
         <field name="name">mail.activity.view.form.popup.evie</field>
         <field name="model">mail.activity</field>
         <field name="inherit_id" ref="mail.mail_activity_view_form_popup"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='note']" position="after">
-                <!-- Outcome capture (add-activity-sequences): the rep sets
-                     the outcome before marking the activity done; the key
-                     syncs to Evie with the completion. Editable, optional. -->
-                <field name="x_evie_outcome"/>
+                <!-- Branded header: recognisably Evie, same visual weight
+                     as the branded notebook tab on crm.lead. Hidden unless
+                     the activity is Evie-linked, like the groups below. -->
+                <widget name="evie_brand_header" title="EVIE"
+                        invisible="not x_evie_capsule_id and not x_evie_activity_type"/>
                 <!-- Evie actions (sync-activity-proposal-to-odoo): the
                      evie_actions widget renders the configured capsule
                      actions (e.g. Generate Proposal) and doubles as the
@@ -27,11 +32,24 @@
                     <field name="x_evie_action_message" readonly="1" colspan="2"
                            invisible="not x_evie_action_message"/>
                 </group>
-                <group string="Evie" colspan="2"
+                <!-- Synchronisation: the capsule reference and the last
+                     push-sync timestamp — same contents as the lead's
+                     Synchronisation group. -->
+                <group string="Synchronisation" name="evie_sync" colspan="2"
                        invisible="not x_evie_capsule_id and not x_evie_activity_type">
                     <field name="x_evie_capsule_id" readonly="1"
                            widget="evie_link" options="{'kind': 'capsule'}"/>
+                    <field name="x_evie_last_synced" readonly="1"/>
+                </group>
+                <!-- Evie Context: the remaining Evie-master fields plus the
+                     rep-editable outcome (add-activity-sequences): the rep
+                     sets the outcome before marking the activity done; the
+                     key syncs to Evie with the completion. Editable,
+                     optional — like x_evie_phase in the lead's context. -->
+                <group string="Evie Context" name="evie_context" colspan="2"
+                       invisible="not x_evie_capsule_id and not x_evie_activity_type">
                     <field name="x_evie_activity_type" readonly="1"/>
+                    <field name="x_evie_outcome"/>
                 </group>
                 <!-- Proposal content: two separate fields so the rep sees
                      both the specialist's original draft and the final

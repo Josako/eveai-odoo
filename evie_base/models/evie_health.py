@@ -43,6 +43,8 @@ EXPECTED_FIELDS = {
             'x_evie_activity_type',
             # Outcome sync (evie_crm 19.0.1.7.0, add-activity-sequences)
             'x_evie_outcome',
+            # Last-synced anchor (evie_crm 19.0.1.10.0, odoo-evie-form-branding)
+            'x_evie_last_synced',
         ],
     },
 }

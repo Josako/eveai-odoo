@@ -44,6 +44,23 @@
     vertical-align: -0.2em;
 }
 
+// evie_brand_header view widget (odoo-evie-form-branding): icon + title
+// with the visual weight of a notebook tab label — no colour bars or
+// backgrounds, so header-branded and tab-branded forms share one look.
+.o_evie_brand_header {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    margin-top: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    .o_evie_icon {
+        width: 1.3em;
+        height: 1.3em;
+    }
+}
+
 // evie_link field widget: the reference renders as one clearly clickable
 // button — Evie icon first, then the identifier.
 .o_evie_link__button {

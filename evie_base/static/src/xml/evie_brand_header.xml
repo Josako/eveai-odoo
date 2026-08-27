@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EvieBrandHeader">
+        <!-- Branded section header: Evie icon + title, nothing more.
+             Same visual weight as the branded notebook tab, so forms
+             without a core notebook (where Odoo hides a single tab) keep
+             the same look &amp; feel. -->
+        <div class="o_evie_brand_header">
+            <i class="o_evie_icon" role="img" aria-label="Evie"/>
+            <span class="o_evie_brand_header__title" t-esc="title"/>
+        </div>
+    </t>
+
+</templates>
