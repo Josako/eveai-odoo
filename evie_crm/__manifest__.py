@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.10.0',
+    'version': '19.0.1.11.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -26,6 +26,14 @@ Everything Evie adds to Odoo CRM:
   upsert automation so edits on either side stay in sync (mapping
   CRM_LEAD_ODOO_CRM 1.4.0). NB: ``mobile``/``title`` were removed from
   Odoo in 19.0 and are deliberately not mirrored
+
+* Assignee & team sync (add-user-assignment-sync, mapping CRM_LEAD_ODOO_CRM
+  1.5.0): the upsert automation also watches ``user_id`` and ``team_id``,
+  so Odoo-side (re)assignment of the salesperson (manual or via Odoo's own
+  assignment rules) flows into Evie as the ``CRM_ASSIGNED_TO_USER``
+  relation, and the sales team lands read-only on the capsule. Evie-side
+  assignments resolve via the identity-assertion bridge; unresolvable
+  assignees produce a chatter warning posted from Evie
 
 * Capsule actions (odoo-capsule-actions): the ``evie_actions`` widget from
   ``evie_base`` on the lead form (capsule type ``CRM_LEAD``), the action

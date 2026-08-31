@@ -71,6 +71,8 @@
             (4, ref('crm.field_crm_lead__website')),
             (4, ref('crm.field_crm_lead__country_id')),
             (4, ref('crm.field_crm_lead__lang_id')),
+            (4, ref('crm.field_crm_lead__team_id')),
+            (4, ref('crm.field_crm_lead__user_id')),
             (4, ref('crm.field_crm_lead__active')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_lead_updated'))]"/>
