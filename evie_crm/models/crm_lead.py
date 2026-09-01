@@ -101,6 +101,20 @@ class CrmLead(models.Model):
              "the Evie language mapping (Configuration → Evie). Empty means "
              "unset — the sync never clears a language.",
     )
+    # View-domain helper for x_evie_language: the dropdown offers exactly
+    # the languages present in evie.language_map (active rows), including
+    # not-yet-activated res.lang records (the view sets active_test=False).
+    x_evie_mapped_language_ids = fields.Many2many(
+        'res.lang',
+        compute='_compute_x_evie_mapped_language_ids',
+        compute_sudo=True,
+        string='Mappable Evie Languages',
+    )
+
+    def _compute_x_evie_mapped_language_ids(self):
+        langs = self.env['evie.language_map'].search([]).mapped('odoo_lang_id')
+        for lead in self:
+            lead.x_evie_mapped_language_ids = langs
     x_evie_qualification_score = fields.Integer(
         string='Evie Qualification Score',
         copy=False,

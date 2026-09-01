@@ -38,8 +38,14 @@
                         <field name="x_evie_linkedin_url" widget="url"/>
                         <!-- Editable + mirrored (crm-sync-polish), like
                              x_evie_phase: rep picks a language, it syncs
-                             back as the Evie ISO code. -->
-                        <field name="x_evie_language" options="{'no_create': True}"/>
+                             back as the Evie ISO code. The dropdown offers
+                             exactly the languages of evie.language_map
+                             (active_test=False: no Odoo-side language
+                             activation needed). -->
+                        <field name="x_evie_mapped_language_ids" invisible="1"/>
+                        <field name="x_evie_language" options="{'no_create': True}"
+                               context="{'active_test': False}"
+                               domain="[('id', 'in', x_evie_mapped_language_ids)]"/>
                         <field name="x_evie_qualification_score" readonly="1"/>
                         <field name="x_evie_report_doc_version_id" readonly="1"
                                widget="evie_link" options="{'kind': 'document'}"/>

@@ -39,6 +39,7 @@ EXPECTED_FIELDS = {
             'x_evie_action_message',
             # Mirrored language (evie_crm 19.0.1.13.0, crm-sync-polish)
             'x_evie_language',
+            'x_evie_mapped_language_ids',
         ],
         # Activities (evie_crm 19.0.1.6.0, add-crm-activity-sync)
         'mail.activity': [

@@ -7,7 +7,10 @@
             <list editable="bottom" string="Evie Language Mapping">
                 <field name="sequence" widget="handle"/>
                 <field name="evie_language" readonly="1"/>
-                <field name="odoo_lang_id" options="{'no_create': True}"/>
+                <!-- active_test=False: every res.lang is pickable, no
+                     language activation needed just for the mapping. -->
+                <field name="odoo_lang_id" options="{'no_create': True}"
+                       context="{'active_test': False}"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
@@ -21,7 +24,8 @@
                 <sheet>
                     <group>
                         <field name="evie_language" readonly="1"/>
-                        <field name="odoo_lang_id" options="{'no_create': True}"/>
+                        <field name="odoo_lang_id" options="{'no_create': True}"
+                               context="{'active_test': False}"/>
                         <field name="active" widget="boolean_toggle"/>
                     </group>
                     <group string="About">
