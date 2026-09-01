@@ -84,9 +84,10 @@ class CrmLead(models.Model):
     x_evie_linkedin_url = fields.Char(
         string='LinkedIn URL',
         copy=False,
-        readonly=True,
         tracking=True,
-        help="LinkedIn profile or company page of the lead in Evie.",
+        help="LinkedIn profile or company page of the lead. Mirrored with "
+             "Evie (both directions, last-write-wins): rep edits are "
+             "tracked and sync back to the capsule.",
     )
     x_evie_qualification_score = fields.Integer(
         string='Evie Qualification Score',

@@ -24,23 +24,28 @@
                                widget="evie_actions"
                                options="{'capsule_type': 'CRM_LEAD'}"/>
                     </group>
-                    <group string="Synchronisation" name="evie_sync">
-                        <field name="x_evie_capsule_id" readonly="1"
-                               widget="evie_link" options="{'kind': 'capsule'}"/>
-                        <field name="x_evie_last_synced" readonly="1"/>
-                    </group>
+                    <!-- Canonical order (crm-sync-polish): Actions → Evie
+                         Context → Synchronisation — content before plumbing. -->
                     <group string="Evie Context" name="evie_context">
                         <!-- Editable (add-inbound-odoo-sync): direct phase
                              edits post via the stage-change channel. The other
                              x_evie_* fields stay readonly = Evie-master. -->
                         <field name="x_evie_phase"/>
                         <field name="x_evie_source" readonly="1"/>
-                        <field name="x_evie_linkedin_url" widget="url" readonly="1"/>
+                        <!-- Editable + mirrored (crm-sync-polish): rep
+                             corrections sync back to Evie, tracked in the
+                             chatter. -->
+                        <field name="x_evie_linkedin_url" widget="url"/>
                         <field name="x_evie_qualification_score" readonly="1"/>
                         <field name="x_evie_report_doc_version_id" readonly="1"
                                widget="evie_link" options="{'kind': 'document'}"/>
                         <field name="x_evie_rationale_doc_version_id" readonly="1"
                                widget="evie_link" options="{'kind': 'document'}"/>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync">
+                        <field name="x_evie_capsule_id" readonly="1"
+                               widget="evie_link" options="{'kind': 'capsule'}"/>
+                        <field name="x_evie_last_synced" readonly="1"/>
                     </group>
                 </page>
             </xpath>
