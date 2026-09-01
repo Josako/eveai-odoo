@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default Evie language ↔ res.lang mapping (crm-sync-polish).
+         noupdate: tenant edits survive module upgrades. Locale choice is
+         a tenant decision — e.g. repoint 'nl' to base.lang_nl_BE when the
+         database is Belgian. res.lang refs are the records shipped with
+         the base module. -->
+    <data noupdate="1">
+        <record id="lang_en" model="evie.language_map">
+            <field name="sequence">10</field>
+            <field name="evie_language">en</field>
+            <field name="odoo_lang_id" ref="base.lang_en"/>
+        </record>
+        <record id="lang_fr" model="evie.language_map">
+            <field name="sequence">20</field>
+            <field name="evie_language">fr</field>
+            <field name="odoo_lang_id" ref="base.lang_fr"/>
+        </record>
+        <record id="lang_de" model="evie.language_map">
+            <field name="sequence">30</field>
+            <field name="evie_language">de</field>
+            <field name="odoo_lang_id" ref="base.lang_de"/>
+        </record>
+        <record id="lang_es" model="evie.language_map">
+            <field name="sequence">40</field>
+            <field name="evie_language">es</field>
+            <field name="odoo_lang_id" ref="base.lang_es"/>
+        </record>
+        <record id="lang_it" model="evie.language_map">
+            <field name="sequence">50</field>
+            <field name="evie_language">it</field>
+            <field name="odoo_lang_id" ref="base.lang_it"/>
+        </record>
+        <record id="lang_pt" model="evie.language_map">
+            <field name="sequence">60</field>
+            <field name="evie_language">pt</field>
+            <field name="odoo_lang_id" ref="base.lang_pt"/>
+        </record>
+        <record id="lang_nl" model="evie.language_map">
+            <field name="sequence">70</field>
+            <field name="evie_language">nl</field>
+            <field name="odoo_lang_id" ref="base.lang_nl"/>
+        </record>
+        <record id="lang_ru" model="evie.language_map">
+            <field name="sequence">80</field>
+            <field name="evie_language">ru</field>
+            <field name="odoo_lang_id" ref="base.lang_ru"/>
+        </record>
+        <record id="lang_zh" model="evie.language_map">
+            <field name="sequence">90</field>
+            <field name="evie_language">zh</field>
+            <field name="odoo_lang_id" ref="base.lang_zh_CN"/>
+        </record>
+        <record id="lang_ja" model="evie.language_map">
+            <field name="sequence">100</field>
+            <field name="evie_language">ja</field>
+            <field name="odoo_lang_id" ref="base.lang_ja_JP"/>
+        </record>
+        <record id="lang_ko" model="evie.language_map">
+            <field name="sequence">110</field>
+            <field name="evie_language">ko</field>
+            <field name="odoo_lang_id" ref="base.lang_ko_KR"/>
+        </record>
+    </data>
+</odoo>

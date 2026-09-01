@@ -70,11 +70,11 @@
             (4, ref('crm.field_crm_lead__city')),
             (4, ref('crm.field_crm_lead__website')),
             (4, ref('crm.field_crm_lead__country_id')),
-            (4, ref('crm.field_crm_lead__lang_id')),
             (4, ref('crm.field_crm_lead__team_id')),
             (4, ref('crm.field_crm_lead__user_id')),
             (4, ref('crm.field_crm_lead__active')),
             (4, ref('field_crm_lead__x_evie_linkedin_url')),
+            (4, ref('field_crm_lead__x_evie_language')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_lead_updated'))]"/>
         <field name="active" eval="True"/>

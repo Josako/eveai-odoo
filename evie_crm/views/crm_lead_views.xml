@@ -36,6 +36,10 @@
                              corrections sync back to Evie, tracked in the
                              chatter. -->
                         <field name="x_evie_linkedin_url" widget="url"/>
+                        <!-- Editable + mirrored (crm-sync-polish), like
+                             x_evie_phase: rep picks a language, it syncs
+                             back as the Evie ISO code. -->
+                        <field name="x_evie_language" options="{'no_create': True}"/>
                         <field name="x_evie_qualification_score" readonly="1"/>
                         <field name="x_evie_report_doc_version_id" readonly="1"
                                widget="evie_link" options="{'kind': 'document'}"/>

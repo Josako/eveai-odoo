@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.12.0',
+    'version': '19.0.1.13.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -85,11 +85,13 @@ this tenant's stages on stable IDs — never on display names.
     'data': [
         'security/ir.model.access.csv',
         'data/evie_phase_stage_map_data.xml',
+        'data/evie_language_map_data.xml',
         'data/evie_activity_types.xml',
         'data/evie_activity_type_map_data.xml',
         'data/evie_activity_outcome_data.xml',
         'data/evie_automations.xml',
         'views/evie_phase_stage_map_views.xml',
+        'views/evie_language_map_views.xml',
         'views/evie_activity_type_map_views.xml',
         'views/mail_activity_views.xml',
         'views/crm_lead_views.xml',

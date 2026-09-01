@@ -19,7 +19,8 @@ _logger = logging.getLogger(__name__)
 #: Fields the integration expects per model, per providing module.
 #: ``evie_crm`` keeps its own contract; evie_base reports what is installed.
 EXPECTED_MODELS = {
-    'evie_crm': ['evie.phase_stage_map', 'evie.activity_type_map'],
+    'evie_crm': ['evie.phase_stage_map', 'evie.activity_type_map',
+                 'evie.language_map'],
 }
 EXPECTED_FIELDS = {
     'evie_crm': {
@@ -36,6 +37,8 @@ EXPECTED_FIELDS = {
             # Action lifecycle (evie_crm 19.0.1.4.0, odoo-capsule-actions)
             'x_evie_action_status',
             'x_evie_action_message',
+            # Mirrored language (evie_crm 19.0.1.13.0, crm-sync-polish)
+            'x_evie_language',
         ],
         # Activities (evie_crm 19.0.1.6.0, add-crm-activity-sync)
         'mail.activity': [

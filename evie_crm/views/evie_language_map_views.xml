@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="evie_language_map_view_list" model="ir.ui.view">
+        <field name="name">evie.language_map.list</field>
+        <field name="model">evie.language_map</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" string="Evie Language Mapping">
+                <field name="sequence" widget="handle"/>
+                <field name="evie_language" readonly="1"/>
+                <field name="odoo_lang_id" options="{'no_create': True}"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="evie_language_map_view_form" model="ir.ui.view">
+        <field name="name">evie.language_map.form</field>
+        <field name="model">evie.language_map</field>
+        <field name="arch" type="xml">
+            <form string="Evie Language Mapping">
+                <sheet>
+                    <group>
+                        <field name="evie_language" readonly="1"/>
+                        <field name="odoo_lang_id" options="{'no_create': True}"/>
+                        <field name="active" widget="boolean_toggle"/>
+                    </group>
+                    <group string="About">
+                        <p class="text-muted">
+                            Evie is master over the language code (ISO 639-1). This mapping
+                            translates each Evie language to exactly one res.lang of this
+                            database — locale choice (e.g. nl_NL vs nl_BE) is an explicit
+                            tenant decision, never a sync guess. Languages without an entry
+                            are skipped by the sync, never cleared.
+                        </p>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="evie_language_map_action" model="ir.actions.act_window">
+        <field name="name">Language Mapping</field>
+        <field name="res_model">evie.language_map</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                The language mapping is seeded at install.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_evie_language_map"
+              name="Language Mapping"
+              parent="evie_base.menu_evie_configuration"
+              action="evie_language_map_action"
+              sequence="20"/>
+</odoo>

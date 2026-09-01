@@ -5,3 +5,5 @@ access_evie_activity_type_map_user,evie.activity_type_map (read for sales),model
 access_evie_activity_type_map_manager,evie.activity_type_map (manage),model_evie_activity_type_map,sales_team.group_sale_manager,1,1,1,1
 access_evie_activity_outcome_user,evie.activity_outcome (read for sales),model_evie_activity_outcome,sales_team.group_sale_salesman,1,0,0,0
 access_evie_activity_outcome_manager,evie.activity_outcome (manage),model_evie_activity_outcome,sales_team.group_sale_manager,1,1,1,1
+access_evie_language_map_user,evie.language_map (read for sales),model_evie_language_map,sales_team.group_sale_salesman,1,0,0,0
+access_evie_language_map_manager,evie.language_map (manage),model_evie_language_map,sales_team.group_sale_manager,1,1,1,1

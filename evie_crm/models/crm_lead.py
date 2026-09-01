@@ -89,6 +89,18 @@ class CrmLead(models.Model):
              "Evie (both directions, last-write-wins): rep edits are "
              "tracked and sync back to the capsule.",
     )
+    # Mirrored language (crm-sync-polish): OUR field, plain stored — the
+    # native lang_id is a computed partner-derived field and stays out of
+    # the sync. Editable; translations run via evie.language_map.
+    x_evie_language = fields.Many2one(
+        'res.lang',
+        string='Evie Language',
+        copy=False,
+        tracking=True,
+        help="Language of the lead, mirrored with Evie both directions via "
+             "the Evie language mapping (Configuration → Evie). Empty means "
+             "unset — the sync never clears a language.",
+    )
     x_evie_qualification_score = fields.Integer(
         string='Evie Qualification Score',
         copy=False,
