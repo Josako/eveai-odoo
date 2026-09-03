@@ -22,6 +22,7 @@ class EvieActivityOutcome(models.Model):
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
 
-    _sql_constraints = [
-        ('key_unique', 'unique(key)', 'The outcome key must be unique.'),
-    ]
+    _key_unique = models.Constraint(
+        'unique(key)',
+        'The outcome key must be unique.',
+    )
