@@ -26,6 +26,10 @@ export class EvieBrandHeader extends Component {
     static props = {
         record: { type: Object, optional: true },
         title: { type: String, optional: true },
+        // Odoo's form renderer passes readonly to view widgets (e.g. the
+        // activity popup in readonly mode); accept it — the header is
+        // display-only either way.
+        readonly: { type: Boolean, optional: true },
     };
 
     get title() {
