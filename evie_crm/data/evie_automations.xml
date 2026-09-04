@@ -56,7 +56,11 @@
         <field name="trigger">on_write</field>
         <!-- Keep this list in sync with the mirrored (in/both) fields of
              the active CRM_LEAD_ODOO_CRM mapping — the repo test
-             test_odoo_automation_watchlist.py enforces it. -->
+             test_odoo_automation_watchlist.py enforces it. tag_ids is
+             watched since 19.0.1.15.0 (add-tag-sync): rep tagging flows
+             inbound to the capsule's TAGGED_WITH relations — watched like
+             user_id (an outbound-only resolver field in the mapping,
+             watched for the inbound relation flow). -->
         <field name="trigger_field_ids" eval="[
             (4, ref('crm.field_crm_lead__name')),
             (4, ref('crm.field_crm_lead__contact_name')),
@@ -72,6 +76,7 @@
             (4, ref('crm.field_crm_lead__country_id')),
             (4, ref('crm.field_crm_lead__team_id')),
             (4, ref('crm.field_crm_lead__user_id')),
+            (4, ref('crm.field_crm_lead__tag_ids')),
             (4, ref('crm.field_crm_lead__active')),
             (4, ref('field_crm_lead__x_evie_linkedin_url')),
             (4, ref('field_crm_lead__x_evie_language')),

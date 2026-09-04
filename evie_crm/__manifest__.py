@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.14.0',
+    'version': '19.0.1.15.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -45,6 +45,14 @@ Everything Evie adds to Odoo CRM:
   drop phase changes via the existing phase-edit channel, a colour-coded
   qualification score on the cards, and drill-down reporting (count and
   average score per phase)
+
+* Tags (add-tag-sync, mapping CRM_LEAD_ODOO_CRM 1.7.0): the upsert
+  automation also watches ``tag_ids``, so rep tagging on a lead flows into
+  Evie as ``TAGGED_WITH`` relations (and Evie-side tagging lands on the
+  lead via the native field), and the Evie Lead Pipeline cards show the
+  tags as coloured chips via the native many2many-tags widget. The tag
+  dictionary itself stays anchorless — no ``x_evie_`` fields on
+  ``crm.tag``; identity lives Evie-side
 
 * Activities (add-crm-activity-sync): ``x_evie_`` anchors on
   ``mail.activity`` (capsule link + stable Evie activity-type key),

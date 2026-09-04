@@ -23,6 +23,7 @@
                 <field name="x_evie_linkedin_url"/>
                 <field name="x_evie_qualification_score"/>
                 <field name="x_evie_score_color"/>
+                <field name="tag_ids"/>
                 <templates>
                     <!-- Odoo 19 card structure (cf. crm.crm_case_kanban_view_leads):
                          no wrapper div, colour strip via highlight_color. -->
@@ -31,6 +32,13 @@
                         <field name="contact_name" invisible="not contact_name"/>
                         <div class="small text-muted" invisible="not x_evie_source">
                             Evie source: <field name="x_evie_source"/>
+                        </div>
+                        <!-- Tags (19.0.1.15.0, add-tag-sync): native widget,
+                             colours included — synced bidirectionally with
+                             the capsule's TAGGED_WITH relations. -->
+                        <div class="mt-1" invisible="not tag_ids">
+                            <field name="tag_ids" widget="many2many_tags"
+                                   options="{'color_field': 'color'}"/>
                         </div>
                         <footer class="pt-1">
                             <div class="d-flex mt-auto align-items-center">
