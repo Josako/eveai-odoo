@@ -31,6 +31,10 @@
             (4, ref('field_marketing_initiative__state')),
             (4, ref('field_marketing_initiative__description')),
             (4, ref('field_marketing_initiative__user_id')),
+            (4, ref('field_marketing_initiative__utm_campaign')),
+            (4, ref('field_marketing_initiative__utm_medium')),
+            (4, ref('field_marketing_initiative__utm_term')),
+            (4, ref('field_marketing_initiative__utm_content')),
             (4, ref('field_marketing_initiative__active')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_initiative_updated'))]"/>

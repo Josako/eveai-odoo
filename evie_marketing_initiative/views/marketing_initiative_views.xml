@@ -12,13 +12,6 @@
             <form create="0">
                 <sheet>
                     <widget name="evie_brand_header" title="EVIE MARKETING"/>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_evie_view_capsule" type="object"
-                                class="oe_stat_button" icon="fa-external-link"
-                                invisible="not capsule_id">
-                            <span>Open in Evie</span>
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <h1><field name="name" placeholder="Initiative name"/></h1>
                     </div>
@@ -61,16 +54,6 @@
                             <field name="medium_id"/>
                         </group>
                     </group>
-                    <group string="Cost Lines" colspan="2">
-                        <field name="cost_ids" nolabel="1">
-                            <list editable="bottom">
-                                <field name="date"/>
-                                <field name="name"/>
-                                <field name="amount"/>
-                                <field name="currency_id"/>
-                            </list>
-                        </field>
-                    </group>
                     <group string="Results (computed)" colspan="2">
                         <group>
                             <field name="capture_count"/>
@@ -100,9 +83,34 @@
                             <field name="local_dirty"/>
                         </group>
                     </group>
-                    <group string="Links" colspan="2">
-                        <field name="channel_ids" nolabel="1" colspan="2"/>
-                    </group>
+                    <notebook colspan="2">
+                        <page string="Cost Lines" name="cost_lines">
+                            <field name="cost_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="name"/>
+                                    <field name="amount"/>
+                                    <field name="currency_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Channels" name="channels">
+                            <field name="channel_ids" nolabel="1"/>
+                        </page>
+                        <page string="Captures" name="captures">
+                            <field name="capture_ids" nolabel="1"/>
+                        </page>
+                        <page string="Leads" name="leads">
+                            <field name="lead_ids" nolabel="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_name" readonly="1"/>
+                                    <field name="expected_revenue" readonly="1"/>
+                                    <field name="stage_id" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>

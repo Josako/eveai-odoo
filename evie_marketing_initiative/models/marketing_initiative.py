@@ -15,6 +15,8 @@ syncs inbound.
 
 from odoo import api, fields, models
 
+from odoo.addons.evie_base.consts import MARKETING_INITIATIVE_TYPE_SELECTION
+
 
 class MarketingInitiative(models.Model):
     _name = 'marketing.initiative'
@@ -25,8 +27,9 @@ class MarketingInitiative(models.Model):
     # --- Shared definition (both: Odoo-editable with write-back) ---
     name = fields.Char(string='Name', required=True, tracking=True)
     code = fields.Char(string='Code')
-    type = fields.Char(
-        string='Type Key',
+    type = fields.Selection(
+        selection=MARKETING_INITIATIVE_TYPE_SELECTION,
+        string='Type',
         help='Stable MARKETING_INITIATIVE_TYPE key (labels live in Evie).')
     date_start = fields.Date(string='Start Date')
     date_end = fields.Date(string='End Date')
@@ -47,10 +50,13 @@ class MarketingInitiative(models.Model):
     currency_id = fields.Many2one(
         'res.currency', string='Currency', readonly=True)
     attribution_days = fields.Integer(string='Attribution Days', readonly=True)
-    utm_campaign = fields.Char(string='UTM Campaign', readonly=True)
-    utm_medium = fields.Char(string='UTM Medium', readonly=True)
-    utm_term = fields.Char(string='UTM Term', readonly=True)
-    utm_content = fields.Char(string='UTM Content', readonly=True)
+
+    # --- UTM strategy (both: editable in Odoo with write-back; the
+    # materialised native records below re-derive from these strings) ---
+    utm_campaign = fields.Char(string='UTM Campaign')
+    utm_medium = fields.Char(string='UTM Medium')
+    utm_term = fields.Char(string='UTM Term')
+    utm_content = fields.Char(string='UTM Content')
 
     # --- Materialised native UTM records (out, adopt-or-create) ---
     campaign_id = fields.Many2one('utm.campaign', string='Campaign', readonly=True)

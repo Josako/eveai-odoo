@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.10.0',
+    'version': '19.0.1.10.1',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -35,7 +35,11 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   ``capsule_version``, ``capsule_url``, ``sync_state``,
   ``last_sync_date``, ``local_dirty``) plus the shared Odoo → Evie event
   plumbing (sync-created guard, ``/mirror-upsert`` notification,
-  local_dirty retry queue, view-token deeplink)
+  local_dirty retry queue, the generic ``action_evie_open`` view-token
+  dispatcher behind the ``evie_link`` widget)
+* Shared marketing vocabulary (odoo-marketing-adapter): the stable
+  MARKETING_INITIATIVE_TYPE / MARKETING_CHANNEL_TYPE key selections,
+  mirroring the Evie dynamic lists (like EVIE_PHASES for the funnel)
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.

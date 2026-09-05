@@ -40,3 +40,40 @@ EVIE_LANGUAGES = [
 ]
 
 EVIE_LANGUAGE_SELECTION = list(EVIE_LANGUAGES)
+
+#: Stable Evie marketing initiative type keys (Evie is master). Must match
+#: the seeded keys of the MARKETING_INITIATIVE_TYPE dynamic list on the Evie
+#: side. Labels may be renamed per tenant in Evie; these keys never change.
+#: Tenant-added keys are a deferred platform capability (marketing change
+#: design D3b) — until then this fixed set is complete.
+MARKETING_INITIATIVE_TYPES = [
+    "Trade Show",
+    "Webinar",
+    "Campaign",
+    "Conference",
+    "Roadshow",
+    "Other",
+]
+
+MARKETING_INITIATIVE_TYPE_SELECTION = [
+    (key, key) for key in MARKETING_INITIATIVE_TYPES
+]
+
+#: Stable Evie marketing channel type keys (Evie is master). Must match the
+#: seeded keys of the MARKETING_CHANNEL_TYPE dynamic list on the Evie side.
+#: QR channel types arrive with the anonymous-rendering change (they get
+#: behaviour then); tenant-added keys are deferred (design D3b).
+MARKETING_CHANNEL_TYPES = [
+    "Email",
+    "Social",
+    "Advertising",
+    "Specialist",
+    "Rep Capture",
+    "Business Card",
+    "Import",
+    "Other",
+]
+
+MARKETING_CHANNEL_TYPE_SELECTION = [
+    (key, key) for key in MARKETING_CHANNEL_TYPES
+]

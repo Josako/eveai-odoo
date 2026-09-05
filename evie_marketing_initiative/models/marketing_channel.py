@@ -10,6 +10,8 @@ relation links resolved by the sync, never edited locally.
 
 from odoo import fields, models
 
+from odoo.addons.evie_base.consts import MARKETING_CHANNEL_TYPE_SELECTION
+
 
 class MarketingInitiativeChannel(models.Model):
     _name = 'marketing.initiative.channel'
@@ -19,8 +21,9 @@ class MarketingInitiativeChannel(models.Model):
 
     # --- Shared definition (both) ---
     name = fields.Char(string='Name', required=True, tracking=True)
-    channel_type = fields.Char(
-        string='Channel Type Key', required=True, tracking=True,
+    channel_type = fields.Selection(
+        selection=MARKETING_CHANNEL_TYPE_SELECTION,
+        string='Channel Type', required=True, tracking=True,
         help='Stable MARKETING_CHANNEL_TYPE key (labels live in Evie).')
     channel_type_other = fields.Char(
         string='Other Channel Type',

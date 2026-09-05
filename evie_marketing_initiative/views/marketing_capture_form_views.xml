@@ -12,23 +12,14 @@
             <form create="0" edit="0">
                 <sheet>
                     <widget name="evie_brand_header" title="EVIE MARKETING"/>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_evie_view_capsule" type="object"
-                                class="oe_stat_button" icon="fa-external-link"
-                                invisible="not capsule_id">
-                            <span>Edit in Evie</span>
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
                     </div>
                     <group>
-                        <group>
-                            <field name="status" widget="badge"/>
-                        </group>
-                        <group>
-                            <field name="channel_ids"/>
-                        </group>
+                        <field name="status" widget="badge"/>
+                    </group>
+                    <group string="Links" colspan="2">
+                        <field name="channel_ids" string="Used by Channels"/>
                     </group>
                     <group string="Consent Text" colspan="2">
                         <field name="consent_text" nolabel="1"/>

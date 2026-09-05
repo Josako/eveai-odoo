@@ -146,22 +146,28 @@ class EvieCapsuleLink(models.AbstractModel):
             .write({'local_dirty': dirty})
 
     # ------------------------------------------------------------------
-    # Open in Evie (same view-token contract as the lead)
+    # Open in Evie (the evie_link widget contract)
     # ------------------------------------------------------------------
 
-    def action_evie_view_capsule(self):
-        """Open the linked Data Capsule in Evie (new browser tab).
+    def action_evie_open(self, kind, reference):
+        """Single dispatcher behind every 'open in Evie' link on the form.
 
-        Exchanges the integration API key for a short-lived view token —
-        the live detail link; ``capsule_url`` is only the static fallback.
+        Same contract as the crm.lead dispatcher (the ``evie_link`` field
+        widget calls ``action_evie_open(kind, reference)`` on the record):
+        exchanges the integration API key for a short-lived view token and
+        returns the URL to open. Mirror models only link capsules, so
+        'capsule' is the only supported kind. ``capsule_url`` is only the
+        static fallback — the token flow is the live detail link.
         """
         self.ensure_one()
-        if not self.capsule_id:
+        if kind != 'capsule':
+            raise UserError(_("Unknown Evie reference type '%s'.") % kind)
+        if not reference:
             raise UserError(_("No Evie capsule is linked to this record yet."))
         user = self.env.user
         ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
             'kind': 'capsule',
-            'capsule_id': int(self.capsule_id),
+            'capsule_id': int(reference),
             'user': {'name': user.name, 'email': user.email, 'id': user.id},
         })
         if not ok:

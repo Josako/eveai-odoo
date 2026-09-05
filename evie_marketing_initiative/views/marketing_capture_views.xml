@@ -13,13 +13,6 @@
             <form create="0">
                 <sheet>
                     <widget name="evie_brand_header" title="EVIE MARKETING"/>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_evie_view_capsule" type="object"
-                                class="oe_stat_button" icon="fa-external-link"
-                                invisible="not capsule_id">
-                            <span>Open in Evie</span>
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
                     </div>
