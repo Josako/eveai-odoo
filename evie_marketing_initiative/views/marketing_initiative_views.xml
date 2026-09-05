@@ -144,10 +144,10 @@
                         <div class="oe_kanban_content">
                             <strong><field name="name"/></strong>
                             <div><field name="state" widget="badge"/></div>
-                            <div><i class="fa fa-calendar"/> <field name="date_start"/></div>
+                            <div><i class="fa fa-calendar" title="Start date"/> <field name="date_start"/></div>
                             <div>
-                                <i class="fa fa-clipboard"/> <field name="capture_count"/> captures ·
-                                <i class="fa fa-bullseye"/> <field name="lead_count"/> leads
+                                <i class="fa fa-clipboard" title="Captures"/> <field name="capture_count"/> captures ·
+                                <i class="fa fa-bullseye" title="Leads"/> <field name="lead_count"/> leads
                             </div>
                         </div>
                     </t>
