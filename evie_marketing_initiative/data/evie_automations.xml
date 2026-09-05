@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- [AUTO] Evie automation rules for the marketing mirror models.
+         Same contract as evie_crm: events are hints (Evie reads the
+         record fresh and reconciles value-based), all rules respect the
+         echo-guard context, and a failed notification marks the record
+         local_dirty (the cron retries) instead of scheduling an
+         activity. Watch lists cover the shared (both) fields + archive;
+         keep them in sync with the active mappings. -->
+
+    <!-- Initiative: shared-field writes + owner + archive → notify Evie -->
+    <record id="action_evie_initiative_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: initiative upsert (write)</field>
+        <field name="model_id" ref="model_marketing_initiative"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_initiative_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: initiative upsert (write)</field>
+        <field name="model_id" ref="model_marketing_initiative"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_marketing_initiative__name')),
+            (4, ref('field_marketing_initiative__code')),
+            (4, ref('field_marketing_initiative__type')),
+            (4, ref('field_marketing_initiative__date_start')),
+            (4, ref('field_marketing_initiative__date_end')),
+            (4, ref('field_marketing_initiative__location')),
+            (4, ref('field_marketing_initiative__country_id')),
+            (4, ref('field_marketing_initiative__state')),
+            (4, ref('field_marketing_initiative__description')),
+            (4, ref('field_marketing_initiative__user_id')),
+            (4, ref('field_marketing_initiative__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_initiative_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Channel: shared-field writes + crm_defaults + archive → notify -->
+    <record id="action_evie_channel_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: channel upsert (write)</field>
+        <field name="model_id" ref="model_marketing_initiative_channel"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_channel_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: channel upsert (write)</field>
+        <field name="model_id" ref="model_marketing_initiative_channel"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_marketing_initiative_channel__name')),
+            (4, ref('field_marketing_initiative_channel__channel_type')),
+            (4, ref('field_marketing_initiative_channel__channel_type_other')),
+            (4, ref('field_marketing_initiative_channel__utm_source')),
+            (4, ref('field_marketing_initiative_channel__auto_promote')),
+            (4, ref('field_marketing_initiative_channel__auto_promote_threshold')),
+            (4, ref('field_marketing_initiative_channel__crm_defaults')),
+            (4, ref('field_marketing_initiative_channel__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_channel_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Capture: decision-field writes + archive → notify Evie -->
+    <record id="action_evie_capture_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: capture upsert (write)</field>
+        <field name="model_id" ref="model_marketing_capture"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_capture_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: capture upsert (write)</field>
+        <field name="model_id" ref="model_marketing_capture"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_marketing_capture__decision_source')),
+            (4, ref('field_marketing_capture__decision_certainty')),
+            (4, ref('field_marketing_capture__decision_rationale')),
+            (4, ref('field_marketing_capture__decided_at')),
+            (4, ref('field_marketing_capture__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_capture_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

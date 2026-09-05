@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie Marketing menus. The evie_base root is admin-only; the
+         marketing surface is for sales users, so it gets its own root. -->
+    <menuitem id="menu_evie_marketing_root"
+              name="Evie Marketing"
+              sequence="99"
+              groups="sales_team.group_sale_salesman"
+              web_icon="evie_base,static/src/img/evie.svg"/>
+
+    <menuitem id="menu_evie_marketing_initiatives"
+              name="Initiatives"
+              parent="menu_evie_marketing_root"
+              action="action_marketing_initiative"
+              sequence="10"/>
+
+    <menuitem id="menu_evie_marketing_channels"
+              name="Channels"
+              parent="menu_evie_marketing_root"
+              action="action_marketing_channel"
+              sequence="20"/>
+
+    <menuitem id="menu_evie_marketing_captures"
+              name="Captures"
+              parent="menu_evie_marketing_root"
+              action="action_marketing_capture"
+              sequence="30"/>
+
+    <menuitem id="menu_evie_marketing_capture_forms"
+              name="Capture Forms"
+              parent="menu_evie_marketing_root"
+              action="action_marketing_capture_form"
+              sequence="40"/>
+</odoo>

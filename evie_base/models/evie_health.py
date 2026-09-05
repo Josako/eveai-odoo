@@ -21,6 +21,15 @@ _logger = logging.getLogger(__name__)
 EXPECTED_MODELS = {
     'evie_crm': ['evie.phase_stage_map', 'evie.activity_type_map',
                  'evie.language_map'],
+    # Mirror models (evie_marketing_initiative 19.0.1.0.0,
+    # odoo-marketing-adapter)
+    'evie_marketing_initiative': [
+        'marketing.initiative',
+        'marketing.initiative.channel',
+        'marketing.capture.form',
+        'marketing.capture',
+        'marketing.initiative.cost',
+    ],
 }
 EXPECTED_FIELDS = {
     'evie_crm': {
@@ -48,6 +57,18 @@ EXPECTED_FIELDS = {
             'x_evie_outcome',
             # Last-synced anchor (evie_crm 19.0.1.10.0, odoo-evie-form-branding)
             'x_evie_last_synced',
+        ],
+    },
+    # crm.lead extension (evie_marketing_initiative 19.0.1.0.0,
+    # odoo-marketing-adapter)
+    'evie_marketing_initiative': {
+        'crm.lead': [
+            'initiative_id',
+            'initiative_channel_id',
+            'capture_id',
+            'capture_score',
+            'utm_term',
+            'utm_content',
         ],
     },
 }

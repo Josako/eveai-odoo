@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.9.1',
+    'version': '19.0.1.10.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -30,6 +30,12 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   discovery payload's per-action busy metadata (busy_statuses matched
   against the bound status field), with a fallback for older payloads
   (sync-activity-proposal-to-odoo)
+* The ``evie.capsule.link`` abstract mixin (odoo-marketing-adapter):
+  reusable link state for mirror models (``capsule_id``,
+  ``capsule_version``, ``capsule_url``, ``sync_state``,
+  ``last_sync_date``, ``local_dirty``) plus the shared Odoo → Evie event
+  plumbing (sync-created guard, ``/mirror-upsert`` notification,
+  local_dirty retry queue, view-token deeplink)
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.

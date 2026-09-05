@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- crm.lead: marketing attribution in the Evie tab (branding skill:
+         content lives in the existing branded Evie notebook page). -->
+    <record id="crm_lead_view_form_evie_marketing" model="ir.ui.view">
+        <field name="name">crm.lead.form.evie.marketing</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="evie_crm.crm_lead_view_form_inherit_evie"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='evie_context']" position="after">
+                <group string="Marketing Attribution" name="evie_marketing"
+                       invisible="not capture_id and not initiative_id">
+                    <group>
+                        <field name="initiative_id"/>
+                        <field name="initiative_channel_id"/>
+                    </group>
+                    <group>
+                        <field name="capture_id"/>
+                        <field name="capture_score"/>
+                    </group>
+                    <group>
+                        <field name="utm_term"/>
+                        <field name="utm_content"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

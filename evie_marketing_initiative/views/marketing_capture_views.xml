@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- marketing.capture: mirror of CAPTURE capsules. Facts read-only;
+         only the decision group is editable (both, last-write-wins).
+         Bulk processing rides the same capsule-actions channel — a
+         config-driven bulk action on the CAPTURE type appears here
+         automatically; no list-controller customisation in v1. -->
+
+    <record id="marketing_capture_view_form" model="ir.ui.view">
+        <field name="name">marketing.capture.form</field>
+        <field name="model">marketing.capture</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <widget name="evie_brand_header" title="EVIE MARKETING"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_evie_view_capsule" type="object"
+                                class="oe_stat_button" icon="fa-external-link"
+                                invisible="not capsule_id">
+                            <span>Open in Evie</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Contact">
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="company_name"/>
+                            <field name="job_title"/>
+                        </group>
+                        <group string="Origin">
+                            <field name="initiative_id"/>
+                            <field name="channel_id"/>
+                            <field name="captured_at"/>
+                            <field name="state" widget="badge"/>
+                            <field name="score"/>
+                            <field name="lead_id"/>
+                        </group>
+                    </group>
+                    <group string="Answer Summary" colspan="2">
+                        <field name="answer_summary" nolabel="1"/>
+                    </group>
+                    <group string="Answers (raw)" colspan="2"
+                           invisible="not answers">
+                        <field name="answers" nolabel="1"/>
+                    </group>
+                    <group string="Decision" name="evie_decision">
+                        <group>
+                            <field name="decision_source"/>
+                            <field name="decision_certainty"/>
+                        </group>
+                        <group>
+                            <field name="decided_at"/>
+                            <field name="consent_ref" readonly="1"/>
+                        </group>
+                        <group colspan="2">
+                            <field name="decision_rationale" nolabel="1"/>
+                        </group>
+                    </group>
+                    <group string="Actions" name="evie_actions" colspan="2"
+                           invisible="not capsule_id">
+                        <field name="sync_state" nolabel="1"
+                               widget="evie_actions"
+                               options="{'capsule_type': 'CAPTURE', 'capsule_id_field': 'capsule_id'}"/>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync" colspan="2"
+                           invisible="not capsule_id">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="external_uuid"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="marketing_capture_view_list" model="ir.ui.view">
+        <field name="name">marketing.capture.list</field>
+        <field name="model">marketing.capture</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state == 'discarded'"
+                  decoration-success="state == 'processed'"
+                  decoration-warning="state == 'to_review'">
+                <field name="captured_at"/>
+                <field name="name"/>
+                <field name="company_name"/>
+                <field name="email"/>
+                <field name="initiative_id"/>
+                <field name="channel_id"/>
+                <field name="state" widget="badge"/>
+                <field name="score"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="marketing_capture_view_search" model="ir.ui.view">
+        <field name="name">marketing.capture.search</field>
+        <field name="model">marketing.capture</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="company_name"/>
+                <filter name="state_new" string="New"
+                        domain="[('state', '=', 'new')]"/>
+                <filter name="state_to_review" string="To Review"
+                        domain="[('state', '=', 'to_review')]"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="group_initiative" string="Initiative"
+                        context="{'group_by': 'initiative_id'}"/>
+                <filter name="group_channel" string="Channel"
+                        context="{'group_by': 'channel_id'}"/>
+                <filter name="group_state" string="State"
+                        context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_marketing_capture" model="ir.actions.act_window">
+        <field name="name">Captures</field>
+        <field name="res_model">marketing.capture</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['new', 'to_review'])]</field>
+        <field name="context">{'search_default_state_to_review': 1}</field>
+    </record>
+</odoo>

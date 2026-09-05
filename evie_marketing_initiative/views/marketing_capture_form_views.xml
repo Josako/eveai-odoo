@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- marketing.capture.form: READ-ONLY mirror of CAPTURE_FORM capsules.
+         Forms are defined and edited in Evie; Odoo shows the definition
+         plus the deeplink (the "open form" action rides the generic
+         capsule-actions channel). -->
+
+    <record id="marketing_capture_form_view_form" model="ir.ui.view">
+        <field name="name">marketing.capture.form.form</field>
+        <field name="model">marketing.capture.form</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <widget name="evie_brand_header" title="EVIE MARKETING"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_evie_view_capsule" type="object"
+                                class="oe_stat_button" icon="fa-external-link"
+                                invisible="not capsule_id">
+                            <span>Edit in Evie</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="status" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="channel_ids"/>
+                        </group>
+                    </group>
+                    <group string="Consent Text" colspan="2">
+                        <field name="consent_text" nolabel="1"/>
+                    </group>
+                    <group string="Form Definition (read-only — edit in Evie)" colspan="2">
+                        <field name="definition" nolabel="1" widget="text"/>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync" colspan="2"
+                           invisible="not capsule_id">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"/>
+                        </group>
+                        <group>
+                            <field name="sync_state" widget="badge"/>
+                            <field name="last_sync_date"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="marketing_capture_form_view_list" model="ir.ui.view">
+        <field name="name">marketing.capture.form.list</field>
+        <field name="model">marketing.capture.form</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="name"/>
+                <field name="status" widget="badge"/>
+                <field name="sync_state" widget="badge"/>
+                <field name="last_sync_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_marketing_capture_form" model="ir.actions.act_window">
+        <field name="name">Capture Forms</field>
+        <field name="res_model">marketing.capture.form</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

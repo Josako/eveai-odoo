@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- local_dirty retry queue (design D8): edits made while Evie was
+         unreachable are re-notified until the write-back lands. One cron
+         per editable mirror model (the capture form is read-only — it can
+         never become dirty). -->
+    <record id="cron_evie_initiative_retry_dirty" model="ir.cron">
+        <field name="name">Evie: retry initiative write-backs (local_dirty)</field>
+        <field name="model_id" ref="model_marketing_initiative"/>
+        <field name="state">code</field>
+        <field name="code">model.evie_retry_local_dirty()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_evie_channel_retry_dirty" model="ir.cron">
+        <field name="name">Evie: retry channel write-backs (local_dirty)</field>
+        <field name="model_id" ref="model_marketing_initiative_channel"/>
+        <field name="state">code</field>
+        <field name="code">model.evie_retry_local_dirty()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_evie_capture_retry_dirty" model="ir.cron">
+        <field name="name">Evie: retry capture write-backs (local_dirty)</field>
+        <field name="model_id" ref="model_marketing_capture"/>
+        <field name="state">code</field>
+        <field name="code">model.evie_retry_local_dirty()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

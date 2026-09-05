@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- marketing.initiative.channel: mirror of MARKETING_CHANNEL capsules. -->
+
+    <record id="marketing_channel_view_form" model="ir.ui.view">
+        <field name="name">marketing.initiative.channel.form</field>
+        <field name="model">marketing.initiative.channel</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <widget name="evie_brand_header" title="EVIE MARKETING"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_evie_view_capsule" type="object"
+                                class="oe_stat_button" icon="fa-external-link"
+                                invisible="not capsule_id">
+                            <span>Open in Evie</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Channel name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Definition">
+                            <field name="channel_type"/>
+                            <field name="channel_type_other"
+                                   invisible="channel_type != 'Other'"/>
+                            <field name="initiative_id"/>
+                            <field name="capture_form_id"/>
+                        </group>
+                        <group string="Capture Automation">
+                            <field name="auto_promote"/>
+                            <field name="auto_promote_threshold"/>
+                        </group>
+                    </group>
+                    <group string="UTM">
+                        <group>
+                            <field name="utm_source"/>
+                        </group>
+                        <group>
+                            <field name="source_id"/>
+                        </group>
+                    </group>
+                    <group string="CRM Defaults (Odoo-owned)" colspan="2">
+                        <field name="crm_defaults" nolabel="1"
+                               placeholder='JSON, e.g. {"team_id": 1}'/>
+                    </group>
+                    <group string="Actions" name="evie_actions" colspan="2"
+                           invisible="not capsule_id">
+                        <field name="sync_state" nolabel="1"
+                               widget="evie_actions"
+                               options="{'capsule_type': 'MARKETING_CHANNEL', 'capsule_id_field': 'capsule_id'}"/>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync" colspan="2"
+                           invisible="not capsule_id">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="marketing_channel_view_list" model="ir.ui.view">
+        <field name="name">marketing.initiative.channel.list</field>
+        <field name="model">marketing.initiative.channel</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="name"/>
+                <field name="initiative_id"/>
+                <field name="channel_type"/>
+                <field name="utm_source"/>
+                <field name="auto_promote"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_marketing_channel" model="ir.actions.act_window">
+        <field name="name">Marketing Channels</field>
+        <field name="res_model">marketing.initiative.channel</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
