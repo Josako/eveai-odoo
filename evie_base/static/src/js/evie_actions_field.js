@@ -118,7 +118,7 @@ export class EvieActionsField extends Component {
 
     isInteractive(action) {
         // Interactive actions (interactive-activity-proposal-entry-points)
-        // open the Evie popup chat instead of enqueueing a background run.
+        // open an Evie popup instead of enqueueing a background run.
         return String(action?.execution || "").toLowerCase() === "interactive";
     }
 
@@ -156,12 +156,17 @@ export class EvieActionsField extends Component {
                     remote_id: this.props.record.resId,
                     specialist_id: specialistId,
                 });
-            if (data && data.kind === "chat" && data.url) {
-                // Interactive action: open the Evie chat bound to the
-                // record's proposal session in a popup window.
+            // Interactive actions (whitelist — capture-form-action): chat
+            // opens the proposal session popup, form opens the capture form
+            // popup; both use the same popup pattern.
+            const POPUP_WINDOWS = {
+                chat: "evie_proposal_chat",
+                form: "evie_capture_form",
+            };
+            if (data && POPUP_WINDOWS[data.kind] && data.url) {
                 window.open(
                     data.url,
-                    "evie_proposal_chat",
+                    POPUP_WINDOWS[data.kind],
                     "width=520,height=720,popup=yes",
                 );
                 return;
