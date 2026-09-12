@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Evie Marketing menus. The evie_base root is admin-only; the
-         marketing surface is for sales users, so it gets its own root. -->
+         marketing surface is for marketing and sales users, so it gets
+         its own root. The marketing manager sees it via group
+         implication on group_evie_marketing_user. -->
     <menuitem id="menu_evie_marketing_root"
               name="Evie Marketing"
               sequence="99"
-              groups="sales_team.group_sale_salesman"
+              groups="sales_team.group_sale_salesman,evie_marketing_initiative.group_evie_marketing_user"
               web_icon="evie_base,static/src/img/evie.svg"/>
 
     <menuitem id="menu_evie_marketing_initiatives"

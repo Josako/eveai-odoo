@@ -21,6 +21,11 @@ models.
   guards: initiatives and channels editable on shared fields, forms
   strictly read-only, captures limited to decision fields, costs fully
   editable (Odoo is master)
+* Access model (change evie-marketing-access-model): module-owned groups
+  ``group_evie_marketing_user`` / ``group_evie_marketing_manager`` —
+  initiatives, channels and costs are a marketing domain, captures are
+  shared marketing/sales; the integration user gets the manager group
+  (least privilege) instead of Sales/Administrator
 * ``crm.lead`` extension: ``initiative_id``, ``initiative_channel_id``,
   ``capture_id``, ``capture_score``, ``utm_term``, ``utm_content``
 * Action buttons via the generic capsule-actions discovery/execution
@@ -37,6 +42,7 @@ integration configuration; this module provides the Odoo surface only.
     'license': 'LGPL-3',
     'depends': ['evie_base', 'crm'],
     'data': [
+        'security/evie_marketing_groups.xml',
         'security/ir.model.access.csv',
         'views/marketing_initiative_views.xml',
         'views/marketing_channel_views.xml',
