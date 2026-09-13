@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.15.0',
+    'version': '19.0.1.16.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -58,8 +58,12 @@ Everything Evie adds to Odoo CRM:
   ``mail.activity`` (capsule link + stable Evie activity-type key),
   ``evie.activity_type_map`` translating Evie type keys to this database's
   activity types (seeded defaults, tenant-editable), Evie-native activity
-  types (LinkedIn outreach) as module data, and automation rules notifying
-  Evie of activity create/write/done and cancel (unlink)
+  types (LinkedIn outreach, Meeting Request) as module data, and automation
+  rules notifying
+  Evie of activity create/write/done and cancel (unlink). The map model
+  exposes ``has_mapping`` next to ``odoo_type_for_key`` so Evie can detect
+  the To-Do fallback and warn instead of staying silent
+  (add-odoo-module-distribution)
 
 * Activity outcomes (add-activity-sequences): ``x_evie_outcome`` selection
   on ``mail.activity`` backed by the ``evie.activity_outcome`` module data

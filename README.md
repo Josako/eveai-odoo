@@ -51,7 +51,26 @@ Copy (or clone) this directory onto the Odoo addons path, e.g. as
 
 Upgrades: pull the new code, then upgrade the module per database
 (`odoo -d <db> -u evie_crm --stop-after-init`) — a plain restart does not
-apply field/data/view changes.
+apply field/data/view changes. Seeded defaults are `noupdate` data: an
+upgrade *adds* new default records (e.g. a new activity-type mapping) and
+never overwrites tenant edits.
+
+## Distribution & upgrades (tenants)
+
+Releases are published on the public mirror with immutable tags:
+`release/<version>` (umbrella) and `<module>/<version>` (per module).
+`COMPATIBILITY.md` (this directory, mirrored) maps every release to the
+platform contract it satisfies. Three channels (details and per-archetype
+guides: `documentation/odoo-module-upgrades.md`):
+
+- **A — mirror**: Odoo.sh tenants update the submodule to a release tag
+  (the build applies the upgrade); self-hosted pull the clone and run
+  `-u` per database.
+- **B — platform bundle**: download the version-stated zip from the Evie
+  integration settings, unpack onto the addons path, run `-u` per database.
+- **C — push orchestration** (opt-in, Odoo.sh): the platform team (partner
+  role) pushes the submodule-pointer bump with a tenant-granted write
+  deploy key. Revocable by disabling the flag and/or removing the key.
 
 ## Integration identity (security best practice)
 

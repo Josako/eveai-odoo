@@ -101,6 +101,8 @@ class EvieHealth(models.AbstractModel):
                 'missing_fields': {'crm.lead': ['x_evie_phase', ...]},
                 'database_uuid': '...',
                 'ok': bool,
+                # optional, when evie.activity_type_map exists:
+                'activity_type_map_keys': ['Call', ...],
             }
         """
         if integration_service_id:
@@ -140,6 +142,15 @@ class EvieHealth(models.AbstractModel):
                 .get_param('database.uuid'),
             'ok': ok,
         }
+        # Vocabulary coverage (add-odoo-module-distribution): report the
+        # tenant's activity-type mapping keys so Evie can detect drift
+        # against the pinned CRM_ACTIVITY_TYPE definition. Optional section:
+        # only present when the model exists (older evie_crm keeps passing).
+        if 'evie.activity_type_map' in self.env:
+            status['activity_type_map_keys'] = sorted(set(
+                self.env['evie.activity_type_map'].sudo().search([])
+                .mapped('evie_activity_type')
+            ))
         _logger.info("Evie health status: %s", status)
         return status
 

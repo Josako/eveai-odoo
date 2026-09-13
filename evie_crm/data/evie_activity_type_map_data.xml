@@ -19,6 +19,14 @@
             <field name="evie_activity_type">Meeting</field>
             <field name="odoo_activity_type_id" ref="mail.mail_activity_data_meeting"/>
         </record>
+        <!-- Meeting Request (add-odoo-module-distribution, Gitea #66):
+             noupdate semantics mean existing tenants receive this record on
+             module upgrade; tenant edits stay untouched. -->
+        <record id="map_meeting_request" model="evie.activity_type_map">
+            <field name="sequence">35</field>
+            <field name="evie_activity_type">Meeting Request</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_meeting_request"/>
+        </record>
         <record id="map_todo" model="evie.activity_type_map">
             <field name="sequence">40</field>
             <field name="evie_activity_type">To-Do</field>

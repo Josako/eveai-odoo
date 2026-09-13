@@ -37,5 +37,14 @@
             <field name="res_model">crm.lead</field>
         </record>
 
+        <!-- Meeting Request (add-odoo-module-distribution, Gitea #66): a
+             request is pre-confirmation — deliberately a dedicated type, not
+             an alias of core Meeting, so reps can tell them apart. -->
+        <record id="mail_activity_data_meeting_request" model="mail.activity.type">
+            <field name="name">Meeting Request</field>
+            <field name="icon">fa-calendar-plus-o</field>
+            <field name="res_model">crm.lead</field>
+        </record>
+
     </data>
 </odoo>

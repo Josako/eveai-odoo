@@ -60,6 +60,19 @@ class EvieActivityTypeMap(models.Model):
     # ------------------------------------------------------------------
 
     @api.model
+    def has_mapping(self, key):
+        """Return True when an Evie key has an active mapping entry.
+
+        Companion to ``odoo_type_for_key`` (add-odoo-module-distribution):
+        lets Evie distinguish a resolved mapping from the silent To-Do
+        fallback, so the sync can warn about unmapped keys instead of
+        swallowing them.
+        """
+        if not key:
+            return False
+        return bool(self.search_count([('evie_activity_type', '=', key)]))
+
+    @api.model
     def odoo_type_for_key(self, key):
         """Return the Odoo mail.activity.type id for an Evie key.
 
