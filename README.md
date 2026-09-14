@@ -128,7 +128,10 @@ reference type:
    handling plus a view route that renders it) on the Evie platform side.
 3. Render the field with `widget="evie_link"` and `options="{'kind': ...}"`.
 
-Existing kinds: `document` (document version) and `capsule` (Data Capsule).
+Existing kinds: `document` (document version), `capsule` (Data Capsule)
+and `chat_session` (read-only chat session page — the conversation a lead
+was captured in, sync-lead-chat-session). The interactive `chat` popup kind
+is issued by Evie only (capsule actions); it is not an `evie_link` kind.
 
 ## Contract with the Evie platform
 

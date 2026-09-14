@@ -50,6 +50,10 @@
                                widget="evie_link" options="{'kind': 'document'}"/>
                         <field name="x_evie_rationale_doc_version_id" readonly="1"
                                widget="evie_link" options="{'kind': 'document'}"/>
+                        <!-- Originating conversation (sync-lead-chat-session):
+                             read-only session page via the chat_session kind. -->
+                        <field name="x_evie_chat_session_id" readonly="1"
+                               widget="evie_link" options="{'kind': 'chat_session'}"/>
                     </group>
                     <group string="Synchronisation" name="evie_sync">
                         <field name="x_evie_capsule_id" readonly="1"

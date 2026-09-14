@@ -39,6 +39,7 @@ EVIE_SYNC_CONTEXT_KEY = 'evie_skip_phase_event'
 EVIE_OPEN_KINDS = {
     'document': 'document_version_id',
     'capsule': 'capsule_id',
+    'chat_session': 'chat_session_id',
 }
 
 
@@ -124,6 +125,17 @@ class CrmLead(models.Model):
         readonly=True,
         tracking=True,
         help="Evie document version ID of the latest qualification rationale.",
+    )
+    # Originating chat session (19.0.1.17.0, sync-lead-chat-session):
+    # written by the Evie → Odoo sync for leads captured in a website chat;
+    # empty for leads that arrived otherwise (import, manual, ...).
+    x_evie_chat_session_id = fields.Integer(
+        string='Evie Chat Session',
+        copy=False,
+        readonly=True,
+        tracking=True,
+        help="Evie chat session ID the lead was captured in. Opens a "
+             "read-only view of the conversation in Evie.",
     )
 
     # Action lifecycle (19.0.1.4.0, odoo-capsule-actions). Written by the
@@ -221,6 +233,11 @@ class CrmLead(models.Model):
         """Open the latest qualification rationale in Evie (new browser tab)."""
         self.ensure_one()
         return self.action_evie_open('document', self.x_evie_rationale_doc_version_id)
+
+    def action_evie_view_chat_session(self):
+        """Open the originating chat session in Evie (new browser tab)."""
+        self.ensure_one()
+        return self.action_evie_open('chat_session', self.x_evie_chat_session_id)
 
     def action_evie_view_capsule(self):
         """Open the linked Data Capsule in Evie (new browser tab)."""
