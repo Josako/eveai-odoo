@@ -21,4 +21,5 @@ drifted.
 
 | Umbrella tag | Date | evie_base | evie_crm | evie_marketing_initiative | Requires (platform contract) | Notes |
 |---|---|---|---|---|---|---|
+| `release/19.0.1.17.0` | 2026-09-14 | 19.0.1.11.0 | 19.0.1.17.0 | 19.0.1.0.0 | ODOO_CRM config ≥ 1.9.3 | Originating chat session on the lead: `x_evie_chat_session_id` + `chat_session` open-in-Evie kind (read-only session page) (sync-lead-chat-session) |
 | `release/19.0.1.16.0` | 2026-09-14 | 19.0.1.11.0 | 19.0.1.16.0 | 19.0.1.0.0 | ODOO_CRM config ≥ 1.9.2 | Meeting Request activity type + mapping, `has_mapping` helper, health-surface `activity_type_map_keys` (add-odoo-module-distribution, Gitea #66) |
