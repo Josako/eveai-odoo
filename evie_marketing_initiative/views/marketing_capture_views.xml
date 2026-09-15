@@ -80,8 +80,8 @@
         <field name="name">marketing.capture.list</field>
         <field name="model">marketing.capture</field>
         <field name="arch" type="xml">
-            <list create="0" decoration-muted="state == 'discarded'"
-                  decoration-success="state == 'processed'"
+            <list create="0" decoration-muted="state in ('promoted', 'discarded')"
+                  decoration-info="state == 'processed'"
                   decoration-warning="state == 'to_review'">
                 <field name="captured_at"/>
                 <field name="name"/>

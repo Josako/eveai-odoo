@@ -35,7 +35,8 @@ class MarketingCapture(models.Model):
     captured_at = fields.Datetime(string='Captured At', readonly=True)
     state = fields.Selection(
         [('new', 'New'), ('to_review', 'To Review'),
-         ('processed', 'Processed'), ('discarded', 'Discarded')],
+         ('processed', 'Processed'), ('promoted', 'Promoted'),
+         ('discarded', 'Discarded')],
         string='State', readonly=True)
 
     # --- Links (written by the sync, never edited locally) ---
