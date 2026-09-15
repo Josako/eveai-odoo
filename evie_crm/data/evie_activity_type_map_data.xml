@@ -27,6 +27,14 @@
             <field name="evie_activity_type">Meeting Request</field>
             <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_meeting_request"/>
         </record>
+        <!-- Capture Review (business-card-extraction): noupdate semantics
+             mean existing tenants receive this record on module upgrade;
+             tenant edits stay untouched. -->
+        <record id="map_capture_review" model="evie.activity_type_map">
+            <field name="sequence">36</field>
+            <field name="evie_activity_type">Capture Review</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_capture_review"/>
+        </record>
         <record id="map_todo" model="evie.activity_type_map">
             <field name="sequence">40</field>
             <field name="evie_activity_type">To-Do</field>

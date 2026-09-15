@@ -46,5 +46,15 @@
             <field name="res_model">crm.lead</field>
         </record>
 
+        <!-- Capture Review (business-card-extraction): the review work item
+             anchored on a capture's marketing.capture mirror. No res_model
+             restriction — the Evie sync writes the type directly and the
+             anchor model lives in the evie_marketing_initiative module,
+             which evie_crm does not depend on. -->
+        <record id="mail_activity_data_capture_review" model="mail.activity.type">
+            <field name="name">Capture Review</field>
+            <field name="icon">fa-id-card-o</field>
+        </record>
+
     </data>
 </odoo>
