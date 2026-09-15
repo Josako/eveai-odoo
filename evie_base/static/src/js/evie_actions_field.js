@@ -156,12 +156,14 @@ export class EvieActionsField extends Component {
                     remote_id: this.props.record.resId,
                     specialist_id: specialistId,
                 });
-            // Interactive actions (whitelist — capture-form-action): chat
-            // opens the proposal session popup, form opens the capture form
-            // popup; both use the same popup pattern.
+            // Interactive actions (whitelist — capture-form-action,
+            // odoo-external-capture-review): chat opens the proposal session
+            // popup, form opens the capture form popup, review opens the
+            // capture review popup; all use the same popup pattern.
             const POPUP_WINDOWS = {
                 chat: "evie_proposal_chat",
                 form: "evie_capture_form",
+                review: "evie_capture_review",
             };
             if (data && POPUP_WINDOWS[data.kind] && data.url) {
                 window.open(

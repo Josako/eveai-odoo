@@ -93,11 +93,12 @@ class EvieActions(models.AbstractModel):
         if not ok:
             raise UserError(_("Could not execute the Evie action: %s") % data)
         # Interactive actions (interactive-activity-proposal-entry-points,
-        # capture-form-action): the endpoint returned a popup URL instead of
-        # enqueueing a background run — pass it through for the widget to
-        # open. The popup-opening kinds are an explicit whitelist ('chat',
-        # 'form') so future kinds are added deliberately, never accidentally.
-        if isinstance(data, dict) and data.get('kind') in ('chat', 'form') \
+        # capture-form-action, odoo-external-capture-review): the endpoint
+        # returned a popup URL instead of enqueueing a background run — pass
+        # it through for the widget to open. The popup-opening kinds are an
+        # explicit whitelist ('chat', 'form', 'review') so future kinds are
+        # added deliberately, never accidentally.
+        if isinstance(data, dict) and data.get('kind') in ('chat', 'form', 'review') \
                 and data.get('url'):
             _logger.info(
                 "Evie interactive action %s returned a %s URL (remote id %s)",
