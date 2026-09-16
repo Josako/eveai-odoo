@@ -30,15 +30,21 @@
                             <field name="state" widget="badge"/>
                             <field name="score"/>
                             <field name="lead_id"/>
+                            <!-- Scanned business card: open-in-Evie media
+                                 link (kind capture_media), only when set —
+                                 the image bytes never sync to Odoo. -->
+                            <field name="business_card" widget="evie_link"
+                                   options="{'kind': 'capture_media'}"
+                                   invisible="not business_card"/>
                         </group>
                     </group>
                     <group string="Answer Summary" colspan="2">
                         <field name="answer_summary" nolabel="1"/>
                     </group>
-                    <group string="Answers (raw)" colspan="2"
-                           invisible="not answers">
-                        <field name="answers" nolabel="1"/>
-                    </group>
+                    <!-- The raw answers JSON is deliberately not form chrome
+                         (odoo-capture-card-view, design D5): the field and
+                         its sync mapping remain — only the unreadable dump
+                         leaves the form. -->
                     <group string="Decision" name="evie_decision">
                         <group>
                             <field name="decision_source"/>

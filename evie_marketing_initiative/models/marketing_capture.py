@@ -32,6 +32,15 @@ class MarketingCapture(models.Model):
     answer_summary = fields.Text(string='Answer Summary', readonly=True)
     score = fields.Integer(string='Score', readonly=True)
     consent_ref = fields.Char(string='Consent Reference', readonly=True)
+    # Business card reference (odoo-capture-card-view): the Evie document
+    # version id of the scanned card — a plain integer reference, never a
+    # synced image binary. Rendered as an open-in-Evie link of kind
+    # 'capture_media' (tokenised read-only media page streams the original
+    # through Evie; the bytes never cross the boundary).
+    business_card = fields.Integer(
+        string='Business Card', readonly=True,
+        help='Evie document version id of the scanned business card image. '
+             'Opens a read-only media view in Evie.')
     captured_at = fields.Datetime(string='Captured At', readonly=True)
     state = fields.Selection(
         [('new', 'New'), ('to_review', 'To Review'),

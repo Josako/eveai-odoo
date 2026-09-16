@@ -122,15 +122,18 @@ The lead form renders Evie references via the `evie_link` widget, which calls
 the single dispatcher `crm.lead.action_evie_open(kind, reference)`. To add a
 reference type:
 
-1. Add the kind to `EVIE_OPEN_KINDS` in `evie_crm/models/crm_lead.py`
-   (maps the kind to the view-token request field).
+1. Add the kind to `EVIE_OPEN_KINDS` in `evie_base/consts.py`
+   (maps the kind to the view-token request field; shared by `crm.lead`
+   and every capsule-link mirror model).
 2. Teach the Evie view-token endpoint the new kind (view-token request
    handling plus a view route that renders it) on the Evie platform side.
 3. Render the field with `widget="evie_link"` and `options="{'kind': ...}"`.
 
-Existing kinds: `document` (document version), `capsule` (Data Capsule)
-and `chat_session` (read-only chat session page — the conversation a lead
-was captured in, sync-lead-chat-session). The interactive `chat` popup kind
+Existing kinds: `document` (document version), `capsule` (Data Capsule),
+`chat_session` (read-only chat session page — the conversation a lead
+was captured in, sync-lead-chat-session) and `capture_media` (read-only
+media page streaming the original capture image, odoo-capture-card-view).
+The interactive `chat` popup kind
 is issued by Evie only (capsule actions); it is not an `evie_link` kind.
 
 ## Contract with the Evie platform

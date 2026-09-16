@@ -35,6 +35,8 @@ import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from odoo.addons.evie_base.consts import EVIE_OPEN_KINDS
+
 _logger = logging.getLogger(__name__)
 
 #: Echo-guard context key: sync writes (Evie → Odoo) carry this flag so
@@ -167,23 +169,27 @@ class EvieCapsuleLink(models.AbstractModel):
         Same contract as the crm.lead dispatcher (the ``evie_link`` field
         widget calls ``action_evie_open(kind, reference)`` on the record):
         exchanges the integration API key for a short-lived view token and
-        returns the URL to open. Mirror models only link capsules, so
-        'capsule' is the only supported kind. ``capsule_url`` is only the
-        static fallback — the token flow is the live detail link.
+        returns the URL to open. Kinds resolve from the shared
+        ``EVIE_OPEN_KINDS`` registry in ``evie_base.consts``
+        (odoo-capture-card-view) — mirror models support every registered
+        kind (capsule links, business-card capture media, ...) without a
+        per-model override. ``capsule_url`` is only the static fallback —
+        the token flow is the live detail link.
         """
         self.ensure_one()
-        if kind != 'capsule':
+        request_key = EVIE_OPEN_KINDS.get(kind)
+        if not request_key:
             raise UserError(_("Unknown Evie reference type '%s'.") % kind)
         if not reference:
-            raise UserError(_("No Evie capsule is linked to this record yet."))
+            raise UserError(_("No Evie %s is linked to this record yet.") % kind)
         user = self.env.user
         ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
-            'kind': 'capsule',
-            'capsule_id': int(reference),
+            'kind': kind,
+            request_key: int(reference),
             'user': {'name': user.name, 'email': user.email, 'id': user.id},
         })
         if not ok:
-            raise UserError(_("Could not open the Evie capsule (%s).") % data)
+            raise UserError(_("Could not open the Evie %s (%s).") % (kind, data))
         return {
             'type': 'ir.actions.act_url',
             'url': data['view_url'],

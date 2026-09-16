@@ -16,8 +16,9 @@ performs a stage lookup itself.
 ``action_evie_open`` is the single dispatcher behind every "open in Evie"
 link on the form (the ``evie_link`` field widgets; the earlier stat buttons
 were removed in 19.0.1.4.0 — the Evie tab is the single place). New Evie
-reference types only need a new entry in ``EVIE_OPEN_KINDS``
-(extend-odoo-lead-sync-2).
+reference types only need a new entry in ``EVIE_OPEN_KINDS``, the shared
+registry in ``evie_base.consts`` (moved out of this module in
+odoo-capture-card-view so mirror models resolve the same kinds).
 """
 
 import logging
@@ -26,21 +27,17 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import SQL
 
-from odoo.addons.evie_base.consts import EVIE_PHASE_SELECTION, EVIE_PHASES
+from odoo.addons.evie_base.consts import (
+    EVIE_OPEN_KINDS,
+    EVIE_PHASE_SELECTION,
+    EVIE_PHASES,
+)
 
 _logger = logging.getLogger(__name__)
 
 #: Context flag set by Evie's own writes so the automation rule does not
 #: echo Evie-originated stage changes back to Evie.
 EVIE_SYNC_CONTEXT_KEY = 'evie_skip_phase_event'
-
-#: Evie entity kinds the lead form can open, mapped to the request field the
-#: Evie view-token endpoint expects for that kind.
-EVIE_OPEN_KINDS = {
-    'document': 'document_version_id',
-    'capsule': 'capsule_id',
-    'chat_session': 'chat_session_id',
-}
 
 
 class CrmLead(models.Model):
@@ -258,8 +255,8 @@ class CrmLead(models.Model):
 
         Exchanges the integration API key for a short-lived view token for
         the given entity kind and opens the returned view URL in a new
-        browser tab. New reference types only need a new entry in
-        ``EVIE_OPEN_KINDS``.
+        browser tab. New reference types only need a new entry in the
+        shared ``EVIE_OPEN_KINDS`` registry (``evie_base.consts``).
 
         The current Odoo user's identity is sent along so Evie can audit who
         viewed the entity. Failures surface as a visible, non-blocking

@@ -77,3 +77,18 @@ MARKETING_CHANNEL_TYPES = [
 MARKETING_CHANNEL_TYPE_SELECTION = [
     (key, key) for key in MARKETING_CHANNEL_TYPES
 ]
+
+#: Evie entity kinds the open-in-Evie dispatcher (``action_evie_open``)
+#: resolves, mapped to the request field the Evie view-token endpoint
+#: expects for that kind. Moved from evie_crm's crm.lead into evie_base
+#: (odoo-capture-card-view, design D3) so every model exposing the
+#: dispatcher — native extensions like crm.lead and every capsule-link
+#: mirror model alike — shares one registry; adding a future reference
+#: type stays a registry entry, never new button plumbing or per-model
+#: dispatcher overrides.
+EVIE_OPEN_KINDS = {
+    'document': 'document_version_id',
+    'capsule': 'capsule_id',
+    'chat_session': 'chat_session_id',
+    'capture_media': 'document_version_id',
+}

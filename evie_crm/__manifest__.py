@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.19.0',
+    'version': '19.0.1.20.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -86,6 +86,12 @@ Everything Evie adds to Odoo CRM:
   ``evie_brand_header`` (icon + title) on top, then Actions /
   Synchronisation / Evie Context, including the new ``x_evie_last_synced``
   anchor on ``mail.activity`` (mapping CRM_ACTIVITY_ODOO_CRM 1.3.0)
+
+* Shared open-in-Evie registry (odoo-capture-card-view): the
+  ``EVIE_OPEN_KINDS`` kind registry moved into ``evie_base.consts`` —
+  ``crm.lead`` inherits the shared set (``document``, ``capsule``,
+  ``chat_session``, ``capture_media``) instead of keeping its own, so
+  mirror models resolve the same kinds without per-model overrides
 
 Evie is master over the funnel phase; this module translates to and from
 this tenant's stages on stable IDs — never on display names.

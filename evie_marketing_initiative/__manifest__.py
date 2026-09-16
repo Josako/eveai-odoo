@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """
@@ -32,6 +32,15 @@ models.
   channel — no hardcoded Evie action semantics
 * Local edits during an Evie outage are queued via ``local_dirty`` and
   retried by the scheduled job
+* Business card on the capture (1.2.0, odoo-capture-card-view):
+  ``business_card`` (read-only Evie document version id) rendered as an
+  open-in-Evie link of kind ``capture_media`` — the tokenised media page
+  streams the original through Evie, the image bytes never sync; explicit
+  inline list columns on the initiative's Channels (``name``,
+  ``channel_type``) and Captures (``captured_at``, ``name``, ``state``)
+  tabs so the mobile client never renders display-name-only rows; the
+  unreadable "Answers (raw)" group leaves the capture form (the field and
+  its sync mapping remain)
 
 The sync itself (field mappings, per-field ownership, UTM
 materialisation, reconciliation) lives Evie-side in the ODOO_CRM

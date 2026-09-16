@@ -95,10 +95,27 @@
                             </field>
                         </page>
                         <page string="Channels" name="channels">
-                            <field name="channel_ids" nolabel="1"/>
+                            <!-- Explicit inline columns (odoo-capture-card-view,
+                                 design D4): without an inline arch the mobile
+                                 client falls back to display-name-only rows. -->
+                            <field name="channel_ids" nolabel="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="channel_type"/>
+                                </list>
+                            </field>
                         </page>
                         <page string="Captures" name="captures">
-                            <field name="capture_ids" nolabel="1"/>
+                            <!-- Date + state carry the row while the contact
+                                 name is still empty pending review — never a
+                                 blank line on mobile. -->
+                            <field name="capture_ids" nolabel="1">
+                                <list>
+                                    <field name="captured_at"/>
+                                    <field name="name"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
                         </page>
                         <page string="Leads" name="leads">
                             <field name="lead_ids" nolabel="1">
