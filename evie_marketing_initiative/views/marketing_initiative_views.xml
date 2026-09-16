@@ -103,7 +103,10 @@
                         <page string="Leads" name="leads">
                             <field name="lead_ids" nolabel="1">
                                 <list>
-                                    <field name="name"/>
+                                    <!-- crm.lead.name is labelled 'Opportunity'
+                                         standard Odoo; this marketing context
+                                         shows leads (fix-marketing-capture-lifecycle). -->
+                                    <field name="name" string="Lead"/>
                                     <field name="partner_name" readonly="1"/>
                                     <field name="expected_revenue" readonly="1"/>
                                     <field name="stage_id" readonly="1"/>
