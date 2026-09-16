@@ -44,6 +44,15 @@ class MailActivity(models.Model):
         help="ID of the linked Evie CRM_ACTIVITY Data Capsule "
              "(source-of-truth coupling).",
     )
+
+    # One activity per capsule (fix-sync-duplicate-remote-creates): a
+    # duplicate create fails loudly on mail_activity_x_evie_capsule_id_uniq
+    # — the Evie sync detects the constraint name and falls back to
+    # adopt-and-update. Activities without an anchor (NULL) are unaffected.
+    _x_evie_capsule_id_uniq = models.Constraint(
+        'unique(x_evie_capsule_id)',
+        'An activity linked to this Evie Capsule already exists.',
+    )
     x_evie_activity_type = fields.Char(
         string='Evie Activity Type',
         copy=False,

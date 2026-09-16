@@ -50,6 +50,18 @@ class EvieCapsuleLink(models.AbstractModel):
     capsule_id = fields.Char(
         string='Evie Capsule ID', readonly=True, index=True, copy=False,
         help='Stable Evie Data Capsule identity — the only matching key.')
+
+    # Uniqueness of the mirror identity (fix-sync-duplicate-remote-creates):
+    # one mirror record per capsule per model. Declared on the abstract
+    # mixin so every present and future mirror model gets its own
+    # <table>_capsule_id_uniq constraint (Odoo 19 table-object
+    # inheritance); NULL anchors stay allowed. A duplicate create now fails
+    # loudly — the Evie sync detects the constraint name and falls back to
+    # adopt-and-update.
+    _capsule_id_uniq = models.Constraint(
+        'unique(capsule_id)',
+        'A mirror record with this Evie Capsule ID already exists.',
+    )
     capsule_version = fields.Char(
         string='Capsule Version', readonly=True, copy=False,
         help='Version token of the capsule definition at the last sync.')

@@ -53,6 +53,15 @@ class CrmLead(models.Model):
         tracking=True,
         help="ID of the linked Evie Data Capsule (source-of-truth coupling).",
     )
+
+    # One lead per capsule (fix-sync-duplicate-remote-creates): a duplicate
+    # create fails loudly on crm_lead_x_evie_capsule_id_uniq — the Evie
+    # sync detects the constraint name and falls back to adopt-and-update.
+    # Native leads without an anchor (NULL) are unaffected.
+    _x_evie_capsule_id_uniq = models.Constraint(
+        'unique(x_evie_capsule_id)',
+        'A lead linked to this Evie Capsule already exists.',
+    )
     x_evie_phase = fields.Selection(
         selection=EVIE_PHASE_SELECTION,
         string='Evie Phase',
