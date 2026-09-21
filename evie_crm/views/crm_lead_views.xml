@@ -54,6 +54,11 @@
                              read-only session page via the chat_session kind. -->
                         <field name="x_evie_chat_session_id" readonly="1"
                                widget="evie_link" options="{'kind': 'chat_session'}"/>
+                        <!-- Marketing opt-in (privacy-lead-capture): the only
+                             consent control, as first-class consent data. -->
+                        <field name="x_evie_marketing_opt_in" readonly="1"/>
+                        <field name="x_evie_marketing_opt_in_at" readonly="1"/>
+                        <field name="x_evie_privacy_text_version" readonly="1"/>
                     </group>
                     <group string="Synchronisation" name="evie_sync">
                         <field name="x_evie_capsule_id" readonly="1"

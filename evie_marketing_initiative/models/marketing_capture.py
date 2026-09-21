@@ -42,6 +42,20 @@ class MarketingCapture(models.Model):
         help='Evie document version id of the scanned business card image. '
              'Opens a read-only media view in Evie.')
     captured_at = fields.Datetime(string='Captured At', readonly=True)
+    # Marketing opt-in (privacy-lead-capture): the only consent control of
+    # the capture, synced out-only as first-class consent data — its own
+    # fields, never "agreed to privacy policy". The full privacy notice
+    # snapshot stays Evie-side; privacy_text_version is the actionable
+    # projection (which text-set version was shown).
+    marketing_opt_in = fields.Boolean(
+        string='Marketing Opt-in', readonly=True, tracking=True,
+        help='The contact opted in to marketing mailings at capture time.')
+    marketing_opt_in_at = fields.Datetime(
+        string='Marketing Opt-in At', readonly=True,
+        help='Timestamp of the submission carrying the opt-in outcome.')
+    privacy_text_version = fields.Char(
+        string='Privacy Text Version', readonly=True,
+        help='Version of the Evie privacy text set shown at capture time.')
     state = fields.Selection(
         [('new', 'New'), ('to_review', 'To Review'),
          ('processed', 'Processed'), ('promoted', 'Promoted'),

@@ -37,6 +37,14 @@
                                    options="{'kind': 'capture_media'}"
                                    invisible="not business_card"/>
                         </group>
+                        <group string="Privacy">
+                            <!-- Marketing opt-in (privacy-lead-capture):
+                                 the only consent control, as first-class
+                                 consent data (read-only, Evie master). -->
+                            <field name="marketing_opt_in"/>
+                            <field name="marketing_opt_in_at"/>
+                            <field name="privacy_text_version"/>
+                        </group>
                     </group>
                     <group string="Answer Summary" colspan="2">
                         <field name="answer_summary" nolabel="1"/>

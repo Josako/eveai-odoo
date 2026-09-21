@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """

@@ -144,6 +144,36 @@ class CrmLead(models.Model):
              "read-only view of the conversation in Evie.",
     )
 
+    # Marketing opt-in (19.0.1.21.0, privacy-lead-capture): the only
+    # consent control of Evie lead capture, written by the Evie → Odoo
+    # sync as first-class consent data — its own fields, never "agreed to
+    # privacy policy". Contact-form leads carry the submission outcome;
+    # leads promoted from a capture inherit the capture's outcome.
+    x_evie_marketing_opt_in = fields.Boolean(
+        string='Evie Marketing Opt-in',
+        copy=False,
+        readonly=True,
+        tracking=True,
+        help="The lead opted in to marketing mailings (news, invitations, "
+             "offers) at capture time in Evie.",
+    )
+    x_evie_marketing_opt_in_at = fields.Datetime(
+        string='Evie Marketing Opt-in At',
+        copy=False,
+        readonly=True,
+        tracking=True,
+        help="Timestamp of the submission carrying the marketing opt-in "
+             "outcome.",
+    )
+    x_evie_privacy_text_version = fields.Char(
+        string='Evie Privacy Text Version',
+        copy=False,
+        readonly=True,
+        tracking=True,
+        help="Version of the Evie privacy text set shown to the lead at "
+             "capture time (the full notice snapshot stays in Evie).",
+    )
+
     # Action lifecycle (19.0.1.4.0, odoo-capsule-actions). Written by the
     # Evie → Odoo sync; the evie_actions widget renders the running state,
     # the completion automation posts the chatter message.
