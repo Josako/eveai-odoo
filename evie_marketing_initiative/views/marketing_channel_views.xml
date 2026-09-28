@@ -55,6 +55,20 @@
                             <field name="local_dirty"/>
                         </group>
                     </group>
+                    <notebook colspan="2">
+                        <!-- What this channel produced (capture-lifecycle-
+                             actions): explicit inline columns, same shape
+                             as the Captures tab on the initiative form. -->
+                        <page string="Captures" name="captures">
+                            <field name="capture_ids" nolabel="1">
+                                <list>
+                                    <field name="captured_at"/>
+                                    <field name="name"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>

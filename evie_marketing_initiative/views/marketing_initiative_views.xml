@@ -124,6 +124,11 @@
                                          standard Odoo; this marketing context
                                          shows leads (fix-marketing-capture-lifecycle). -->
                                     <field name="name" string="Lead"/>
+                                    <!-- Which channel produced this lead
+                                         (capture-lifecycle-actions); the
+                                         field syncs already via the
+                                         CAPTURE_GENERATED_LEAD chain. -->
+                                    <field name="initiative_channel_id" readonly="1"/>
                                     <field name="partner_name" readonly="1"/>
                                     <field name="expected_revenue" readonly="1"/>
                                     <field name="stage_id" readonly="1"/>
