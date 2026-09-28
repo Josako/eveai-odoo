@@ -42,6 +42,15 @@ class MarketingCapture(models.Model):
         help='Evie document version id of the scanned business card image. '
              'Opens a read-only media view in Evie.')
     captured_at = fields.Datetime(string='Captured At', readonly=True)
+    # Capturing user (capture-salesperson-attribution): the Odoo user who
+    # made the capture, resolved Evie-side through the user-identity
+    # channel (identity assertion, unique-email fallback) — out-only,
+    # never edited locally; empty when the capture was anonymous or the
+    # capturer matches no Odoo user (never guessed).
+    captured_by_id = fields.Many2one(
+        'res.users', string='Captured By', readonly=True, ondelete='set null',
+        help='The Odoo user who made this capture, resolved from the Evie '
+             'capturing user (identity assertion or unique email match).')
     # Marketing opt-in (privacy-lead-capture): the only consent control of
     # the capture, synced out-only as first-class consent data — its own
     # fields, never "agreed to privacy policy". The full privacy notice
