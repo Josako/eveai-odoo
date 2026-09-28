@@ -113,6 +113,9 @@
                                 <list>
                                     <field name="captured_at"/>
                                     <field name="name"/>
+                                    <!-- Channel attribution per capture
+                                         (capture-lifecycle-actions). -->
+                                    <field name="channel_id" readonly="1"/>
                                     <field name="state" widget="badge"/>
                                 </list>
                             </field>
