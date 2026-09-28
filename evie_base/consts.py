@@ -91,4 +91,7 @@ EVIE_OPEN_KINDS = {
     'capsule': 'capsule_id',
     'chat_session': 'chat_session_id',
     'capture_media': 'document_version_id',
+    # Capture list popup (capture-list-view): the reference is the scope
+    # capsule id (marketing initiative or channel mirror).
+    'capture_list': 'capsule_id',
 }

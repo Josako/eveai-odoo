@@ -91,6 +91,14 @@ class MarketingInitiative(models.Model):
 
     active = fields.Boolean(default=True)
 
+    def action_open_capture_list(self):
+        """Open the Evie capture list popup scoped to this initiative
+        (capture-list-view): the same screen an Evie user sees — flat
+        across the initiative's channels, enriched per selected channel —
+        with the asserted integration user as actor of any action inside."""
+        self.ensure_one()
+        return self.action_evie_open('capture_list', self.capsule_id)
+
     @api.depends('cost_ids.amount')
     def _compute_actual_cost(self):
         for initiative in self:

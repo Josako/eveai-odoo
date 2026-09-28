@@ -10,6 +10,14 @@
         <field name="model">marketing.initiative</field>
         <field name="arch" type="xml">
             <form create="0">
+                <header>
+                    <!-- Capture list popup (capture-list-view): view and
+                         process this initiative's captures in Evie. -->
+                    <button name="action_open_capture_list" type="object"
+                            string="Captures" class="oe_highlight"
+                            invisible="not capsule_id"
+                            title="View and process this initiative's captures in Evie"/>
+                </header>
                 <sheet>
                     <widget name="evie_brand_header" title="EVIE MARKETING"/>
                     <div class="oe_title">

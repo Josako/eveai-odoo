@@ -49,6 +49,13 @@ class MarketingInitiativeChannel(models.Model):
     capture_ids = fields.One2many(
         'marketing.capture', 'channel_id', string='Captures', readonly=True)
 
+    def action_open_capture_list(self):
+        """Open the Evie capture list popup scoped to this channel
+        (capture-list-view): the same screen an Evie user sees, with the
+        asserted integration user as actor of any action inside."""
+        self.ensure_one()
+        return self.action_evie_open('capture_list', self.capsule_id)
+
     # --- Materialised native UTM record (out, adopt-or-create) ---
     source_id = fields.Many2one('utm.source', string='Source', readonly=True)
 
