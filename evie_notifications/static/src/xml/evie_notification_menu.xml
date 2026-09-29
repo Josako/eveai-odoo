@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_notifications.EvieNotificationMenu">
+        <Dropdown position="'bottom-end'"
+                  state="dropdown"
+                  beforeOpen.bind="onBeforeOpen"
+                  menuClass="'o_evie_notification_dropdown p-0'">
+            <button title="Evie notifications">
+                <i class="fa fa-lg fa-bell o_evie_notification_bell" role="img" aria-label="Evie notifications"/>
+                <span t-if="store.unreadCount" class="badge rounded-pill"><t t-esc="counterLabel"/></span>
+            </button>
+            <t t-set-slot="content">
+                <div class="o_evie_notification_panel">
+                    <div class="o_evie_notification_panel__header">
+                        <span class="o_evie_notification_panel__title">
+                            <i class="o_evie_icon" role="img"/>
+                            Notifications
+                        </span>
+                        <button t-if="store.unreadCount"
+                                class="btn btn-link btn-sm p-0"
+                                t-on-click="onMarkAllRead">
+                            Mark all read
+                        </button>
+                    </div>
+
+                    <div class="o_evie_notification_panel__tabs">
+                        <button t-att-class="'btn btn-sm ' + (ui.tab === 'recent' ? 'active' : '')"
+                                t-on-click="() => this.showTab('recent')">
+                            Recent
+                        </button>
+                        <button t-att-class="'btn btn-sm ' + (ui.tab === 'older' ? 'active' : '')"
+                                t-on-click="() => this.showTab('older')">
+                            Older
+                        </button>
+                    </div>
+
+                    <div class="o_evie_notification_panel__list">
+                        <t t-foreach="items" t-as="item" t-key="item.id">
+                            <div t-att-class="itemClass(item)"
+                                 role="button"
+                                 t-on-click="() => this.onClickItem(item)">
+                                <i t-att-class="kindIcon(item) + ' o_evie_notification_item__icon'" role="img"/>
+                                <div class="o_evie_notification_item__content">
+                                    <div class="o_evie_notification_item__title" t-esc="item.title"/>
+                                    <div t-if="item.body" class="o_evie_notification_item__body" t-esc="item.body"/>
+                                    <div class="o_evie_notification_item__meta">
+                                        <t t-esc="relativeTime(item)"/>
+                                        <t t-if="item.author_name"> · <t t-esc="item.author_name"/></t>
+                                    </div>
+                                </div>
+                                <button t-if="ui.tab === 'recent'"
+                                        class="btn btn-link btn-sm o_evie_notification_item__dismiss"
+                                        title="Clear"
+                                        aria-label="Clear"
+                                        t-on-click.stop="() => this.onDismiss(item)">
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
+                        </t>
+                        <div t-if="!items.length" class="o_evie_notification_panel__empty">
+                            <t t-esc="emptyLabel"/>
+                        </div>
+                    </div>
+
+                    <div class="o_evie_notification_panel__footer">
+                        <button t-if="ui.tab === 'recent' and store.items.length"
+                                class="btn btn-link btn-sm"
+                                t-on-click="onClearAll">
+                            Clear all
+                        </button>
+                        <span t-else=""/>
+                        <button class="btn btn-link btn-sm" t-on-click="onViewAll">
+                            View all
+                        </button>
+                    </div>
+                </div>
+            </t>
+        </Dropdown>
+    </t>
+
+</templates>

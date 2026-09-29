@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_evie_notification_list" model="ir.ui.view">
+        <field name="name">evie.notification.list</field>
+        <field name="model">evie.notification</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" decoration-bf="not is_read" decoration-muted="not active">
+                <field name="create_date" string="Date"/>
+                <field name="kind" widget="badge"
+                       decoration-info="kind == 'lead'"
+                       decoration-warning="kind == 'activity'"
+                       decoration-success="kind == 'evie'"/>
+                <field name="title"/>
+                <field name="body" optional="show"/>
+                <field name="author_id" optional="show"/>
+                <field name="user_id" optional="hide" groups="base.group_system"/>
+                <field name="is_read" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+                <button name="action_open" type="object" string="Open"
+                        icon="fa-external-link" invisible="not res_id and not action_xmlid"/>
+                <field name="res_id" column_invisible="True"/>
+                <field name="action_xmlid" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_evie_notification_form" model="ir.ui.view">
+        <field name="name">evie.notification.form</field>
+        <field name="model">evie.notification</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <header>
+                    <button name="action_open" type="object" string="Open related record"
+                            class="btn-primary" invisible="not res_id and not action_xmlid"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Cleared" bg_color="text-bg-secondary"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="title"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="kind"/>
+                            <field name="tone"/>
+                            <field name="author_id"/>
+                            <field name="user_id" groups="base.group_system"/>
+                        </group>
+                        <group>
+                            <field name="create_date" string="Date"/>
+                            <field name="is_read"/>
+                            <field name="read_date" invisible="not is_read"/>
+                            <field name="res_model" groups="base.group_no_one"/>
+                            <field name="res_id" groups="base.group_no_one"/>
+                            <field name="action_xmlid" invisible="1"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="body" nolabel="1" placeholder="No details."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_evie_notification_search" model="ir.ui.view">
+        <field name="name">evie.notification.search</field>
+        <field name="model">evie.notification</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="title"/>
+                <field name="body"/>
+                <field name="user_id" groups="base.group_system"/>
+                <filter name="unread" string="Unread" domain="[('is_read', '=', False)]"/>
+                <separator/>
+                <filter name="recent" string="Recent" domain="[('active', '=', True)]"/>
+                <filter name="cleared" string="Cleared" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="kind_lead" string="Leads" domain="[('kind', '=', 'lead')]"/>
+                <filter name="kind_activity" string="Activities" domain="[('kind', '=', 'activity')]"/>
+                <filter name="kind_evie" string="Evie" domain="[('kind', '=', 'evie')]"/>
+                <group>
+                    <filter name="group_kind" string="Type" context="{'group_by': 'kind'}"/>
+                    <filter name="group_user" string="Recipient" context="{'group_by': 'user_id'}"
+                            groups="base.group_system"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- "View all" from the bell: the current user's notifications, cleared
+         ones included. -->
+    <record id="action_evie_notification_my" model="ir.actions.act_window">
+        <field name="name">My Evie notifications</field>
+        <field name="res_model">evie.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="context">{'active_test': False}</field>
+        <field name="search_view_id" ref="view_evie_notification_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No notifications yet</p>
+            <p>Evie lets you know here when leads or activities that concern you change.</p>
+        </field>
+    </record>
+
+    <!-- Administrators: every user's notifications, for support. -->
+    <record id="action_evie_notification_all" model="ir.actions.act_window">
+        <field name="name">Notifications</field>
+        <field name="res_model">evie.notification</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False, 'search_default_group_user': 1}</field>
+        <field name="search_view_id" ref="view_evie_notification_search"/>
+    </record>
+
+    <menuitem id="menu_evie_notifications"
+              name="Notifications"
+              parent="evie_base.menu_evie_root"
+              action="action_evie_notification_all"
+              sequence="30"
+              groups="base.group_system"/>
+</odoo>
