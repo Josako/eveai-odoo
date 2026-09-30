@@ -18,7 +18,11 @@
          The columns carry the native activity_state progressbar (same
          element as the standard lead kanban — record counts, no sum
          field: leads have no meaningful expected revenue); clicking a
-         segment filters the column to that urgency. -->
+         segment filters the column to that urgency.
+         My Leads default (19.0.1.24.0, lead-pipeline-my-pipeline-default):
+         the action opens with the core assigned_to_me filter pre-applied
+         — a search default, not a domain, so the full board stays one
+         chip-removal away (session-persistent). -->
 
     <record id="crm_lead_view_kanban_evie_pipeline" model="ir.ui.view">
         <field name="name">crm.lead.kanban.evie.pipeline</field>
@@ -106,6 +110,7 @@
         <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,graph,pivot,list,form</field>
         <field name="domain">[('type', '=', 'lead'), ('x_evie_capsule_id', '!=', False)]</field>
+        <field name="context">{'search_default_assigned_to_me': 1}</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('crm_lead_view_kanban_evie_pipeline')}),
