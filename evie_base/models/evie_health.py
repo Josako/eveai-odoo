@@ -155,6 +155,32 @@ class EvieHealth(models.AbstractModel):
         return status
 
     @api.model
+    def get_model_ids(self, model_names):
+        """Resolve ``ir.model`` ids for the given model names (sudo).
+
+        Odoo 19 restricts ``ir.model`` read access to administrator-level
+        groups, so the integration's least-privilege API user cannot
+        resolve ``mail.activity.res_model_id`` anchors through the ORM
+        (odoo-server-side-model-resolution). This method performs the
+        lookup server-side instead — mirroring how ``get_status`` exposes
+        the module registry.
+
+        Only the requested names are returned, never the full registry.
+        Unknown model names map to ``None`` so the caller can distinguish
+        "unknown model" from a transport error.
+
+        Returns a dict::
+
+            {'crm.lead': 623, 'does.not.exist': None}
+        """
+        names = [n for n in (model_names or []) if isinstance(n, str) and n]
+        if not names:
+            return {}
+        records = self.env['ir.model'].sudo().search([('model', 'in', names)])
+        found = {m.model: m.id for m in records}
+        return {name: found.get(name) for name in names}
+
+    @api.model
     def _store_integration_service_id(self, integration_service_id):
         """Persist the Evie integration service id (idempotent)."""
         param = self.env['ir.config_parameter'].sudo()

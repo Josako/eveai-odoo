@@ -7,7 +7,22 @@
          automation notifies Evie (value-based, idempotent — dragging back
          undoes a mistake). No quick_create: a card created here would have
          no capsule link yet and would immediately vanish from the board
-         (domain below), which is confusing UX. -->
+         (domain below), which is confusing UX.
+         Activity indicator (19.0.1.23.0, lead-pipeline-activity-icons):
+         the card footer carries the native kanban_activity widget
+         (bottom-left, where the LinkedIn link used to sit — it added no
+         value on the board). It shows the next open activity coloured by
+         urgency and opens the native popover; the muted state stays
+         clickable so a next action is one click away. Evie failure
+         to-do's (crm_lead.py) surface through it like any activity.
+         The columns carry the native activity_state progressbar (same
+         element as the standard lead kanban — record counts, no sum
+         field: leads have no meaningful expected revenue); clicking a
+         segment filters the column to that urgency.
+         My Leads default (19.0.1.24.0, lead-pipeline-my-pipeline-default):
+         the action opens with the core assigned_to_me filter pre-applied
+         — a search default, not a domain, so the full board stays one
+         chip-removal away (session-persistent). -->
 
     <record id="crm_lead_view_kanban_evie_pipeline" model="ir.ui.view">
         <field name="name">crm.lead.kanban.evie.pipeline</field>
@@ -16,14 +31,15 @@
             <kanban highlight_color="x_evie_score_color"
                     default_group_by="x_evie_phase" quick_create="false"
                     sample="1" class="o_kanban_small_column">
+                <field name="activity_ids"/>
                 <field name="name"/>
                 <field name="contact_name"/>
                 <field name="x_evie_phase"/>
                 <field name="x_evie_source"/>
-                <field name="x_evie_linkedin_url"/>
                 <field name="x_evie_qualification_score"/>
                 <field name="x_evie_score_color"/>
                 <field name="tag_ids"/>
+                <progressbar field="activity_state" colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
                 <templates>
                     <!-- Odoo 19 card structure (cf. crm.crm_case_kanban_view_leads):
                          no wrapper div, colour strip via highlight_color. -->
@@ -42,11 +58,7 @@
                         </div>
                         <footer class="pt-1">
                             <div class="d-flex mt-auto align-items-center">
-                                <a t-if="record.x_evie_linkedin_url.raw_value"
-                                   t-att-href="record.x_evie_linkedin_url.raw_value"
-                                   target="_blank" title="Open LinkedIn profile">
-                                    <i class="fa fa-linkedin"/>
-                                </a>
+                                <field name="activity_ids" widget="kanban_activity"/>
                             </div>
                             <div class="ms-auto d-flex">
                                 <span t-if="record.x_evie_qualification_score.raw_value"
@@ -98,6 +110,7 @@
         <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,graph,pivot,list,form</field>
         <field name="domain">[('type', '=', 'lead'), ('x_evie_capsule_id', '!=', False)]</field>
+        <field name="context">{'search_default_assigned_to_me': 1}</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
             (0, 0, {'view_mode': 'kanban', 'view_id': ref('crm_lead_view_kanban_evie_pipeline')}),
