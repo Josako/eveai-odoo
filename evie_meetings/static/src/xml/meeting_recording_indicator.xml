@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_meetings.MeetingRecordingIndicator">
+        <div t-if="visible" class="o_evie_recording_indicator d-flex align-items-center">
+            <button type="button" t-on-click="onClick"
+                    t-att-title="state.title"
+                    class="o_evie_recording_indicator__button">
+                <t t-if="state.phase === 'recording'">
+                    <span class="o_evie_recording_dot" aria-hidden="true"/>
+                    <span class="o_evie_recording_indicator__time" t-esc="elapsed"/>
+                </t>
+                <t t-else="">
+                    <i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"/>
+                    <span class="o_evie_recording_indicator__time">Saving</span>
+                </t>
+            </button>
+        </div>
+    </t>
+
+</templates>

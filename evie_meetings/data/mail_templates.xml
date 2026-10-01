@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The "done" message of a Meeting/Call activity links back to its
+         meeting window: done activities are archived and drop out of the
+         chatter, and this link is how the meeting is reached afterwards. -->
+    <template id="message_activity_done" inherit_id="mail.message_activity_done">
+        <xpath expr="//div[@t-if='feedback']" position="after">
+            <p t-if="activity.x_evie_capsule_id and activity.activity_category in ('meeting', 'phonecall')">
+                <a t-attf-href="/odoo/evie-meeting/#{activity.id}"><span class="fa fa-microphone"/> Open meeting window</a>
+            </p>
+        </xpath>
+    </template>
+</odoo>

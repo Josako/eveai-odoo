@@ -14,7 +14,8 @@ instance and a TenantProject API key they do nothing.
 |--------|---------|
 | `evie_base` | Namespace conventions, Evie settings (webhook URL + API key), health surface (`evie.health.get_status`), shared webhook client, Evie menu root, shared brand assets (`o_evie_icon`, `evie_link` widget, notebook tab branding), generic `evie_actions` widget (dynamic capsule actions) |
 | `evie_crm` | `x_evie_*` anchor fields on `crm.lead` (chatter-tracked, rendered as branded open-in-Evie links), `evie.phase_stage_map` (tenant phase ↔ stage mapping, seeded), `[AUTO] Evie` automation rules, Evie actions on the lead form |
-| `evie_notifications` *(optional, not yet in the release set)* | Evie notification center: bell in the Odoo top bar with live notifications about lead and activity changes and finished Evie actions (`evie.notification`). Install it on top of `evie_crm`. See `documentation/odoo-notification-center.md` |
+| `evie_notifications` *(not yet in the release set)* | Evie notification center: bell in the Odoo top bar with live notifications about lead and activity changes and finished Evie actions (`evie.notification`). Install it on top of `evie_crm`. See `documentation/odoo-notification-center.md` |
+| `evie_meetings` *(not yet in the release set)* | Meeting window for Meeting and Call activities, opened from the chatter: meeting details and preparation, participants, in-browser recording or audio upload with Evie transcription, and meeting notes, all stored in Evie on the activity's capsule. Install it on top of `evie_crm`. See `documentation/odoo-meeting-window.md` |
 
 ## Conventions
 

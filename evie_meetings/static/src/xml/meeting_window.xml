@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_meetings.MeetingWindow">
+        <div class="o_action o_evie_meeting h-100 overflow-auto">
+            <div t-if="state.loading" class="o_evie_meeting__empty">
+                <i class="fa fa-circle-o-notch fa-spin me-2" aria-hidden="true"/>Loading meeting…
+            </div>
+            <div t-elif="state.error" class="o_evie_meeting__empty">
+                <div class="alert alert-warning mb-0" role="alert" t-esc="state.error"/>
+            </div>
+            <t t-else="">
+                <t t-set="activity" t-value="state.activity"/>
+                <header class="o_evie_meeting__header">
+                    <div class="o_evie_meeting__heading">
+                        <span class="o_evie_meeting__type-icon">
+                            <i t-attf-class="fa {{ activity.icon }}" aria-hidden="true"/>
+                        </span>
+                        <div class="min-w-0">
+                            <h2 class="o_evie_meeting__title text-truncate" t-esc="title"/>
+                            <div class="o_evie_meeting__subtitle">
+                                <span t-esc="activity.type_name"/>
+                                <span t-if="when"> · <t t-esc="when"/></span>
+                                <span t-attf-class="badge rounded-pill ms-2 {{ stateBadge.className }}" t-esc="stateBadge.label"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="o_evie_meeting__header-actions">
+                        <button t-if="activity.res_id" type="button" class="btn btn-secondary" t-on-click="openRecord">
+                            <i class="fa fa-external-link me-1" aria-hidden="true"/>
+                            <t t-if="activity.lead">Open lead</t>
+                            <t t-else="">Open record</t>
+                        </button>
+                        <span class="o_evie_meeting__brand" title="Stored in Evie">
+                            <i class="o_evie_icon" role="img" aria-label="Evie"/>
+                        </span>
+                    </div>
+                </header>
+
+                <div t-if="state.evieError" class="alert alert-warning mx-3 mb-0" role="alert">
+                    <strong>Evie is not reachable.</strong>
+                    Recordings, notes and participants are unavailable right now: <t t-esc="state.evieError"/>
+                </div>
+
+                <div class="o_evie_meeting__grid">
+                    <div class="o_evie_meeting__column">
+                        <!-- Details and preparation -->
+                        <section class="o_evie_meeting__panel o_evie_meeting__panel--details">
+                            <h3 class="o_evie_meeting__panel-title">
+                                <i class="fa fa-info-circle" aria-hidden="true"/> Details
+                            </h3>
+                            <dl class="o_evie_meeting__facts">
+                                <t t-if="when">
+                                    <dt>When</dt>
+                                    <dd t-esc="when"/>
+                                </t>
+                                <t t-if="activity.event and activity.event.location">
+                                    <dt>Location</dt>
+                                    <dd t-esc="activity.event.location"/>
+                                </t>
+                                <t t-if="activity.event and activity.event.videocall_location">
+                                    <dt>Video call</dt>
+                                    <dd>
+                                        <a t-att-href="activity.event.videocall_location" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa fa-video-camera me-1" aria-hidden="true"/>Join
+                                        </a>
+                                    </dd>
+                                </t>
+                                <t t-if="activity.event and activity.event.attendees.length">
+                                    <dt>Attendees</dt>
+                                    <dd>
+                                        <div t-foreach="activity.event.attendees" t-as="attendee" t-key="attendee_index" t-esc="attendee"/>
+                                    </dd>
+                                </t>
+                                <t t-if="activity.assignee">
+                                    <dt>Assigned to</dt>
+                                    <dd t-esc="activity.assignee"/>
+                                </t>
+                                <t t-if="doneOn">
+                                    <dt>Done on</dt>
+                                    <dd t-esc="doneOn"/>
+                                </t>
+                            </dl>
+
+                            <t t-if="activity.lead">
+                                <h4 class="o_evie_meeting__subheading">Lead</h4>
+                                <dl class="o_evie_meeting__facts">
+                                    <dt>Lead</dt>
+                                    <dd><a href="#" t-on-click.prevent="openRecord" t-esc="activity.lead.name"/></dd>
+                                    <t t-if="activity.lead.company">
+                                        <dt>Company</dt>
+                                        <dd t-esc="activity.lead.company"/>
+                                    </t>
+                                    <t t-if="activity.lead.contact">
+                                        <dt>Contact</dt>
+                                        <dd t-esc="activity.lead.contact"/>
+                                    </t>
+                                    <t t-if="activity.lead.email">
+                                        <dt>Email</dt>
+                                        <dd><a t-attf-href="mailto:{{ activity.lead.email }}" t-esc="activity.lead.email"/></dd>
+                                    </t>
+                                    <t t-if="activity.lead.phone">
+                                        <dt>Phone</dt>
+                                        <dd><a t-attf-href="tel:{{ activity.lead.phone }}" t-esc="activity.lead.phone"/></dd>
+                                    </t>
+                                    <t t-if="activity.lead.stage">
+                                        <dt>Stage</dt>
+                                        <dd t-esc="activity.lead.stage"/>
+                                    </t>
+                                    <t t-if="activity.lead.score">
+                                        <dt>Evie score</dt>
+                                        <dd t-esc="activity.lead.score"/>
+                                    </t>
+                                </dl>
+                            </t>
+
+                            <t t-if="activity.note or activity.preparation">
+                                <h4 class="o_evie_meeting__subheading">Preparation</h4>
+                                <div t-if="activity.note" class="o_evie_meeting__html" t-out="html(activity.note)"/>
+                                <t t-if="activity.preparation">
+                                    <div class="o_evie_meeting__label">Evie proposal</div>
+                                    <div class="o_evie_meeting__html" t-out="html(activity.preparation)"/>
+                                </t>
+                            </t>
+
+                            <t t-if="activity.feedback">
+                                <h4 class="o_evie_meeting__subheading">Feedback</h4>
+                                <p class="o_evie_meeting__prewrap" t-esc="activity.feedback"/>
+                            </t>
+                        </section>
+
+                        <!-- Participants -->
+                        <section class="o_evie_meeting__panel">
+                            <h3 class="o_evie_meeting__panel-title d-flex align-items-center">
+                                <span class="flex-grow-1"><i class="fa fa-users" aria-hidden="true"/> Participants</span>
+                                <span t-if="state.participantsSaving" class="o_evie_meeting__notes-status">Saving…</span>
+                                <button t-if="canEditParticipants and !state.participantForm" type="button"
+                                        class="btn btn-sm btn-secondary ms-2"
+                                        t-att-disabled="state.participantsSaving"
+                                        t-on-click="() => this.openParticipantForm()">
+                                    <i class="fa fa-plus me-1" aria-hidden="true"/>Add
+                                </button>
+                            </h3>
+                            <div t-if="!state.evieError and !state.participantsSupported" class="alert alert-info py-1 px-2 small" role="status"
+                                 t-esc="state.participantsReason"/>
+                            <div t-if="state.participantsError" class="alert alert-warning py-1 px-2 small" role="alert"
+                                 t-esc="state.participantsError"/>
+
+                            <ul t-if="state.participants.length" class="o_evie_meeting__participants list-unstyled">
+                                <li t-foreach="state.participants" t-as="participant" t-key="participant_index"
+                                    class="o_evie_meeting__participant">
+                                    <span t-attf-class="o_evie_meeting__avatar {{ participant.internal ? 'o_evie_meeting__avatar--internal' : '' }}"
+                                          t-esc="(participant.name || '?')[0].toUpperCase()" aria-hidden="true"/>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="text-truncate fw-semibold">
+                                            <t t-esc="participant.name"/>
+                                            <span t-if="participant.internal" class="badge rounded-pill text-bg-light ms-1">Our team</span>
+                                        </div>
+                                        <div t-if="participantDetail(participant)" class="small text-muted text-truncate"
+                                             t-esc="participantDetail(participant)"/>
+                                    </div>
+                                    <t t-if="canEditParticipants">
+                                        <button type="button" class="btn btn-sm btn-link px-1" title="Edit"
+                                                t-att-disabled="state.participantsSaving"
+                                                t-on-click="() => this.openParticipantForm(participant_index)">
+                                            <i class="fa fa-pencil" aria-hidden="true"/>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-link px-1 text-danger" title="Remove"
+                                                t-att-disabled="state.participantsSaving"
+                                                t-on-click="() => this.removeParticipant(participant_index)">
+                                            <i class="fa fa-times" aria-hidden="true"/>
+                                        </button>
+                                    </t>
+                                </li>
+                            </ul>
+                            <p t-elif="!state.participantForm and !state.evieError and state.participantsSupported" class="text-muted small mb-2">
+                                Nobody identified yet. Add who took part so notes, transcripts and follow-ups can refer to them.
+                            </p>
+
+                            <form t-if="state.participantForm" class="o_evie_meeting__participant-form"
+                                  t-on-submit.prevent="submitParticipantForm">
+                                <t t-set="form" t-value="state.participantForm"/>
+                                <div class="row g-2">
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Name" maxlength="120"
+                                               t-model="form.name"/>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="email" class="form-control form-control-sm" placeholder="Email" maxlength="254"
+                                               t-model="form.email"/>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Company" maxlength="120"
+                                               t-model="form.company"/>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Role (e.g. CFO, decision maker)" maxlength="80"
+                                               t-model="form.role"/>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                                    <label class="form-check mb-0 flex-grow-1">
+                                        <input type="checkbox" class="form-check-input" t-model="form.internal"/>
+                                        <span class="form-check-label">Part of our team</span>
+                                    </label>
+                                    <button type="button" class="btn btn-sm btn-link" t-on-click="cancelParticipantForm">Cancel</button>
+                                    <button type="submit" class="btn btn-sm btn-primary" t-att-disabled="state.participantsSaving">
+                                        <t t-if="form.index >= 0">Save</t>
+                                        <t t-else="">Add participant</t>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div t-if="canEditParticipants and participantSuggestions.length" class="o_evie_meeting__suggestions">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="o_evie_meeting__label flex-grow-1">Suggested</span>
+                                    <button t-if="participantSuggestions.length > 1" type="button" class="btn btn-sm btn-link p-0"
+                                            t-att-disabled="state.participantsSaving"
+                                            t-on-click="addAllSuggestedParticipants">Add all</button>
+                                </div>
+                                <button t-foreach="participantSuggestions" t-as="suggestion" t-key="suggestion_index"
+                                        type="button" class="btn btn-sm btn-outline-secondary o_evie_meeting__suggestion"
+                                        t-att-title="participantDetail(suggestion)"
+                                        t-att-disabled="state.participantsSaving"
+                                        t-on-click="() => this.addSuggestedParticipant(suggestion)">
+                                    <i class="fa fa-plus me-1" aria-hidden="true"/><t t-esc="suggestion.name"/>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="o_evie_meeting__column">
+                        <!-- Recording -->
+                        <section class="o_evie_meeting__panel">
+                            <h3 class="o_evie_meeting__panel-title">
+                                <i class="fa fa-microphone" aria-hidden="true"/> Recording
+                            </h3>
+
+                            <div class="o_evie_meeting__recorder">
+                                <t t-if="recordingHere and recorderState.phase === 'recording'">
+                                    <div class="o_evie_meeting__live">
+                                        <span class="o_evie_recording_dot" aria-hidden="true"/>
+                                        <span class="o_evie_meeting__live-time" t-esc="elapsed"/>
+                                        <span class="text-muted">Recording — you can keep taking notes or leave this page.</span>
+                                    </div>
+                                    <button type="button" class="btn btn-danger" t-on-click="stopRecording">
+                                        <i class="fa fa-stop me-1" aria-hidden="true"/>Stop and save
+                                    </button>
+                                </t>
+                                <t t-elif="recordingHere and recorderState.phase === 'starting'">
+                                    <span class="text-muted">
+                                        <i class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>Starting microphone…
+                                    </span>
+                                </t>
+                                <t t-elif="recordingHere and recorderState.phase === 'uploading'">
+                                    <span class="text-muted">
+                                        <i class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>Saving the recording to Evie…
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <button type="button" class="btn btn-primary o_evie_meeting__record-btn"
+                                            t-att-disabled="!canRecord or recorderBusyElsewhere"
+                                            t-on-click="startRecording">
+                                        <i class="fa fa-circle me-1" aria-hidden="true"/>
+                                        <t t-if="isCall">Record call</t>
+                                        <t t-else="">Record meeting</t>
+                                    </button>
+                                    <label t-attf-class="btn btn-secondary mb-0 {{ !canRecord or recorderBusyElsewhere ? 'disabled' : '' }}">
+                                        <i class="fa fa-upload me-1" aria-hidden="true"/>Add a recording
+                                        <input type="file" class="d-none" accept="audio/*,video/*"
+                                               t-att-disabled="!canRecord or recorderBusyElsewhere"
+                                               t-on-change="onFileChosen"/>
+                                    </label>
+                                    <div t-if="recorderBusyElsewhere" class="text-muted small w-100">
+                                        Another meeting is being recorded (<t t-esc="recorderState.title"/>). Stop it first.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <div t-if="failedUpload" class="alert alert-danger d-flex flex-wrap align-items-center gap-2" role="alert">
+                                <span class="flex-grow-1">
+                                    The last recording was not saved: <t t-esc="failedUpload.error"/>
+                                </span>
+                                <button type="button" class="btn btn-sm btn-danger" t-on-click="retryUpload">Retry</button>
+                                <button type="button" class="btn btn-sm btn-secondary" t-on-click="downloadFailedUpload">Download</button>
+                                <button type="button" class="btn btn-sm btn-link" t-on-click="discardFailedUpload">Discard</button>
+                            </div>
+
+                            <t t-if="state.recordings.length">
+                                <ul class="o_evie_meeting__recordings list-unstyled">
+                                    <li t-foreach="state.recordings" t-as="recording" t-key="recording.document_id"
+                                        t-attf-class="o_evie_meeting__recording {{ recording.document_id === state.selectedId ? 'o_evie_meeting__recording--active' : '' }}"
+                                        t-on-click="() => this.selectRecording(recording)">
+                                        <i class="fa fa-file-audio-o" aria-hidden="true"/>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="text-truncate fw-semibold" t-esc="recording.name"/>
+                                            <div class="small text-muted" t-esc="recordingLabel(recording)"/>
+                                        </div>
+                                        <t t-set="status" t-value="recordingStatus(recording)"/>
+                                        <span t-attf-class="badge rounded-pill {{ status.className }}" t-esc="status.label"/>
+                                    </li>
+                                </ul>
+
+                                <t t-set="recording" t-value="selected"/>
+                                <div t-if="recording" class="o_evie_meeting__selected">
+                                    <audio t-if="audioUrl(recording)" class="w-100" controls="controls" preload="metadata"
+                                           t-att-src="audioUrl(recording)"/>
+                                    <div class="d-flex align-items-center gap-2 my-2">
+                                        <h4 class="o_evie_meeting__subheading flex-grow-1 m-0">Transcript</h4>
+                                        <button t-if="!recording.processing" type="button" class="btn btn-sm btn-secondary"
+                                                t-att-disabled="state.transcribing[recording.document_id]"
+                                                t-on-click="() => this.transcribe(recording)"
+                                                t-esc="transcribeLabel(recording)"/>
+                                    </div>
+                                    <p t-if="recording.processing" class="text-muted">
+                                        <i class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>
+                                        Evie is transcribing this recording. It appears here when ready.
+                                    </p>
+                                    <div t-elif="recording.processing_error" class="alert alert-warning" role="alert" t-esc="recording.processing_error"/>
+                                    <t t-set="transcript" t-value="selectedTranscript"/>
+                                    <t t-if="transcript">
+                                        <p t-if="transcript.loading" class="text-muted">Loading transcript…</p>
+                                        <div t-elif="transcript.error" class="alert alert-warning" role="alert" t-esc="transcript.error"/>
+                                        <t t-else="">
+                                            <div t-if="transcript.speakers.length" class="o_evie_meeting__speakers">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <span class="o_evie_meeting__label flex-grow-1">Name the speakers</span>
+                                                    <button type="button" class="btn btn-sm btn-link"
+                                                            t-att-disabled="state.savingSpeakers or !speakersDirty"
+                                                            t-on-click="saveSpeakers">
+                                                        <t t-if="state.savingSpeakers">Saving…</t>
+                                                        <t t-else="">Save names</t>
+                                                    </button>
+                                                </div>
+                                                <div t-foreach="transcript.speakers" t-as="speaker" t-key="speaker.key" class="o_evie_meeting__speaker">
+                                                    <span class="o_evie_meeting__speaker-badge" t-esc="speaker_index + 1"/>
+                                                    <input type="text" class="form-control form-control-sm" maxlength="80"
+                                                           list="o_evie_meeting_participant_names"
+                                                           t-att-placeholder="speaker.key" t-model="speaker.name"/>
+                                                </div>
+                                                <datalist id="o_evie_meeting_participant_names">
+                                                    <option t-foreach="participantNames" t-as="name" t-key="name_index" t-att-value="name"/>
+                                                </datalist>
+                                            </div>
+                                            <div class="o_evie_meeting__transcript">
+                                                <t t-foreach="transcript.blocks" t-as="block" t-key="block.id">
+                                                    <div t-if="block.type === 'heading'" class="o_evie_meeting__transcript-heading" t-esc="block.text"/>
+                                                    <p t-else="" class="o_evie_meeting__prewrap" t-esc="block.text"/>
+                                                </t>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <p t-elif="!recording.processing and !recording.processing_error and !recording.has_transcript" class="text-muted">
+                                        No transcript yet.
+                                    </p>
+                                </div>
+                            </t>
+                            <p t-elif="!state.evieError" class="text-muted mb-0">
+                                No recordings yet. Record the meeting here, or add an audio file afterwards.
+                            </p>
+                        </section>
+
+                        <!-- Notes -->
+                        <section class="o_evie_meeting__panel">
+                            <h3 class="o_evie_meeting__panel-title d-flex align-items-center">
+                                <span class="flex-grow-1"><i class="fa fa-pencil" aria-hidden="true"/> Notes</span>
+                                <span t-attf-class="o_evie_meeting__notes-status o_evie_meeting__notes-status--{{ state.notesStatus }}" t-esc="notesStatusLabel"/>
+                                <button type="button" class="btn btn-sm btn-primary ms-2"
+                                        t-att-disabled="state.notesStatus === 'saving' or state.notes === state.notesSaved or !state.notes.trim() or state.evieError"
+                                        t-on-click="saveNotes">Save</button>
+                            </h3>
+                            <div t-if="state.draftRestored" class="alert alert-info py-1 px-2 small" role="status">
+                                Restored notes you had not saved yet.
+                            </div>
+                            <div t-if="state.notesStatus === 'error'" class="alert alert-warning py-1 px-2 small" role="alert">
+                                <t t-esc="state.notesError"/> Your notes are kept in this browser until they are saved.
+                            </div>
+                            <textarea class="form-control o_evie_meeting__notes"
+                                      placeholder="What was discussed, agreements, next steps…"
+                                      t-att-value="state.notes"
+                                      t-att-readonly="activity.can_write === false"
+                                      t-on-input="onNotesInput"
+                                      t-on-blur="onNotesBlur"/>
+                            <div class="small text-muted mt-1">
+                                Saved to Evie as the meeting notes of this activity (markdown).
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

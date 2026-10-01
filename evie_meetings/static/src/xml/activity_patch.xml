@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="mail.Activity" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o-mail-Activity-markDone')]" position="before">
+            <button t-if="hasEvieMeetingWindow" type="button"
+                    class="o-mail-Activity-evieMeeting btn btn-link text-action p-0 me-3"
+                    t-on-click.stop="openEvieMeetingWindow">
+                <i class="fa fa-microphone"/> Meeting window
+            </button>
+        </xpath>
+    </t>
+
+</templates>

@@ -1,0 +1,237 @@
+"""Server side of the meeting window (odoo-meeting-window).
+
+The window is a client action on one Meeting or Call activity linked to an
+Evie CRM_ACTIVITY capsule. Details come from Odoo; participants, recordings,
+notes and transcripts live in Evie and are fetched through the Evie integration API
+with the API key, which never leaves the server. Audio itself goes straight
+between the browser and Evie: these methods only hand out short-lived,
+single-activity upload and playback links.
+
+Every method checks the current user's access to the activity first, so the
+window can do exactly what the user could do with the activity itself.
+Done activities are archived, not deleted — the window keeps working on
+them so meetings can be completed afterwards.
+"""
+
+from odoo import _, fields, models
+from odoo.exceptions import UserError
+
+#: Activity type categories that get a meeting window (core Meeting and Call).
+MEETING_CATEGORIES = ('meeting', 'phonecall')
+
+
+def _html(value):
+    return str(value) if value else ''
+
+
+class MailActivity(models.Model):
+    _inherit = 'mail.activity'
+
+    def _to_store_defaults(self, target):
+        return super()._to_store_defaults(target) + ['x_evie_capsule_id']
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _evie_meeting_activity(self, operation='read'):
+        """This activity, checked to host a meeting window for the user."""
+        self.ensure_one()
+        activity = self.with_context(active_test=False)
+        activity.check_access(operation)
+        if activity.activity_category not in MEETING_CATEGORIES:
+            raise UserError(_("The meeting window is only available for Meeting and Call activities."))
+        if not activity.x_evie_capsule_id:
+            raise UserError(_("This activity is not linked to Evie yet; try again in a moment."))
+        return activity
+
+    def _evie_meeting_capsule_id(self):
+        try:
+            return int(self.x_evie_capsule_id)
+        except (TypeError, ValueError):
+            raise UserError(_("This activity has an invalid Evie link.")) from None
+
+    def _evie_meeting_user(self):
+        user = self.env.user
+        return {'name': user.name, 'email': user.email, 'lang': user.lang, 'id': user.id}
+
+    def _evie_meeting_call(self, path, payload):
+        ok, data = self.env['evie.webhook'].post_for_json(path, payload)
+        if not ok:
+            raise UserError(_("Evie could not complete the request: %s") % data)
+        return data
+
+    def _evie_meeting_details(self):
+        event = self.calendar_event_id
+        details = {
+            'id': self.id,
+            'summary': self.summary or '',
+            'type_name': self.activity_type_id.name or '',
+            'category': self.activity_category,
+            'icon': self.icon or 'fa-tasks',
+            'state': self.state,
+            'can_write': self.has_access('write'),
+            'date_deadline': fields.Date.to_string(self.date_deadline),
+            'date_done': fields.Date.to_string(self.date_done),
+            'assignee': self.user_id.name or '',
+            'note': _html(self.note),
+            'feedback': self.feedback or '',
+            'preparation': _html(self.x_evie_final_content or self.x_evie_proposed_content),
+            'res_model': self.res_model,
+            'res_id': self.res_id,
+            'res_name': self.res_name or '',
+            'event': False,
+            'lead': False,
+        }
+        if event:
+            details['event'] = {
+                'id': event.id,
+                'name': event.name,
+                'start': fields.Datetime.to_string(event.start),
+                'stop': fields.Datetime.to_string(event.stop),
+                'allday': event.allday,
+                'location': event.location or '',
+                'videocall_location': event.videocall_location or '',
+                'attendees': event.partner_ids.mapped('display_name'),
+            }
+        if self.res_model == 'crm.lead' and self.res_id:
+            lead = self.env['crm.lead'].browse(self.res_id).exists()
+            if lead:
+                details['lead'] = {
+                    'id': lead.id,
+                    'name': lead.name,
+                    'company': lead.partner_id.commercial_company_name or lead.partner_name or '',
+                    'contact': lead.contact_name or lead.partner_id.name or '',
+                    'email': lead.email_from or '',
+                    'phone': lead.phone or '',
+                    'stage': lead.stage_id.name or '',
+                    'salesperson': lead.user_id.name or '',
+                    'score': lead.x_evie_qualification_score or 0,
+                }
+        details['participant_suggestions'] = self._evie_meeting_participant_suggestions()
+        return details
+
+    def _evie_meeting_partner_participant(self, partner):
+        internal = any(not user.share for user in partner.user_ids)
+        return {
+            'name': partner.name or partner.email or '',
+            'email': partner.email or '',
+            'company': (self.env.company.name if internal else partner.commercial_company_name) or '',
+            'role': partner.function or '',
+            'internal': internal,
+        }
+
+    def _evie_meeting_participant_suggestions(self):
+        """People who likely took part: calendar attendees, the lead's
+        contact and the assignee (first occurrence per email/name wins)."""
+        suggestions = [
+            self._evie_meeting_partner_participant(partner)
+            for partner in self.calendar_event_id.partner_ids
+        ]
+        if self.res_model == 'crm.lead' and self.res_id:
+            lead = self.env['crm.lead'].browse(self.res_id).exists()
+            if lead and lead.partner_id:
+                suggestions.append(self._evie_meeting_partner_participant(lead.partner_id))
+            elif lead and (lead.contact_name or lead.email_from):
+                suggestions.append({
+                    'name': lead.contact_name or lead.email_from,
+                    'email': lead.email_from or '',
+                    'company': lead.partner_name or '',
+                    'role': lead.function or '',
+                    'internal': False,
+                })
+        if self.user_id:
+            suggestions.append(self._evie_meeting_partner_participant(self.user_id.partner_id))
+        bot = self.env.ref('base.partner_root', raise_if_not_found=False)
+        seen = {(bot.email or bot.name).strip().lower()} if bot else set()
+        unique = []
+        for suggestion in suggestions:
+            key = (suggestion['email'] or suggestion['name']).strip().lower()
+            if key and key not in seen:
+                seen.add(key)
+                unique.append(suggestion)
+        return unique
+
+    # ------------------------------------------------------------------
+    # Meeting window API (called from the client action)
+    # ------------------------------------------------------------------
+
+    def evie_meeting_window_data(self):
+        """Everything the window shows on open. An unreachable Evie does not
+        block the details: the Evie part then carries an error instead."""
+        activity = self._evie_meeting_activity()
+        data = {'activity': activity._evie_meeting_details(), 'evie': False, 'evie_error': False}
+        try:
+            data['evie'] = activity.evie_meeting_overview()
+        except UserError as e:
+            data['evie_error'] = str(e)
+        return data
+
+    def evie_meeting_overview(self):
+        """Recordings (with transcription status) and notes from Evie."""
+        activity = self._evie_meeting_activity()
+        return activity._evie_meeting_call('/meeting/overview', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+        })
+
+    def evie_meeting_save_notes(self, content):
+        activity = self._evie_meeting_activity('write')
+        if not (content or '').strip():
+            raise UserError(_("Notes cannot be empty."))
+        return activity._evie_meeting_call('/meeting/notes', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'content': content,
+            'user': activity._evie_meeting_user(),
+        })
+
+    def evie_meeting_save_participants(self, participants):
+        """Replace who took part in the meeting (stored on the Evie activity)."""
+        activity = self._evie_meeting_activity('write')
+        if not isinstance(participants, list):
+            raise UserError(_("Participants must be a list."))
+        return activity._evie_meeting_call('/meeting/participants', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'participants': participants,
+            'user': activity._evie_meeting_user(),
+        })
+
+    def evie_meeting_upload_url(self):
+        """One-time link the browser posts a recording to."""
+        activity = self._evie_meeting_activity('write')
+        return activity._evie_meeting_call('/meeting/upload-url', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'user': activity._evie_meeting_user(),
+        })
+
+    def evie_meeting_audio_url(self, document_id):
+        activity = self._evie_meeting_activity()
+        return activity._evie_meeting_call('/meeting/audio-url', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'user': activity._evie_meeting_user(),
+        })
+
+    def evie_meeting_transcript(self, document_id):
+        activity = self._evie_meeting_activity()
+        return activity._evie_meeting_call('/meeting/transcript', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+        })
+
+    def evie_meeting_transcribe(self, document_id):
+        activity = self._evie_meeting_activity('write')
+        return activity._evie_meeting_call('/meeting/transcribe', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'user': activity._evie_meeting_user(),
+        })
+
+    def evie_meeting_save_speakers(self, document_id, speaker_labels):
+        activity = self._evie_meeting_activity('write')
+        if not isinstance(speaker_labels, dict):
+            raise UserError(_("Speaker names must be a mapping."))
+        return activity._evie_meeting_call('/meeting/speakers', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'speaker_labels': speaker_labels,
+        })
