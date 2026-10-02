@@ -120,6 +120,9 @@ export class MeetingWindow extends Component {
             participantsSaving: false,
             participantsError: "",
             participantForm: null,
+            documentTypes: [],
+            notesDocument: { id: false, type: "", label: "" },
+            savingType: {},
         });
         this.pollTimer = null;
         this.notesTimer = null;
@@ -188,6 +191,10 @@ export class MeetingWindow extends Component {
     applyOverview(overview, { selectNewest = false } = {}) {
         if (overview.participants && !this.state.participantsSaving) {
             this.applyParticipants(overview.participants);
+        }
+        this.state.documentTypes = overview.document_types || [];
+        if (overview.notes) {
+            this.applyNotesDocument(overview.notes);
         }
         const recordings = overview.recordings || [];
         const previous = new Map(this.state.recordings.map((r) => [r.document_id, r]));
@@ -420,6 +427,9 @@ export class MeetingWindow extends Component {
         if (recording.duration_sec) {
             parts.push(formatElapsed(recording.duration_sec));
         }
+        if (recording.document_type_label) {
+            parts.push(recording.document_type_label);
+        }
         return parts.join(" · ");
     }
 
@@ -490,6 +500,65 @@ export class MeetingWindow extends Component {
             await this.loadTranscript(documentId);
         } finally {
             this.state.savingSpeakers = false;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Document types (recordings and notes)
+    // ------------------------------------------------------------------
+
+    applyNotesDocument(notes) {
+        this.state.notesDocument = {
+            id: notes.document_id || false,
+            type: notes.document_type || "",
+            label: notes.document_type_label || "",
+        };
+    }
+
+    get canEditDocumentTypes() {
+        return (
+            this.state.activity?.can_write !== false &&
+            !this.state.evieError &&
+            this.state.documentTypes.length > 0
+        );
+    }
+
+    /** The active types, plus the current one when it has since been deactivated. */
+    documentTypeOptions(current, currentLabel) {
+        const options = this.state.documentTypes;
+        if (current && !options.some((option) => option.value === current)) {
+            return [...options, { value: current, label: currentLabel || current }];
+        }
+        return options;
+    }
+
+    documentTypeLabel(label) {
+        return label || _t("Not set");
+    }
+
+    async setDocumentType(documentId, documentType) {
+        this.state.savingType[documentId] = true;
+        try {
+            const result = await this.orm.silent.call(MODEL, "evie_meeting_set_document_type", [
+                [this.activityId],
+                documentId,
+                documentType,
+            ]);
+            const recording = this.state.recordings.find((r) => r.document_id === documentId);
+            if (recording) {
+                recording.document_type = result.document_type;
+                recording.document_type_label = result.document_type_label;
+            }
+            if (this.state.notesDocument.id === documentId) {
+                this.applyNotesDocument(result);
+            }
+        } catch (error) {
+            this.notification.add(
+                _t("The document type could not be saved: %s", errorMessage(error)),
+                { type: "danger" }
+            );
+        } finally {
+            delete this.state.savingType[documentId];
         }
     }
 
@@ -651,7 +720,11 @@ export class MeetingWindow extends Component {
         this.state.notesStatus = "saving";
         this.state.notesError = "";
         try {
-            await this.orm.silent.call(MODEL, "evie_meeting_save_notes", [[this.activityId], content]);
+            const result = await this.orm.silent.call(MODEL, "evie_meeting_save_notes", [
+                [this.activityId],
+                content,
+            ]);
+            this.applyNotesDocument(result);
             this.state.notesSaved = content;
             if (this.state.notes === content) {
                 this.state.notesStatus = "saved";

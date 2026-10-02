@@ -195,6 +195,15 @@ class MailActivity(models.Model):
             'user': activity._evie_meeting_user(),
         })
 
+    def evie_meeting_set_document_type(self, document_id, document_type):
+        """Set (or clear) the CRM document type of a recording or the notes."""
+        activity = self._evie_meeting_activity('write')
+        return activity._evie_meeting_call('/meeting/document-type', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'document_type': document_type or '',
+        })
+
     def evie_meeting_upload_url(self):
         """One-time link the browser posts a recording to."""
         activity = self._evie_meeting_activity('write')

@@ -303,6 +303,11 @@
 
                                 <t t-set="recording" t-value="selected"/>
                                 <div t-if="recording" class="o_evie_meeting__selected">
+                                    <t t-call="evie_meetings.MeetingDocumentType">
+                                        <t t-set="documentId" t-value="recording.document_id"/>
+                                        <t t-set="documentType" t-value="recording.document_type"/>
+                                        <t t-set="documentTypeText" t-value="recording.document_type_label"/>
+                                    </t>
                                     <audio t-if="audioUrl(recording)" class="w-100" controls="controls" preload="metadata"
                                            t-att-src="audioUrl(recording)"/>
                                     <div class="d-flex align-items-center gap-2 my-2">
@@ -384,10 +389,36 @@
                             <div class="small text-muted mt-1">
                                 Saved to Evie as the meeting notes of this activity (markdown).
                             </div>
+                            <div t-if="state.notesDocument.id" class="mt-2">
+                                <t t-call="evie_meetings.MeetingDocumentType">
+                                    <t t-set="documentId" t-value="state.notesDocument.id"/>
+                                    <t t-set="documentType" t-value="state.notesDocument.type"/>
+                                    <t t-set="documentTypeText" t-value="state.notesDocument.label"/>
+                                </t>
+                            </div>
                         </section>
                     </div>
                 </div>
             </t>
+        </div>
+    </t>
+
+    <!-- Document type picker of one meeting document (a recording or the notes). -->
+    <t t-name="evie_meetings.MeetingDocumentType">
+        <div class="o_evie_meeting__doc-type">
+            <label class="o_evie_meeting__label mb-0" t-att-for="'o_evie_meeting_doc_type_' + documentId">Document type</label>
+            <select t-if="canEditDocumentTypes" class="form-select form-select-sm"
+                    t-att-id="'o_evie_meeting_doc_type_' + documentId"
+                    t-att-disabled="state.savingType[documentId]"
+                    t-on-change="(ev) => this.setDocumentType(documentId, ev.target.value)">
+                <option value="" t-att-selected="documentType ? null : true">Not set</option>
+                <option t-foreach="documentTypeOptions(documentType, documentTypeText)" t-as="option" t-key="option.value"
+                        t-att-value="option.value"
+                        t-att-selected="option.value === documentType ? true : null"
+                        t-esc="option.label"/>
+            </select>
+            <span t-else="" t-att-id="'o_evie_meeting_doc_type_' + documentId" t-esc="documentTypeLabel(documentTypeText)"/>
+            <i t-if="state.savingType[documentId]" class="fa fa-circle-o-notch fa-spin text-muted" aria-hidden="true"/>
         </div>
     </t>
 
