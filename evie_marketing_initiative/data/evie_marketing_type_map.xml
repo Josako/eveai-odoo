@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Seed rows for the tenant-extensible marketing type map
+         (odoo-marketing-mirror-create, D3b): the platform default keys,
+         mirroring the Evie dynamic-list seeds (and the evie_base consts,
+         which stay the single definition point). noupdate: tenant edits
+         and additions survive module upgrades. -->
+    <data noupdate="1">
+        <!-- Initiative types (MARKETING_INITIATIVE_TYPE) -->
+        <record id="type_map_initiative_trade_show" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Trade Show</field>
+            <field name="label">Trade Show</field>
+            <field name="sequence" eval="10"/>
+        </record>
+        <record id="type_map_initiative_webinar" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Webinar</field>
+            <field name="label">Webinar</field>
+            <field name="sequence" eval="20"/>
+        </record>
+        <record id="type_map_initiative_campaign" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Campaign</field>
+            <field name="label">Campaign</field>
+            <field name="sequence" eval="30"/>
+        </record>
+        <record id="type_map_initiative_conference" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Conference</field>
+            <field name="label">Conference</field>
+            <field name="sequence" eval="40"/>
+        </record>
+        <record id="type_map_initiative_roadshow" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Roadshow</field>
+            <field name="label">Roadshow</field>
+            <field name="sequence" eval="50"/>
+        </record>
+        <record id="type_map_initiative_other" model="evie.marketing.type.map">
+            <field name="kind">initiative</field>
+            <field name="evie_key">Other</field>
+            <field name="label">Other</field>
+            <field name="sequence" eval="60"/>
+        </record>
+
+        <!-- Channel types (MARKETING_CHANNEL_TYPE) -->
+        <record id="type_map_channel_email" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Email</field>
+            <field name="label">Email</field>
+            <field name="sequence" eval="10"/>
+        </record>
+        <record id="type_map_channel_social" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Social</field>
+            <field name="label">Social</field>
+            <field name="sequence" eval="20"/>
+        </record>
+        <record id="type_map_channel_advertising" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Advertising</field>
+            <field name="label">Advertising</field>
+            <field name="sequence" eval="30"/>
+        </record>
+        <record id="type_map_channel_specialist" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Specialist</field>
+            <field name="label">Specialist</field>
+            <field name="sequence" eval="40"/>
+        </record>
+        <record id="type_map_channel_rep_capture" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Rep Capture</field>
+            <field name="label">Rep Capture</field>
+            <field name="sequence" eval="50"/>
+        </record>
+        <record id="type_map_channel_business_card" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Business Card</field>
+            <field name="label">Business Card</field>
+            <field name="sequence" eval="60"/>
+        </record>
+        <record id="type_map_channel_import" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Import</field>
+            <field name="label">Import</field>
+            <field name="sequence" eval="70"/>
+        </record>
+        <record id="type_map_channel_other" model="evie.marketing.type.map">
+            <field name="kind">channel</field>
+            <field name="evie_key">Other</field>
+            <field name="label">Other</field>
+            <field name="sequence" eval="80"/>
+        </record>
+    </data>
+</odoo>

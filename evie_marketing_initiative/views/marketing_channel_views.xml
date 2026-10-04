@@ -6,7 +6,7 @@
         <field name="name">marketing.initiative.channel.form</field>
         <field name="model">marketing.initiative.channel</field>
         <field name="arch" type="xml">
-            <form create="0">
+            <form>
                 <header>
                     <!-- Capture list popup (capture-list-view): view and
                          process this channel's captures in Evie. -->
@@ -16,6 +16,19 @@
                             title="View and process this channel's captures in Evie"/>
                 </header>
                 <sheet>
+                    <!-- Failed-create notice (odoo-marketing-mirror-create):
+                         only rendered in error state — accurate whenever the
+                         form (re)loads; the chatter carries the reason. No
+                         pending banner: a statically rendered banner shows
+                         before the first save and never auto-clears, so the
+                         sync_state badge in the Synchronisation section is
+                         the state indicator. -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="sync_state != 'error'">
+                        <i class="fa fa-exclamation-triangle" title="Synchronisation error"/>
+                        Evie could not create this channel — see the chatter for details.
+                        Correct the values and save to retry.
+                    </div>
                     <widget name="evie_brand_header" title="EVIE MARKETING"/>
                     <div class="oe_title">
                         <h1><field name="name" placeholder="Channel name"/></h1>
@@ -51,15 +64,18 @@
                                widget="evie_actions"
                                options="{'capsule_type': 'MARKETING_CHANNEL', 'capsule_id_field': 'capsule_id'}"/>
                     </group>
-                    <group string="Synchronisation" name="evie_sync" colspan="2"
-                           invisible="not capsule_id">
+                    <group string="Synchronisation" name="evie_sync" colspan="2">
                         <group>
                             <field name="capsule_id" widget="evie_link"
+                                   invisible="not capsule_id"
                                    options="{'kind': 'capsule'}"/>
-                            <field name="capsule_version"/>
+                            <field name="capsule_version"
+                                   invisible="not capsule_id"/>
+                            <field name="sync_state" widget="badge"/>
                         </group>
                         <group>
-                            <field name="last_sync_date"/>
+                            <field name="last_sync_date"
+                                   invisible="not capsule_id"/>
                             <field name="local_dirty"/>
                         </group>
                     </group>
@@ -87,7 +103,7 @@
         <field name="name">marketing.initiative.channel.list</field>
         <field name="model">marketing.initiative.channel</field>
         <field name="arch" type="xml">
-            <list create="0">
+            <list>
                 <field name="name"/>
                 <field name="initiative_id"/>
                 <field name="channel_type"/>
