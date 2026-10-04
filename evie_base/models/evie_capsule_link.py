@@ -17,13 +17,17 @@ plumbing:
 
 Behaviour contracts shared by all mirror models:
 
-- Mirror records are created by the Evie sync only (v1: edit-only). A
-  manual create — anything without the echo-guard context the sync writes
-  carry — is refused server-side; views hide the create buttons too.
-- Local edits notify Evie via the generic ``/mirror-upsert`` event (a
-  hint; Evie reads the record fresh and reconciles value-based). A failed
-  notification marks the record ``local_dirty`` instead of scheduling an
-  activity: mirrors are sync-owned records, the retry job is the remedy.
+- Mirror records are created by the Evie sync, unless the concrete model
+  opts in to local creation via ``_evie_local_create = True``
+  (odoo-marketing-mirror-create — e.g. initiatives and channels, which a
+  user may assemble in Odoo; Evie materialises the capsule from the
+  upsert notification and writes the anchor back). Guarded models refuse
+  any create without the echo-guard context the sync writes carry.
+- Local edits — and local creates on opted-in models — notify Evie via
+  the generic ``/mirror-upsert`` event (a hint; Evie reads the record
+  fresh and reconciles value-based). A failed notification marks the
+  record ``local_dirty`` instead of scheduling an activity: mirrors are
+  sync-owned records, the retry job is the remedy.
 - ``evie_retry_local_dirty`` is the cron entry point: re-notify every
   dirty record; a successful notification clears the flag. Inbound
   application on the Evie side is value-idempotent, so replaying queued
@@ -71,6 +75,15 @@ class EvieCapsuleLink(models.AbstractModel):
         string='Evie Link', readonly=True, copy=False,
         help='Static deeplink to Evie (the live detail opens via the '
              'view-token button).')
+    #: Opt-in flag (odoo-marketing-mirror-create): may users create
+    #: records of this mirror model locally in Odoo? Default False — the
+    #: sync-created-only guard stays the default for every mirror model;
+    #: concrete models opt in explicitly (marketing.initiative,
+    #: marketing.initiative.channel). A local create starts unanchored
+    #: (sync_state 'pending') and Evie materialises the capsule from the
+    #: upsert notification.
+    _evie_local_create = False
+
     sync_state = fields.Selection(
         [('pending', 'Pending'), ('synced', 'Synced'),
          ('conflict', 'Conflict'), ('error', 'Error')],
@@ -89,8 +102,11 @@ class EvieCapsuleLink(models.AbstractModel):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Mirror records are sync-created only (v1: edit-only in Odoo)."""
-        if not self.env.context.get(EVIE_SYNC_CONTEXT_KEY):
+        """Sync creates carry the echo-guard context; local creates are
+        allowed only on models opting in via ``_evie_local_create``
+        (odoo-marketing-mirror-create). Everything else is refused."""
+        if not self.env.context.get(EVIE_SYNC_CONTEXT_KEY) \
+                and not self._evie_local_create:
             raise UserError(_(
                 "%s records are created by the Evie synchronisation. "
                 "Create the object in Evie; it appears here automatically."

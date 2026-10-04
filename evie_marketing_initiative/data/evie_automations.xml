@@ -8,12 +8,30 @@
          activity. Watch lists cover the shared (both) fields + archive;
          keep them in sync with the active mappings. -->
 
-    <!-- Initiative: shared-field writes + owner + archive → notify Evie -->
+    <!-- Initiative: shared-field writes + owner + archive → notify Evie.
+         Local creates (odoo-marketing-mirror-create) notify via the
+         on_create rule below; sync creates carry the echo-guard context
+         and stay silent. -->
     <record id="action_evie_initiative_updated" model="ir.actions.server">
         <field name="name">[AUTO] Evie: initiative upsert (write)</field>
         <field name="model_id" ref="model_marketing_initiative"/>
         <field name="state">code</field>
         <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="action_evie_initiative_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: initiative upsert (create)</field>
+        <field name="model_id" ref="model_marketing_initiative"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_initiative_created" model="base.automation">
+        <field name="name">[AUTO] Evie: initiative upsert (create)</field>
+        <field name="model_id" ref="model_marketing_initiative"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_initiative_created'))]"/>
+        <field name="active" eval="True"/>
     </record>
 
     <record id="automation_evie_initiative_updated" model="base.automation">
@@ -41,12 +59,30 @@
         <field name="active" eval="True"/>
     </record>
 
-    <!-- Channel: shared-field writes + crm_defaults + archive → notify -->
+    <!-- Channel: shared-field writes + crm_defaults + link fields +
+         archive → notify. The initiative/form links are shared since
+         odoo-marketing-mirror-create (they reconcile inbound as
+         relations), so editing them notifies like any shared field. -->
     <record id="action_evie_channel_updated" model="ir.actions.server">
         <field name="name">[AUTO] Evie: channel upsert (write)</field>
         <field name="model_id" ref="model_marketing_initiative_channel"/>
         <field name="state">code</field>
         <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="action_evie_channel_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: channel upsert (create)</field>
+        <field name="model_id" ref="model_marketing_initiative_channel"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_channel_created" model="base.automation">
+        <field name="name">[AUTO] Evie: channel upsert (create)</field>
+        <field name="model_id" ref="model_marketing_initiative_channel"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_channel_created'))]"/>
+        <field name="active" eval="True"/>
     </record>
 
     <record id="automation_evie_channel_updated" model="base.automation">
@@ -61,6 +97,8 @@
             (4, ref('field_marketing_initiative_channel__auto_promote')),
             (4, ref('field_marketing_initiative_channel__auto_promote_threshold')),
             (4, ref('field_marketing_initiative_channel__crm_defaults')),
+            (4, ref('field_marketing_initiative_channel__initiative_id')),
+            (4, ref('field_marketing_initiative_channel__capture_form_id')),
             (4, ref('field_marketing_initiative_channel__active')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_channel_updated'))]"/>

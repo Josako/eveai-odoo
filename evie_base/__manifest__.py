@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.15.0',
+    'version': '19.0.1.16.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -36,9 +36,11 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   reusable link state for mirror models (``capsule_id``,
   ``capsule_version``, ``capsule_url``, ``sync_state``,
   ``last_sync_date``, ``local_dirty``) plus the shared Odoo → Evie event
-  plumbing (sync-created guard, ``/mirror-upsert`` notification,
-  local_dirty retry queue, the generic ``action_evie_open`` view-token
-  dispatcher behind the ``evie_link`` widget)
+  plumbing (sync-created guard with a per-model local-create opt-in via
+  ``_evie_local_create`` — 1.16.0, odoo-marketing-mirror-create —
+  ``/mirror-upsert`` notification, local_dirty retry queue, the generic
+  ``action_evie_open`` view-token dispatcher behind the ``evie_link``
+  widget)
 * The shared ``EVIE_OPEN_KINDS`` registry (odoo-capture-card-view, 1.14.0):
   all open-in-Evie entity kinds (``capsule``, ``document``,
   ``chat_session``, ``capture_media``) live in ``evie_base.consts`` and the

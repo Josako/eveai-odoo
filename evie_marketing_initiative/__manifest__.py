@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """
@@ -32,6 +32,19 @@ models.
   channel — no hardcoded Evie action semantics
 * Local edits during an Evie outage are queued via ``local_dirty`` and
   retried by the scheduled job
+* Odoo-side creation (1.5.0, odoo-marketing-mirror-create): initiatives
+  and channels are locally creatable (the capsule-link mixin's opt-in) —
+  the record starts at sync_state ``pending`` with a non-blocking banner,
+  Evie materialises the capsule from the create notification and writes
+  the anchor back; a failed creation surfaces as ``error`` with the
+  reason on the chatter. The channel's initiative and capture-form links
+  are editable and reconcile inbound as constellation relations
+  (last-write-wins); a channel without a form stays valid
+* Tenant-extensible type keys (1.5.0, design D3b): ``type`` /
+  ``channel_type`` dropdowns read from the new ``evie.marketing.type.map``
+  (seeded ``noupdate`` with the platform defaults) — a tenant-added Evie
+  dynamic-list key becomes selectable by adding a map row, without a
+  module upgrade (the ``evie.activity_type_map`` precedent)
 * Business card on the capture (1.2.0, odoo-capture-card-view):
   ``business_card`` (read-only Evie document version id) rendered as an
   open-in-Evie link of kind ``capture_media`` — the tokenised media page
@@ -58,7 +71,9 @@ integration configuration; this module provides the Odoo surface only.
         'views/marketing_capture_form_views.xml',
         'views/marketing_capture_views.xml',
         'views/crm_lead_views.xml',
+        'views/evie_marketing_type_map_views.xml',
         'views/evie_marketing_menus.xml',
+        'data/evie_marketing_type_map.xml',
         'data/evie_automations.xml',
         'data/evie_cron.xml',
     ],

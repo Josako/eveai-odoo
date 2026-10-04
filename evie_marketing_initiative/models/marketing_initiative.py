@@ -15,8 +15,6 @@ syncs inbound.
 
 from odoo import api, fields, models
 
-from odoo.addons.evie_base.consts import MARKETING_INITIATIVE_TYPE_SELECTION
-
 
 class MarketingInitiative(models.Model):
     _name = 'marketing.initiative'
@@ -24,13 +22,20 @@ class MarketingInitiative(models.Model):
     _inherit = ['evie.capsule.link', 'mail.thread']
     _order = 'date_start desc, name'
 
+    #: Locally creatable (odoo-marketing-mirror-create): a user may
+    #: assemble an initiative in Odoo; Evie materialises the capsule from
+    #: the upsert notification and writes the anchor back. The record
+    #: starts at sync_state 'pending' (the mixin default).
+    _evie_local_create = True
+
     # --- Shared definition (both: Odoo-editable with write-back) ---
     name = fields.Char(string='Name', required=True, tracking=True)
     code = fields.Char(string='Code')
     type = fields.Selection(
-        selection=MARKETING_INITIATIVE_TYPE_SELECTION,
+        selection='_selection_type',
         string='Type',
-        help='Stable MARKETING_INITIATIVE_TYPE key (labels live in Evie).')
+        help='Stable MARKETING_INITIATIVE_TYPE key (labels live in the '
+             'tenant-editable Evie marketing type map).')
     date_start = fields.Date(string='Start Date')
     date_end = fields.Date(string='End Date')
     location = fields.Char(string='Location')
@@ -90,6 +95,14 @@ class MarketingInitiative(models.Model):
         string='ROI %', compute='_compute_derived_metrics')
 
     active = fields.Boolean(default=True)
+
+    @api.model
+    def _selection_type(self):
+        """Dropdown fed by the tenant-editable type map (D3b): a tenant-
+        added Evie dynamic-list key becomes selectable by adding a map
+        row, without a module upgrade. The stored value is the key."""
+        return self.env['evie.marketing.type.map'].selection_for_kind(
+            'initiative')
 
     def action_open_capture_list(self):
         """Open the Evie capture list popup scoped to this initiative

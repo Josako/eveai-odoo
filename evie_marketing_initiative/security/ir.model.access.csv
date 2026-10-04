@@ -19,3 +19,5 @@ access_marketing_initiative_cost_mkt_user,marketing.initiative.cost mkt user,mod
 access_marketing_initiative_cost_mkt_manager,marketing.initiative.cost mkt manager,model_marketing_initiative_cost,group_evie_marketing_manager,1,1,1,1
 access_marketing_initiative_cost_sale_user,marketing.initiative.cost sale user,model_marketing_initiative_cost,sales_team.group_sale_salesman,1,0,0,0
 access_marketing_initiative_cost_sale_manager,marketing.initiative.cost sale manager,model_marketing_initiative_cost,sales_team.group_sale_manager,1,0,0,0
+access_evie_marketing_type_map_mkt_user,evie.marketing.type.map mkt user,model_evie_marketing_type_map,group_evie_marketing_user,1,0,0,0
+access_evie_marketing_type_map_mkt_manager,evie.marketing.type.map mkt manager,model_evie_marketing_type_map,group_evie_marketing_manager,1,1,1,1

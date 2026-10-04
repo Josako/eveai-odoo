@@ -33,4 +33,13 @@
               parent="menu_evie_marketing_root"
               action="action_marketing_capture_form"
               sequence="40"/>
+
+    <!-- Type-map administration (odoo-marketing-mirror-create): manager
+         only — the keys must match the Evie dynamic lists. -->
+    <menuitem id="menu_evie_marketing_type_map"
+              name="Type Mapping"
+              parent="menu_evie_marketing_root"
+              action="action_evie_marketing_type_map"
+              groups="evie_marketing_initiative.group_evie_marketing_manager"
+              sequence="90"/>
 </odoo>
