@@ -30,6 +30,14 @@ EXPECTED_MODELS = {
         'marketing.capture',
         'marketing.initiative.cost',
     ],
+    # Mirror models (evie_meeting_planning 19.0.1.0.0,
+    # add-odoo-meeting-library-sync)
+    'evie_meeting_planning': [
+        'objective.template',
+        'meeting.template',
+        'meeting.plan',
+        'meeting.objective',
+    ],
 }
 EXPECTED_FIELDS = {
     'evie_crm': {

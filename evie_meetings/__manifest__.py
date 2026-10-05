@@ -1,6 +1,6 @@
 {
     'name': 'Evie Meetings',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales/CRM',
     'summary': 'Meeting window for Meeting and Call activities: details, recording and notes, stored in Evie',
     'description': """
@@ -23,6 +23,13 @@ opened from the activity in the lead's chatter (odoo-meeting-window).
   the top bar leads back to the window
 * The window stays reachable after the activity is done: the "done" message
   in the chatter links back to it (``/odoo/evie-meeting/<activity id>``)
+* Meeting plan (19.0.1.1.0, add-odoo-meeting-library-sync): the window
+  shows the meeting's objectives in every phase — added from a library
+  template or from scratch when scheduling (the Evie copy action, polled
+  until the mirrors land), annotated with rep notes and ad-hoc objectives
+  during preparation, and visible as the guideline during the live
+  meeting. The plan surface reads the local ``evie_meeting_planning``
+  mirrors; edits flow back to Evie via the mirror synchronisation
 
 Audio never passes through the Odoo server: the browser uploads to and
 streams from Evie with short-lived, single-activity links that Odoo requests
@@ -31,7 +38,7 @@ server-side with the API key.
     'author': 'Ask Eve AI',
     'website': 'https://askeveai.be',
     'license': 'LGPL-3',
-    'depends': ['evie_base', 'evie_crm', 'mail', 'calendar'],
+    'depends': ['evie_base', 'evie_crm', 'evie_meeting_planning', 'mail', 'calendar'],
     'data': [
         'data/mail_templates.xml',
     ],

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- meeting.objective: mirror of MEETING_OBJECTIVE capsules (the
+         objective instance on a plan). Content + rep_note editable,
+         system-written fields read-only. -->
+
+    <record id="meeting_objective_view_form" model="ir.ui.view">
+        <field name="name">meeting.objective.form</field>
+        <field name="model">meeting.objective</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="sync_state != 'error'">
+                        <i class="fa fa-exclamation-triangle" title="Synchronisation error"/>
+                        Evie could not create this objective — see the chatter for details.
+                        Correct the values and save to retry.
+                    </div>
+                    <widget name="evie_brand_header" title="EVIE MEETING PLAN"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Objective label"/></h1>
+                    </div>
+                    <group>
+                        <group string="Objective">
+                            <field name="objective_type"/>
+                            <field name="priority"/>
+                            <field name="origin"/>
+                            <field name="plan_id"/>
+                        </group>
+                        <group string="Evaluation">
+                            <field name="intent"/>
+                            <field name="success_criterion"/>
+                        </group>
+                    </group>
+                    <group colspan="2">
+                        <group string="Guiding Questions">
+                            <field name="guiding_questions" nolabel="1"
+                                   placeholder="One question per line"/>
+                        </group>
+                        <group string="Case Questions (preparation agent)">
+                            <field name="case_questions" nolabel="1"/>
+                        </group>
+                    </group>
+                    <group colspan="2">
+                        <group string="Rep Note">
+                            <field name="rep_note" nolabel="1"/>
+                        </group>
+                        <group string="Context Note">
+                            <field name="context_note" nolabel="1"/>
+                        </group>
+                    </group>
+                    <group string="Dimensions" colspan="2">
+                        <field name="dimensions" nolabel="1"
+                               placeholder="pain&#10;budget"/>
+                    </group>
+                    <group string="Outcome (evaluation agent)" name="evie_outcome"
+                           colspan="2" invisible="not assessment_status">
+                        <group>
+                            <field name="assessment_status" widget="badge"/>
+                            <field name="carried_from_assessment_id"
+                                   invisible="not carried_from_assessment_id"/>
+                        </group>
+                        <group>
+                            <field name="assessment_findings"/>
+                            <field name="follow_up"/>
+                        </group>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync" colspan="2">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   invisible="not capsule_id"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"
+                                   invisible="not capsule_id"/>
+                            <field name="sync_state" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"
+                                   invisible="not capsule_id"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="meeting_objective_view_list" model="ir.ui.view">
+        <field name="name">meeting.objective.list</field>
+        <field name="model">meeting.objective</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="plan_id"/>
+                <field name="objective_type"/>
+                <field name="priority" widget="badge"/>
+                <field name="origin"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="meeting_objective_view_search" model="ir.ui.view">
+        <field name="name">meeting.objective.search</field>
+        <field name="model">meeting.objective</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="ad_hoc" string="Ad-hoc"
+                        domain="[('origin', '=', 'AD_HOC')]"/>
+                <separator/>
+                <filter name="group_plan" string="Meeting Plan"
+                        context="{'group_by': 'plan_id'}"/>
+                <filter name="group_origin" string="Origin"
+                        context="{'group_by': 'origin'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meeting_objective" model="ir.actions.act_window">
+        <field name="name">Meeting Objectives</field>
+        <field name="res_model">meeting.objective</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

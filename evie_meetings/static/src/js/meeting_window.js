@@ -36,6 +36,8 @@ const ACTION_TAG = "evie_meetings.meeting_window";
 const POLL_INTERVAL_MS = 5000;
 const NOTES_AUTOSAVE_MS = 10000;
 const DRAFT_KEY_PREFIX = "evie_meetings.notes_draft.";
+const PLAN_POLL_INTERVAL_MS = 3000;
+const PLAN_POLL_MAX = 30; // ~90s for the composed plan mirrors to land
 
 export function formatElapsed(totalSec) {
     const sec = Math.max(0, Math.floor(totalSec || 0));
@@ -123,14 +125,26 @@ export class MeetingWindow extends Component {
             documentTypes: [],
             notesDocument: { id: false, type: "", label: "" },
             savingType: {},
+            // Meeting plan (add-odoo-meeting-library-sync): local mirrors
+            plan: null,
+            planTemplates: [],
+            planPickerOpen: false,
+            planComposing: false,
+            planPollCount: 0,
+            objectiveForm: null, // {label, objective_type, intent, success_criterion}
+            objectiveError: "",
+            repNotes: {}, // objective id -> edited note (until saved)
+            repNoteStatus: {}, // objective id -> "saving" | "error" | ""
         });
         this.pollTimer = null;
         this.notesTimer = null;
+        this.planPollTimer = null;
 
         onWillStart(() => this.load());
         onWillUnmount(() => {
             browser.clearTimeout(this.pollTimer);
             browser.clearTimeout(this.notesTimer);
+            browser.clearTimeout(this.planPollTimer);
             if (this.state.notesStatus === "dirty") {
                 this.saveNotes();
             }
@@ -161,6 +175,7 @@ export class MeetingWindow extends Component {
             ]);
             this.state.activity = data.activity;
             this.state.evieError = data.evie_error || "";
+            this.applyPlan(data.plan || { plan: false, templates: [] });
             if (data.evie) {
                 this.applyOverview(data.evie, { selectNewest: true });
                 this.initNotes(data.evie.notes?.content || "");
@@ -230,6 +245,162 @@ export class MeetingWindow extends Component {
         if (this.state.recordings.some((r) => r.processing)) {
             this.pollTimer = browser.setTimeout(() => this.refreshRecordings(), POLL_INTERVAL_MS);
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Meeting plan (local mirrors; edits flow back via the mirror sync)
+    // ------------------------------------------------------------------
+
+    applyPlan(payload) {
+        this.state.plan = payload.plan || null;
+        this.state.planTemplates = payload.templates || [];
+        if (this.state.plan) {
+            this.state.planComposing = false;
+            browser.clearTimeout(this.planPollTimer);
+            const notes = {};
+            for (const objective of this.state.plan.objectives) {
+                if (!(objective.id in this.state.repNotes)) {
+                    notes[objective.id] = objective.rep_note;
+                }
+            }
+            Object.assign(this.state.repNotes, notes);
+        }
+    }
+
+    async refreshPlan() {
+        try {
+            const payload = await this.orm.silent.call(MODEL, "evie_meeting_plan_data", [
+                [this.activityId],
+            ]);
+            this.applyPlan(payload);
+        } catch (error) {
+            // A failed refresh never breaks the window; the next poll retries.
+        }
+    }
+
+    schedulePlanPoll() {
+        browser.clearTimeout(this.planPollTimer);
+        if (!this.state.planComposing || this.state.plan) {
+            return;
+        }
+        if (this.state.planPollCount >= PLAN_POLL_MAX) {
+            this.state.planComposing = false;
+            this.notification.add(
+                _t("The plan is taking longer than expected to arrive. It will appear after the next synchronisation."),
+                { type: "warning" }
+            );
+            return;
+        }
+        this.planPollTimer = browser.setTimeout(async () => {
+            this.state.planPollCount += 1;
+            await this.refreshPlan();
+            this.schedulePlanPoll();
+        }, PLAN_POLL_INTERVAL_MS);
+    }
+
+    async composePlan(templateMirrorId) {
+        this.state.planPickerOpen = false;
+        this.state.planComposing = true;
+        this.state.planPollCount = 0;
+        try {
+            await this.orm.call(MODEL, "evie_meeting_compose_plan", [
+                [this.activityId],
+                templateMirrorId || false,
+            ]);
+            this.schedulePlanPoll();
+        } catch (error) {
+            this.state.planComposing = false;
+            this.notification.add(errorMessage(error), { type: "danger" });
+        }
+    }
+
+    openObjectiveForm() {
+        this.state.objectiveForm = {
+            label: "",
+            objective_type: "INFORMATION",
+            intent: "",
+            success_criterion: "",
+        };
+        this.state.objectiveError = "";
+    }
+
+    async saveObjectiveForm() {
+        const form = this.state.objectiveForm;
+        if (!form.label.trim() || !form.intent.trim() || !form.success_criterion.trim()) {
+            this.state.objectiveError = _t("Label, intent and success criterion are required.");
+            return;
+        }
+        try {
+            await this.orm.create("meeting.objective", [{
+                name: form.label.trim(),
+                objective_type: form.objective_type,
+                intent: form.intent.trim(),
+                success_criterion: form.success_criterion.trim(),
+                plan_id: this.state.plan.id,
+            }]);
+            this.state.objectiveForm = null;
+            this.notification.add(
+                _t("Ad-hoc objective added — it syncs to Evie in the background."),
+                { type: "success" }
+            );
+            await this.refreshPlan();
+        } catch (error) {
+            this.state.objectiveError = errorMessage(error);
+        }
+    }
+
+    async removeObjective(objective) {
+        try {
+            await this.orm.call("meeting.objective", "action_archive", [[objective.id]]);
+            delete this.state.repNotes[objective.id];
+            await this.refreshPlan();
+        } catch (error) {
+            this.notification.add(errorMessage(error), { type: "danger" });
+        }
+    }
+
+    repNoteValue(objective) {
+        return objective.id in this.state.repNotes
+            ? this.state.repNotes[objective.id]
+            : objective.rep_note;
+    }
+
+    onRepNoteInput(objective, ev) {
+        this.state.repNotes[objective.id] = ev.target.value;
+    }
+
+    async saveRepNote(objective) {
+        const value = this.repNoteValue(objective);
+        if (value === objective.rep_note) {
+            return;
+        }
+        this.state.repNoteStatus[objective.id] = "saving";
+        try {
+            await this.orm.write("meeting.objective", [objective.id], { rep_note: value });
+            this.state.repNoteStatus[objective.id] = "";
+            objective.rep_note = value;
+        } catch (error) {
+            this.state.repNoteStatus[objective.id] = "error";
+            this.notification.add(errorMessage(error), { type: "danger" });
+        }
+    }
+
+    get objectiveTypeLabels() {
+        return {
+            INFORMATION: _t("Information"),
+            COMMITMENT: _t("Commitment"),
+            PERCEPTION: _t("Perception"),
+            RELATIONSHIP: _t("Relationship"),
+        };
+    }
+
+    priorityBadgeClass(priority) {
+        return {
+            LOW: "text-bg-secondary",
+            MEDIUM: "text-bg-info",
+            HIGH: "text-bg-warning",
+            CRITICAL: "text-bg-danger",
+        }[priority] || "text-bg-secondary";
     }
 
     // ------------------------------------------------------------------

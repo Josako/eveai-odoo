@@ -129,6 +129,139 @@
                             </t>
                         </section>
 
+                        <!-- Meeting plan (add-odoo-meeting-library-sync):
+                             objectives in every phase — added at planning,
+                             annotated in preparation, the guideline live. -->
+                        <section class="o_evie_meeting__panel o_evie_meeting__panel--plan">
+                            <h3 class="o_evie_meeting__panel-title d-flex align-items-center">
+                                <span class="flex-grow-1"><i class="fa fa-bullseye" aria-hidden="true"/> Objectives</span>
+                                <t t-if="state.plan">
+                                    <span t-attf-class="badge rounded-pill text-bg-secondary" t-esc="state.plan.status"/>
+                                    <span t-if="state.plan.sync_state !== 'synced'"
+                                          t-attf-class="badge rounded-pill text-bg-warning"
+                                          t-esc="state.plan.sync_state"
+                                          title="Synchronisation state with Evie"/>
+                                </t>
+                                <button t-if="state.plan and activity.can_write and !state.objectiveForm"
+                                        type="button" class="btn btn-sm btn-secondary ms-2"
+                                        t-on-click="() => this.openObjectiveForm()">
+                                    <i class="fa fa-plus" aria-hidden="true"/> Ad-hoc
+                                </button>
+                            </h3>
+
+                            <!-- No plan yet: the add-plan affordance -->
+                            <t t-if="!state.plan and !state.planComposing">
+                                <t t-if="!state.planPickerOpen">
+                                    <p class="o_evie_meeting__label">No plan yet for this meeting.</p>
+                                    <button t-if="activity.can_write" type="button" class="btn btn-sm btn-primary"
+                                            t-on-click="() => this.state.planPickerOpen = true">
+                                        <i class="fa fa-bullseye me-1" aria-hidden="true"/>Add plan
+                                    </button>
+                                </t>
+                                <t t-else="">
+                                    <p class="o_evie_meeting__label">Plan from a library template, or start empty:</p>
+                                    <div class="o_evie_meeting__plan-picker">
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100 text-start"
+                                                t-on-click="() => this.composePlan(false)">
+                                            <i class="fa fa-file-o me-1" aria-hidden="true"/>Empty plan
+                                        </button>
+                                        <button t-foreach="state.planTemplates" t-as="template" t-key="template.id"
+                                                type="button" class="btn btn-sm btn-outline-primary w-100 text-start"
+                                                t-att-title="template.description"
+                                                t-on-click="() => this.composePlan(template.id)">
+                                            <i class="fa fa-clone me-1" aria-hidden="true"/><t t-esc="template.name"/>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-link"
+                                                t-on-click="() => this.state.planPickerOpen = false">Cancel</button>
+                                    </div>
+                                </t>
+                            </t>
+
+                            <!-- Pending: the composed plan is on its way -->
+                            <t t-if="!state.plan and state.planComposing">
+                                <p class="o_evie_meeting__label">
+                                    <i class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>
+                                    Planning the meeting in Evie — the objectives appear here in a moment…
+                                </p>
+                            </t>
+
+                            <!-- The plan's objectives -->
+                            <t t-if="state.plan">
+                                <div t-if="!state.plan.objectives.length" class="o_evie_meeting__label">
+                                    No objectives yet — add one ad-hoc.
+                                </div>
+                                <div t-foreach="state.plan.objectives" t-as="objective" t-key="objective.id"
+                                     class="o_evie_meeting__objective">
+                                    <div class="o_evie_meeting__objective-head">
+                                        <span class="flex-grow-1 fw-bold" t-esc="objective.name"/>
+                                        <span class="badge rounded-pill text-bg-secondary"
+                                              t-esc="objectiveTypeLabels[objective.objective_type] || objective.objective_type"/>
+                                        <span t-attf-class="badge rounded-pill {{ priorityBadgeClass(objective.priority) }}"
+                                              t-esc="objective.priority"/>
+                                        <span t-if="objective.origin === 'AD_HOC'" class="badge rounded-pill text-bg-light"
+                                              title="Added ad-hoc">ad-hoc</span>
+                                        <button t-if="activity.can_write" type="button"
+                                                class="btn btn-sm btn-link text-danger p-0 ms-1"
+                                                title="Remove from the plan"
+                                                t-on-click="() => this.removeObjective(objective)">
+                                            <i class="fa fa-times" aria-hidden="true"/>
+                                        </button>
+                                    </div>
+                                    <div class="o_evie_meeting__objective-intent" t-esc="objective.intent"/>
+                                    <details t-if="objective.guiding_questions or objective.case_questions"
+                                             class="o_evie_meeting__objective-questions">
+                                        <summary>Questions</summary>
+                                        <div t-if="objective.case_questions">
+                                            <div class="o_evie_meeting__label">For this meeting (preparation agent)</div>
+                                            <div class="o_evie_meeting__prewrap" t-esc="objective.case_questions"/>
+                                        </div>
+                                        <div t-if="objective.guiding_questions">
+                                            <div class="o_evie_meeting__label">Guiding questions</div>
+                                            <div class="o_evie_meeting__prewrap" t-esc="objective.guiding_questions"/>
+                                        </div>
+                                    </details>
+                                    <div class="o_evie_meeting__objective-note">
+                                        <textarea class="form-control form-control-sm" rows="1"
+                                                  placeholder="Note for this objective…"
+                                                  t-att-readonly="!activity.can_write"
+                                                  t-att-value="repNoteValue(objective)"
+                                                  t-on-input="(ev) => this.onRepNoteInput(objective, ev)"
+                                                  t-on-blur="() => this.saveRepNote(objective)"/>
+                                        <span t-if="state.repNoteStatus[objective.id] === 'saving'"
+                                              class="o_evie_meeting__notes-status">Saving…</span>
+                                        <span t-if="objective.sync_state === 'pending'"
+                                              class="o_evie_meeting__notes-status" title="Not yet synchronised to Evie">pending</span>
+                                    </div>
+                                </div>
+
+                                <!-- Ad-hoc objective form -->
+                                <div t-if="state.objectiveForm" class="o_evie_meeting__objective-form">
+                                    <input type="text" class="form-control form-control-sm mb-1"
+                                           placeholder="Label"
+                                           t-model="state.objectiveForm.label"/>
+                                    <select class="form-select form-select-sm mb-1"
+                                            t-model="state.objectiveForm.objective_type">
+                                        <option value="INFORMATION">Information</option>
+                                        <option value="COMMITMENT">Commitment</option>
+                                        <option value="PERCEPTION">Perception</option>
+                                        <option value="RELATIONSHIP">Relationship</option>
+                                    </select>
+                                    <textarea class="form-control form-control-sm mb-1" rows="2"
+                                              placeholder="Intent — what should this objective achieve?"
+                                              t-model="state.objectiveForm.intent"/>
+                                    <textarea class="form-control form-control-sm mb-1" rows="2"
+                                              placeholder="Success criterion — when is it achieved?"
+                                              t-model="state.objectiveForm.success_criterion"/>
+                                    <div t-if="state.objectiveError" class="text-danger small mb-1"
+                                         t-esc="state.objectiveError"/>
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                            t-on-click="() => this.saveObjectiveForm()">Add</button>
+                                    <button type="button" class="btn btn-sm btn-link"
+                                            t-on-click="() => this.state.objectiveForm = null">Cancel</button>
+                                </div>
+                            </t>
+                        </section>
+
                         <!-- Participants -->
                         <section class="o_evie_meeting__panel">
                             <h3 class="o_evie_meeting__panel-title d-flex align-items-center">

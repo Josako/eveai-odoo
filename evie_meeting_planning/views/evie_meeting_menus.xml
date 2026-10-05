@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie Meeting Planning menus. The library entries are
+         manager-facing; plans and objectives are visible to every sales
+         user (the rep's day-to-day surface is the meeting window in
+         evie_meetings — these lists are the native Odoo views on the
+         same data). -->
+    <menuitem id="menu_evie_meeting_root"
+              name="Evie Meetings"
+              sequence="98"
+              groups="sales_team.group_sale_salesman,evie_meeting_planning.group_evie_meeting_user"
+              web_icon="evie_base,static/src/img/evie.svg"/>
+
+    <menuitem id="menu_evie_meeting_templates"
+              name="Meeting Templates"
+              parent="menu_evie_meeting_root"
+              action="action_meeting_template"
+              groups="evie_meeting_planning.group_evie_meeting_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_evie_objective_templates"
+              name="Objective Templates"
+              parent="menu_evie_meeting_root"
+              action="action_objective_template"
+              groups="evie_meeting_planning.group_evie_meeting_manager"
+              sequence="20"/>
+
+    <menuitem id="menu_evie_meeting_plans"
+              name="Meeting Plans"
+              parent="menu_evie_meeting_root"
+              action="action_meeting_plan"
+              sequence="30"/>
+
+    <menuitem id="menu_evie_meeting_objectives"
+              name="Meeting Objectives"
+              parent="menu_evie_meeting_root"
+              action="action_meeting_objective"
+              sequence="40"/>
+</odoo>

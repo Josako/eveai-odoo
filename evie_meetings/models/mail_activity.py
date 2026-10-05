@@ -165,6 +165,8 @@ class MailActivity(models.Model):
             data['evie'] = activity.evie_meeting_overview()
         except UserError as e:
             data['evie_error'] = str(e)
+        # The plan surface reads local mirrors only — always available.
+        data['plan'] = activity._evie_meeting_plan_payload()
         return data
 
     def evie_meeting_overview(self):
@@ -244,3 +246,92 @@ class MailActivity(models.Model):
             'document_id': int(document_id),
             'speaker_labels': speaker_labels,
         })
+
+    # ------------------------------------------------------------------
+    # Meeting plan (add-odoo-meeting-library-sync): the window's plan
+    # surface reads the LOCAL mirrors — no Evie round-trip; rep_note
+    # edits and ad-hoc creates write the mirrors directly from the
+    # client (orm), flowing inbound via the mirror automations.
+    # ------------------------------------------------------------------
+
+    def _evie_meeting_plan_mirror(self):
+        """The activity's single active plan mirror, when it exists.
+
+        Read as sudo: the mirror data is metadata about an activity the
+        caller already checked access to (the meeting window works for
+        every user who can open the activity); writes from the client go
+        through the normal access rules."""
+        self.ensure_one()
+        return self.env['meeting.plan'].sudo().search(
+            [('activity_id', '=', self.id), ('active', '=', True)], limit=1)
+
+    def _evie_meeting_objective_payload(self, objective):
+        return {
+            'id': objective.id,
+            'name': objective.name or '',
+            'objective_type': objective.objective_type or '',
+            'priority': objective.priority or '',
+            'intent': objective.intent or '',
+            'success_criterion': objective.success_criterion or '',
+            'guiding_questions': objective.guiding_questions or '',
+            'case_questions': objective.case_questions or '',
+            'rep_note': objective.rep_note or '',
+            'origin': objective.origin or '',
+            'sync_state': objective.sync_state,
+        }
+
+    def _evie_meeting_plan_payload(self):
+        """The plan section's data: the active plan mirror with its
+        objectives, and the library templates for the add-plan picker."""
+        self.ensure_one()
+        plan = self._evie_meeting_plan_mirror()
+        templates = self.env['meeting.template'].sudo().search(
+            [('capsule_id', '!=', False)], order='name')
+        return {
+            'plan': plan and {
+                'id': plan.id,
+                'source': plan.source or '',
+                'status': plan.status or '',
+                'meeting_kind': plan.meeting_kind or '',
+                'notes': plan.notes or '',
+                'sync_state': plan.sync_state,
+                'objectives': [
+                    self._evie_meeting_objective_payload(objective)
+                    for objective in plan.objective_ids
+                ],
+            },
+            'templates': [{
+                'id': template.id,
+                'name': template.name,
+                'description': template.description or '',
+            } for template in templates],
+        }
+
+    def evie_meeting_plan_data(self):
+        """The plan section (also the poll target after a compose)."""
+        activity = self._evie_meeting_activity()
+        return activity._evie_meeting_plan_payload()
+
+    def evie_meeting_compose_plan(self, template_mirror_id=False):
+        """Instantiate a plan for this meeting via the Evie compose
+        endpoint (the copy action): from a library template, or empty
+        when no template is given. The resulting plan and objective
+        mirrors arrive via the ordinary outbound sync — the client polls
+        ``evie_meeting_plan_data`` until they land."""
+        import uuid
+        activity = self._evie_meeting_activity('write')
+        if activity._evie_meeting_plan_mirror():
+            raise UserError(_('This meeting already has a plan.'))
+        payload = {
+            'event_id': str(uuid.uuid4()),
+            'activity_capsule_id': activity._evie_meeting_capsule_id(),
+        }
+        if template_mirror_id:
+            template = self.env['meeting.template'].browse(int(template_mirror_id))
+            if not template.exists() or not template.capsule_id:
+                raise UserError(_(
+                    'That template is not linked to Evie (yet); try again in a moment.'))
+            payload['template_capsule_id'] = template.capsule_id
+        if activity.res_model == 'crm.lead' and activity.res_id:
+            payload['odoo_lead_id'] = activity.res_id
+        return activity._evie_meeting_call('/meeting-plan-compose', payload)

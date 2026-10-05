@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- meeting.plan: mirror of MEETING_PLAN capsules. Plans are
+         composed in Evie (the meeting window's add-plan flow); the core
+         is read-only, notes are shared. -->
+
+    <record id="meeting_plan_view_form" model="ir.ui.view">
+        <field name="name">meeting.plan.form</field>
+        <field name="model">meeting.plan</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <header>
+                    <button name="action_new_objective" type="object"
+                            string="New ad-hoc objective"
+                            invisible="status == 'SUPERSEDED'"/>
+                </header>
+                <sheet>
+                    <widget name="evie_brand_header" title="EVIE MEETING PLAN"/>
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Plan">
+                            <field name="source"/>
+                            <field name="status" widget="badge"/>
+                            <field name="meeting_kind"/>
+                        </group>
+                        <group string="Meeting">
+                            <field name="activity_id"/>
+                        </group>
+                    </group>
+                    <group string="Notes" colspan="2">
+                        <field name="notes" nolabel="1"
+                               placeholder="Planning notes (markdown)"/>
+                    </group>
+                    <notebook colspan="2">
+                        <page string="Objectives" name="objectives">
+                            <field name="objective_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="objective_type"/>
+                                    <field name="priority" widget="badge"/>
+                                    <field name="origin"/>
+                                    <field name="assessment_status" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Synchronisation" name="evie_sync" colspan="2">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   invisible="not capsule_id"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"
+                                   invisible="not capsule_id"/>
+                            <field name="sync_state" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"
+                                   invisible="not capsule_id"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="meeting_plan_view_list" model="ir.ui.view">
+        <field name="name">meeting.plan.list</field>
+        <field name="model">meeting.plan</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not active">
+                <field name="display_name"/>
+                <field name="activity_id"/>
+                <field name="source"/>
+                <field name="status" widget="badge"/>
+                <field name="meeting_kind"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="meeting_plan_view_search" model="ir.ui.view">
+        <field name="name">meeting.plan.search</field>
+        <field name="model">meeting.plan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="meeting_kind"/>
+                <filter name="draft" string="Draft"
+                        domain="[('status', '=', 'DRAFT')]"/>
+                <filter name="confirmed" string="Confirmed"
+                        domain="[('status', '=', 'CONFIRMED')]"/>
+                <separator/>
+                <filter name="group_status" string="Status"
+                        context="{'group_by': 'status'}"/>
+                <filter name="group_kind" string="Meeting Kind"
+                        context="{'group_by': 'meeting_kind'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_meeting_plan" model="ir.actions.act_window">
+        <field name="name">Meeting Plans</field>
+        <field name="res_model">meeting.plan</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

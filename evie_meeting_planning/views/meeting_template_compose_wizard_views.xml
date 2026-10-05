@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Compose wizard: pull templates and/or standalone objectives
+         into a template as copies. -->
+    <record id="meeting_template_compose_wizard_view_form" model="ir.ui.view">
+        <field name="name">meeting.template.compose.wizard.form</field>
+        <field name="model">meeting.template.compose.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="template_id" invisible="1"/>
+                    <p class="text-muted">
+                        Pulling in is always a <strong>copy</strong>: the
+                        originals stay untouched, and later edits to them
+                        never change the copies in this template.
+                    </p>
+                    <field name="source_template_ids" nolabel="1">
+                        <list>
+                            <field name="name"/>
+                        </list>
+                    </field>
+                    <field name="source_objective_ids" nolabel="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="objective_type"/>
+                        </list>
+                    </field>
+                </group>
+                <footer>
+                    <button name="action_compose" type="object"
+                            string="Pull in (copy)" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -338,3 +338,57 @@ $evie-recording-red: #e03131;
         }
     }
 }
+
+// Meeting plan (add-odoo-meeting-library-sync)
+.o_evie_meeting {
+
+    &__plan-picker {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        max-width: 320px;
+    }
+
+    &__objective {
+        padding: 0.5rem 0.6rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.4rem;
+        background-color: rgba($evie-purple, 0.05);
+    }
+
+    &__objective-head {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    &__objective-intent {
+        font-size: 0.85rem;
+        color: var(--text-muted, #6c757d);
+        margin-top: 0.15rem;
+    }
+
+    &__objective-questions {
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+
+        > summary {
+            cursor: pointer;
+            color: $evie-purple;
+        }
+    }
+
+    &__objective-note {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.35rem;
+    }
+
+    &__objective-form {
+        margin-top: 0.5rem;
+        padding: 0.6rem 0.75rem;
+        border: 1px dashed rgba($evie-purple, 0.4);
+        border-radius: 0.4rem;
+    }
+}

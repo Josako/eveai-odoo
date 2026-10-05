@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- objective.template: mirror of OBJECTIVE_TEMPLATE capsules (the
+         library's source objective). Editability follows the access
+         rules: managers curate, users read. -->
+
+    <record id="objective_template_view_form" model="ir.ui.view">
+        <field name="name">objective.template.form</field>
+        <field name="model">objective.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- Remove-from-template affordance (removal deletes
+                         the copy): members only, managers only. -->
+                    <button name="action_remove_from_template" type="object"
+                            string="Remove from template"
+                            groups="evie_meeting_planning.group_evie_meeting_manager"
+                            invisible="not template_id or not capsule_id"
+                            confirm="Remove this objective from its template? The copy is deleted — it does not return to the library."/>
+                </header>
+                <sheet>
+                    <!-- Failed-create notice: only rendered in error state. -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="sync_state != 'error'">
+                        <i class="fa fa-exclamation-triangle" title="Synchronisation error"/>
+                        Evie could not create this objective — see the chatter for details.
+                        Correct the values and save to retry.
+                    </div>
+                    <widget name="evie_brand_header" title="EVIE MEETING LIBRARY"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Objective label"/></h1>
+                    </div>
+                    <group>
+                        <group string="Objective">
+                            <field name="objective_type"/>
+                            <field name="default_priority"/>
+                            <field name="template_id"/>
+                        </group>
+                        <group string="Evaluation">
+                            <field name="intent"/>
+                            <field name="success_criterion"/>
+                        </group>
+                    </group>
+                    <group colspan="2">
+                        <group string="Guiding Questions">
+                            <field name="guiding_questions" nolabel="1"
+                                   placeholder="One question per line"/>
+                        </group>
+                        <group string="Dimensions">
+                            <field name="dimensions" nolabel="1"
+                                   placeholder="pain&#10;budget"/>
+                        </group>
+                    </group>
+                    <group string="Actions" name="evie_actions" colspan="2"
+                           invisible="not capsule_id">
+                        <field name="sync_state" nolabel="1"
+                               widget="evie_actions"
+                               options="{'capsule_type': 'OBJECTIVE_TEMPLATE', 'capsule_id_field': 'capsule_id'}"/>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync" colspan="2">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   invisible="not capsule_id"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"
+                                   invisible="not capsule_id"/>
+                            <field name="sync_state" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"
+                                   invisible="not capsule_id"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="objective_template_view_list" model="ir.ui.view">
+        <field name="name">objective.template.list</field>
+        <field name="model">objective.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="objective_type"/>
+                <field name="template_id"/>
+                <field name="default_priority"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="objective_template_view_search" model="ir.ui.view">
+        <field name="name">objective.template.search</field>
+        <field name="model">objective.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="standalone" string="Standalone"
+                        domain="[('template_id', '=', False)]"/>
+                <filter name="member" string="In a template"
+                        domain="[('template_id', '!=', False)]"/>
+                <separator/>
+                <filter name="group_type" string="Objective Type"
+                        context="{'group_by': 'objective_type'}"/>
+                <filter name="group_template" string="Meeting Template"
+                        context="{'group_by': 'template_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_objective_template" model="ir.actions.act_window">
+        <field name="name">Objective Templates</field>
+        <field name="res_model">objective.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

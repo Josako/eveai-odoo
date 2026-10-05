@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- [AUTO] Evie automation rules for the meeting mirror models.
+         Same contract as evie_marketing_initiative: events are hints
+         (Evie reads the record fresh and reconciles value-based), all
+         rules respect the echo-guard context, and a failed notification
+         marks the record local_dirty (the cron retries). Watch lists
+         cover the shared (both) fields + archive; membership links are
+         never watched (guarded — only creates and sync writes set them,
+         and creates already notify). Keep in sync with the mappings. -->
+
+    <!-- Objective template: shared-field writes + archive → notify. -->
+    <record id="action_evie_objective_template_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: objective template upsert (write)</field>
+        <field name="model_id" ref="model_objective_template"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="action_evie_objective_template_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: objective template upsert (create)</field>
+        <field name="model_id" ref="model_objective_template"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_objective_template_created" model="base.automation">
+        <field name="name">[AUTO] Evie: objective template upsert (create)</field>
+        <field name="model_id" ref="model_objective_template"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_objective_template_created'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="automation_evie_objective_template_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: objective template upsert (write)</field>
+        <field name="model_id" ref="model_objective_template"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_objective_template__name')),
+            (4, ref('field_objective_template__objective_type')),
+            (4, ref('field_objective_template__intent')),
+            (4, ref('field_objective_template__success_criterion')),
+            (4, ref('field_objective_template__guiding_questions')),
+            (4, ref('field_objective_template__dimensions')),
+            (4, ref('field_objective_template__default_priority')),
+            (4, ref('field_objective_template__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_objective_template_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Meeting template: shared-field writes + archive → notify. -->
+    <record id="action_evie_meeting_template_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: meeting template upsert (write)</field>
+        <field name="model_id" ref="model_meeting_template"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="action_evie_meeting_template_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: meeting template upsert (create)</field>
+        <field name="model_id" ref="model_meeting_template"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_meeting_template_created" model="base.automation">
+        <field name="name">[AUTO] Evie: meeting template upsert (create)</field>
+        <field name="model_id" ref="model_meeting_template"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_meeting_template_created'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="automation_evie_meeting_template_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: meeting template upsert (write)</field>
+        <field name="model_id" ref="model_meeting_template"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_meeting_template__name')),
+            (4, ref('field_meeting_template__description')),
+            (4, ref('field_meeting_template__guideline_text')),
+            (4, ref('field_meeting_template__applicable_meeting_kinds')),
+            (4, ref('field_meeting_template__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_meeting_template_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Meeting plan: notes writes + archive → notify. Plans are
+         Evie-created (the compose endpoint), so there is no on_create
+         rule. -->
+    <record id="action_evie_meeting_plan_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: meeting plan upsert (write)</field>
+        <field name="model_id" ref="model_meeting_plan"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_meeting_plan_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: meeting plan upsert (write)</field>
+        <field name="model_id" ref="model_meeting_plan"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_meeting_plan__notes')),
+            (4, ref('field_meeting_plan__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_meeting_plan_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Meeting objective: shared-field writes + archive → notify. -->
+    <record id="action_evie_meeting_objective_updated" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: meeting objective upsert (write)</field>
+        <field name="model_id" ref="model_meeting_objective"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="action_evie_meeting_objective_created" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: meeting objective upsert (create)</field>
+        <field name="model_id" ref="model_meeting_objective"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_upsert()</field>
+    </record>
+
+    <record id="automation_evie_meeting_objective_created" model="base.automation">
+        <field name="name">[AUTO] Evie: meeting objective upsert (create)</field>
+        <field name="model_id" ref="model_meeting_objective"/>
+        <field name="trigger">on_create</field>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_meeting_objective_created'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="automation_evie_meeting_objective_updated" model="base.automation">
+        <field name="name">[AUTO] Evie: meeting objective upsert (write)</field>
+        <field name="model_id" ref="model_meeting_objective"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[
+            (4, ref('field_meeting_objective__name')),
+            (4, ref('field_meeting_objective__objective_type')),
+            (4, ref('field_meeting_objective__intent')),
+            (4, ref('field_meeting_objective__success_criterion')),
+            (4, ref('field_meeting_objective__guiding_questions')),
+            (4, ref('field_meeting_objective__dimensions')),
+            (4, ref('field_meeting_objective__priority')),
+            (4, ref('field_meeting_objective__rep_note')),
+            (4, ref('field_meeting_objective__context_note')),
+            (4, ref('field_meeting_objective__active')),
+        ]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_meeting_objective_updated'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

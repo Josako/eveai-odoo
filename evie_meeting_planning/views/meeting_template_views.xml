@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- meeting.template: mirror of MEETING_TEMPLATE capsules (the
+         library's named objective grouping). Editability follows the
+         access rules: managers curate, users read. -->
+
+    <record id="meeting_template_view_form" model="ir.ui.view">
+        <field name="name">meeting.template.form</field>
+        <field name="model">meeting.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- Compose (copy action via the capsule-actions
+                         channel) and inline creation are the ONLY ways
+                         objectives enter a template; linking existing
+                         records is guarded off. -->
+                    <button name="action_open_compose_wizard" type="object"
+                            string="Pull in objectives (copy)" class="oe_highlight"
+                            groups="evie_meeting_planning.group_evie_meeting_manager"
+                            invisible="not capsule_id"/>
+                    <button name="action_new_objective" type="object"
+                            string="New objective"
+                            groups="evie_meeting_planning.group_evie_meeting_manager"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="sync_state != 'error'">
+                        <i class="fa fa-exclamation-triangle" title="Synchronisation error"/>
+                        Evie could not create this template — see the chatter for details.
+                        Correct the values and save to retry.
+                    </div>
+                    <widget name="evie_brand_header" title="EVIE MEETING LIBRARY"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Template name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Template">
+                            <field name="description"/>
+                        </group>
+                        <group string="Applicable Meeting Kinds">
+                            <field name="applicable_meeting_kinds" nolabel="1"
+                                   placeholder="One meeting kind per line"/>
+                        </group>
+                    </group>
+                    <group string="Guideline" colspan="2">
+                        <field name="guideline_text" nolabel="1"
+                               placeholder="How to run a meeting along this template (markdown)"/>
+                    </group>
+                    <notebook colspan="2">
+                        <page string="Objectives" name="objectives">
+                            <field name="objective_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="objective_type"/>
+                                    <field name="default_priority"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Synchronisation" name="evie_sync" colspan="2">
+                        <group>
+                            <field name="capsule_id" widget="evie_link"
+                                   invisible="not capsule_id"
+                                   options="{'kind': 'capsule'}"/>
+                            <field name="capsule_version"
+                                   invisible="not capsule_id"/>
+                            <field name="sync_state" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"
+                                   invisible="not capsule_id"/>
+                            <field name="local_dirty"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="meeting_template_view_list" model="ir.ui.view">
+        <field name="name">meeting.template.list</field>
+        <field name="model">meeting.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="sync_state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_meeting_template" model="ir.actions.act_window">
+        <field name="name">Meeting Templates</field>
+        <field name="res_model">meeting.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
