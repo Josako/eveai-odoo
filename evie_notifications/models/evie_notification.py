@@ -235,6 +235,10 @@ class EvieNotification(models.Model):
             record.check_access('read')
         except AccessError:
             return False
+        if hasattr(record, '_evie_notification_action'):
+            action = record._evie_notification_action()
+            if action:
+                return action
         return {
             'type': 'ir.actions.act_window',
             'res_model': record._name,

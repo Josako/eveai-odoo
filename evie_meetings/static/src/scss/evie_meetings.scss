@@ -322,6 +322,101 @@ $evie-recording-red: #e03131;
         color: $evie-purple;
     }
 
+    &__transcript-tools {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 0.6rem;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.4rem;
+        background-color: rgba($evie-purple, 0.03);
+    }
+
+    &__transcript-row {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    &__transcript-count {
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__segments {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__segment {
+        padding: 0.4rem 0.5rem;
+        border-radius: 0.4rem;
+
+        &:hover {
+            background-color: rgba($evie-purple, 0.05);
+        }
+    }
+
+    &__segment-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-bottom: 0.15rem;
+    }
+
+    &__segment-play {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.6rem;
+        height: 1.6rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 50%;
+        background-color: var(--o-view-background-color, #fff);
+        color: $evie-purple;
+
+        &:hover,
+        &.is-active {
+            border-color: $evie-purple;
+            background-color: $evie-purple;
+            color: #fff;
+        }
+    }
+
+    &__segment-time {
+        padding: 0 0.4rem;
+        border-radius: 1rem;
+        background-color: rgba($evie-purple, 0.1);
+        color: $evie-purple;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__segment-speaker {
+        font-weight: 600;
+    }
+
+    &__segment-text {
+        margin: 0 0 0 2.05rem;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    &__mark {
+        padding: 0 0.1em;
+        border-radius: 0.2em;
+        background-color: #fef08a;
+        color: inherit;
+
+        &.is-current {
+            background-color: #f59e0b;
+            color: #fff;
+        }
+    }
+
     &__notes {
         min-height: 260px;
         resize: vertical;

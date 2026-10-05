@@ -163,7 +163,7 @@ class EvieWebhook(models.AbstractModel):
             return False, 'invalid_json', {}
 
     @api.model
-    def post_for_json(self, path, payload):
+    def post_for_json(self, path, payload, timeout=WEBHOOK_TIMEOUT_SECONDS):
         """POST a JSON payload and parse the JSON response body.
 
         Unlike :meth:`post` (fire-and-forget events), this variant is for
@@ -173,6 +173,7 @@ class EvieWebhook(models.AbstractModel):
         Args:
             path: endpoint path relative to the configured base URL
             payload: dict
+            timeout: seconds to wait for Evie (longer for slow calls such as speech)
 
         Returns:
             tuple (ok: bool, data: dict | detail: str). Never raises for
@@ -192,7 +193,7 @@ class EvieWebhook(models.AbstractModel):
                     'Content-Type': 'application/json',
                     'X-API-Key': api_key,
                 },
-                timeout=WEBHOOK_TIMEOUT_SECONDS,
+                timeout=timeout,
             )
         except requests.RequestException as exc:
             _logger.exception("Evie POST %s failed: %s", path, exc)
