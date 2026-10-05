@@ -327,6 +327,84 @@ $evie-recording-red: #e03131;
         resize: vertical;
     }
 
+    &__live-notes {
+        margin-bottom: 0.75rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.4rem;
+        background-color: rgba($evie-purple, 0.05);
+
+        kbd {
+            padding: 0 0.3rem;
+            border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 0.25rem;
+            background-color: var(--o-view-background-color, #fff);
+            color: inherit;
+            font-size: 0.75em;
+        }
+    }
+
+    &__live-composer {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        padding: 0.35rem 0.35rem 0.35rem 0.5rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.4rem;
+        background-color: var(--o-view-background-color, #fff);
+
+        &:focus-within {
+            border-color: rgba($evie-purple, 0.6);
+            box-shadow: 0 0 0 0.2rem rgba($evie-purple, 0.15);
+        }
+    }
+
+    &__live-stamp {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex: 0 0 auto;
+        margin-bottom: 0.25rem;
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        background-color: rgba(108, 117, 125, 0.12);
+        color: var(--text-muted, #6c757d);
+        font-size: 0.8rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__live-stamp-dot {
+        width: 0.4rem;
+        height: 0.4rem;
+        border-radius: 50%;
+        background-color: currentColor;
+        opacity: 0.6;
+    }
+
+    // Once typing starts the stamp freezes on the line's time.
+    &__live-composer--drafting &__live-stamp {
+        background-color: rgba($evie-purple, 0.12);
+        color: $evie-purple;
+    }
+
+    &__live-composer--drafting &__live-stamp-dot {
+        opacity: 1;
+        animation: o_evie_recording_pulse 1.4s ease-in-out infinite;
+    }
+
+    &__live-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-height: 10rem;
+        padding: 0.25rem 0;
+        border: 0;
+        outline: 0;
+        resize: none;
+        background: transparent;
+        color: inherit;
+        line-height: 1.45;
+    }
+
     &__notes-status {
         font-size: 0.8rem;
         font-weight: 400;

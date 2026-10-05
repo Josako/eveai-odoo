@@ -16,7 +16,7 @@
  * pause in typing, on blur, when leaving the window, or on "Save".
  */
 
-import { Component, markup, onWillStart, onWillUnmount, useEffect, useState } from "@odoo/owl";
+import { Component, markup, onWillStart, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import {
     deserializeDate,
@@ -43,6 +43,15 @@ export function formatElapsed(totalSec) {
     const m = Math.floor((sec % 3600) / 60);
     const s = String(sec % 60).padStart(2, "0");
     return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}
+
+/**
+ * One live note as a markdown list item stamped with its recording time.
+ * Same format as the Workspace client's formatLiveNote (workspace-meetings.js).
+ */
+export function formatLiveNote(atSec, text) {
+    const [first, ...rest] = String(text).trim().split("\n");
+    return `- **[${formatElapsed(atSec)}]** ${first}${rest.map((part) => `  \n  ${part}`).join("")}`;
 }
 
 export function openMeetingWindow(actionService, activityId, name) {
@@ -123,14 +132,18 @@ export class MeetingWindow extends Component {
             documentTypes: [],
             notesDocument: { id: false, type: "", label: "" },
             savingType: {},
+            liveDraft: "",
+            liveDraftAt: null,
         });
         this.pollTimer = null;
         this.notesTimer = null;
+        this.liveInput = useRef("liveNoteInput");
 
         onWillStart(() => this.load());
         onWillUnmount(() => {
             browser.clearTimeout(this.pollTimer);
             browser.clearTimeout(this.notesTimer);
+            this.commitLiveNote();
             if (this.state.notesStatus === "dirty") {
                 this.saveNotes();
             }
@@ -142,6 +155,14 @@ export class MeetingWindow extends Component {
                 }
             },
             () => [this.recorderState.uploadCount]
+        );
+        useEffect(
+            (active) => {
+                if (active) {
+                    this.liveInput.el?.focus();
+                }
+            },
+            () => [this.liveNotesActive]
         );
     }
 
@@ -324,6 +345,7 @@ export class MeetingWindow extends Component {
     }
 
     stopRecording() {
+        this.commitLiveNote();
         this.recorder.stop();
     }
 
@@ -687,7 +709,12 @@ export class MeetingWindow extends Component {
     }
 
     onNotesInput(ev) {
-        this.state.notes = ev.target.value;
+        this.setNotes(ev.target.value);
+    }
+
+    /** Every notes change goes through here: local draft, status and debounced save to Evie. */
+    setNotes(value) {
+        this.state.notes = value;
         this.state.draftRestored = false;
         if (this.state.notes === this.state.notesSaved) {
             this.state.notesStatus = "saved";
@@ -703,6 +730,83 @@ export class MeetingWindow extends Component {
     onNotesBlur() {
         if (["dirty", "error"].includes(this.state.notesStatus)) {
             this.saveNotes();
+        }
+    }
+
+    // Live notes: lines typed while recording, appended to the notes with their recording time.
+
+    get liveNotesActive() {
+        return (
+            this.recordingHere &&
+            this.recorderState.phase === "recording" &&
+            this.state.activity?.can_write !== false
+        );
+    }
+
+    /** The recording time, frozen on the moment the current line was started. */
+    get liveStamp() {
+        return formatElapsed(this.state.liveDraftAt ?? this.recorderState.elapsedSec);
+    }
+
+    onLiveInput(ev) {
+        const text = ev.target.value;
+        this.state.liveDraft = text;
+        if (!text.trim()) {
+            this.state.liveDraftAt = null;
+        } else if (this.state.liveDraftAt === null) {
+            this.state.liveDraftAt = this.recorder.elapsedNow();
+        }
+        this.autosizeLiveInput();
+    }
+
+    onLiveKeydown(ev) {
+        if (ev.key !== "Enter" || ev.isComposing) {
+            return;
+        }
+        if (ev.metaKey || ev.ctrlKey) {
+            ev.preventDefault();
+            this.commitLiveNote();
+            return;
+        }
+        if (ev.shiftKey || ev.altKey) {
+            return;
+        }
+        const el = ev.target;
+        if (!el.value.trim()) {
+            ev.preventDefault();
+            return;
+        }
+        // Enter on an empty line (i.e. Enter twice) saves the line.
+        const before = el.value.slice(0, el.selectionStart);
+        const after = el.value.slice(el.selectionEnd);
+        if (before.endsWith("\n") && !after.trim()) {
+            ev.preventDefault();
+            this.commitLiveNote(before.slice(0, -1));
+        }
+    }
+
+    commitLiveNote(text = this.state.liveDraft) {
+        if (!text.trim()) {
+            return;
+        }
+        const line = formatLiveNote(this.state.liveDraftAt ?? this.recorder.elapsedNow(), text);
+        const notes = this.state.notes;
+        const separator = !notes.trim() ? "" : notes.endsWith("\n") ? "" : "\n";
+        this.setNotes(`${notes.trim() ? notes : ""}${separator}${line}\n`);
+        this.state.liveDraft = "";
+        this.state.liveDraftAt = null;
+        if (this.liveInput.el) {
+            this.liveInput.el.value = "";
+            this.autosizeLiveInput();
+            this.liveInput.el.focus();
+        }
+    }
+
+    autosizeLiveInput() {
+        const el = this.liveInput.el;
+        if (el) {
+            el.style.height = "auto";
+            el.style.height = `${el.scrollHeight}px`;
         }
     }
 

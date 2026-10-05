@@ -380,6 +380,32 @@
                             <div t-if="state.notesStatus === 'error'" class="alert alert-warning py-1 px-2 small" role="alert">
                                 <t t-esc="state.notesError"/> Your notes are kept in this browser until they are saved.
                             </div>
+                            <div t-if="liveNotesActive" class="o_evie_meeting__live-notes">
+                                <div t-attf-class="o_evie_meeting__live-composer {{ state.liveDraftAt !== null ? 'o_evie_meeting__live-composer--drafting' : '' }}">
+                                    <span class="o_evie_meeting__live-stamp"
+                                          t-att-title="state.liveDraftAt !== null ? 'Time of this note' : 'Current recording time'">
+                                        <span class="o_evie_meeting__live-stamp-dot" aria-hidden="true"/>
+                                        <t t-esc="liveStamp"/>
+                                    </span>
+                                    <textarea t-ref="liveNoteInput" rows="1"
+                                              class="o_evie_meeting__live-input"
+                                              aria-label="Live note"
+                                              placeholder="Type a note while recording…"
+                                              t-att-value="state.liveDraft"
+                                              t-on-input="onLiveInput"
+                                              t-on-keydown="onLiveKeydown"/>
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                            title="Add to notes" aria-label="Add to notes"
+                                            t-att-disabled="!state.liveDraft.trim()"
+                                            t-on-click="() => this.commitLiveNote()">
+                                        <i class="fa fa-level-down fa-rotate-90" aria-hidden="true"/>
+                                    </button>
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    <kbd>Enter</kbd> new line · <kbd>Enter</kbd> twice to add · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> add now.
+                                    Lines are stamped with the moment you start typing and added to the notes below.
+                                </div>
+                            </div>
                             <textarea class="form-control o_evie_meeting__notes"
                                       placeholder="What was discussed, agreements, next steps…"
                                       t-att-value="state.notes"
