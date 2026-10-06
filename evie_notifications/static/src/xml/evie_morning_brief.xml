@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_notifications.MorningBriefButton">
+        <button type="button" class="o_evie_brief_button d-print-none" title="Today's morning brief"
+                aria-label="Today's morning brief" t-on-click="() => this.morningBrief.open()">
+            <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+                <g stroke="#fff" stroke-width="2" stroke-linecap="round">
+                    <line x1="12" y1="1.8" x2="12" y2="4.2"/>
+                    <line x1="12" y1="19.8" x2="12" y2="22.2"/>
+                    <line x1="1.8" y1="12" x2="4.2" y2="12"/>
+                    <line x1="19.8" y1="12" x2="22.2" y2="12"/>
+                    <line x1="4.8" y1="4.8" x2="6.5" y2="6.5"/>
+                    <line x1="17.5" y1="17.5" x2="19.2" y2="19.2"/>
+                    <line x1="4.8" y1="19.2" x2="6.5" y2="17.5"/>
+                    <line x1="17.5" y1="6.5" x2="19.2" y2="4.8"/>
+                </g>
+                <circle cx="12" cy="12" r="5" fill="#fff"/>
+            </svg>
+        </button>
+    </t>
+
+    <t t-name="evie_notifications.MorningBriefDialog">
+        <Dialog title="title" size="'lg'" contentClass="'o_evie_brief'">
+            <div class="o_evie_brief__hero">
+                <div class="o_evie_brief__date" t-esc="dateLabel"/>
+                <h2 class="o_evie_brief__greeting">
+                    Good morning<t t-if="props.brief.greeting_name">, <t t-esc="props.brief.greeting_name"/></t>
+                </h2>
+                <p t-if="props.brief.count" class="o_evie_brief__lead">
+                    Here's what needs your attention today.
+                </p>
+            </div>
+
+            <div t-if="!props.brief.count" class="o_evie_brief__empty">
+                <i class="fa fa-sun-o" aria-hidden="true"/>
+                <h3>You're clear this morning</h3>
+                <p>No meetings, due activities, Evie drafts or hot leads waiting for you.</p>
+            </div>
+
+            <div t-else="" class="o_evie_brief__sections">
+                <section t-foreach="props.brief.sections" t-as="section" t-key="section.key"
+                         class="o_evie_brief__section">
+                    <header class="o_evie_brief__section-head">
+                        <span class="o_evie_brief__section-title">
+                            <i t-attf-class="fa {{ section.icon }}" aria-hidden="true"/>
+                            <t t-esc="section.title"/>
+                        </span>
+                        <span class="o_evie_brief__count" t-esc="section.count"/>
+                    </header>
+                    <button t-foreach="section.items" t-as="item" t-key="item.key" type="button"
+                            class="o_evie_brief__item" t-on-click="() => props.openItem(item)">
+                        <span class="o_evie_brief__item-title" t-esc="item.title"/>
+                        <span class="o_evie_brief__item-meta">
+                            <span t-if="item.due" t-att-class="item.overdue ? 'text-danger fw-semibold' : ''"
+                                  t-esc="item.due"/>
+                            <span t-foreach="item.meta" t-as="meta" t-key="meta_index" t-esc="meta"/>
+                        </span>
+                    </button>
+                    <button t-if="section.more" type="button" class="btn btn-link btn-sm o_evie_brief__more"
+                            t-on-click="() => props.openMore(section.more)" t-esc="section.more_label"/>
+                </section>
+            </div>
+
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary" t-on-click="props.close">
+                    <t t-if="props.brief.count">Got it, start my day</t>
+                    <t t-else="">Have a great morning</t>
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

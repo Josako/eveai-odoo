@@ -1,6 +1,6 @@
 {
     'name': 'Evie Notifications',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Sales/CRM',
     'summary': 'Evie notification center in the Odoo top bar: lead and activity changes, Evie action results',
     'description': """
@@ -30,6 +30,12 @@ notification center of the Evie admin client (odoo-notification-center).
     (once per user per local day)
   - meeting transcript ready / transcription failed (with Evie Meetings)
 
+* Morning brief: "Good morning" dialog with today's meetings, activities
+  due, Evie drafts to review and hot leads. Pops up once per local day
+  (from 05:00, only when there is something to show; remembered on the
+  user across devices); the sun button (bottom right) and the daily digest
+  notification reopen it
+
 * Never notifies the person who made the change; imports, module
   installs and writes with ``evie_skip_notifications`` stay silent. Evie's
   own sync writes (``evie_skip_phase_event``) do notify: an assignment or
@@ -55,6 +61,8 @@ notification center of the Evie admin client (odoo-notification-center).
             'evie_notifications/static/src/js/evie_notification_service.js',
             'evie_notifications/static/src/js/evie_notification_menu.js',
             'evie_notifications/static/src/xml/evie_notification_menu.xml',
+            'evie_notifications/static/src/js/evie_morning_brief.js',
+            'evie_notifications/static/src/xml/evie_morning_brief.xml',
         ],
     },
     'installable': True,

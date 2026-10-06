@@ -90,6 +90,12 @@
 
     <!-- "View all" from the bell: the current user's notifications, cleared
          ones included. -->
+    <!-- Opens the morning brief dialog (evie_morning_brief.js); used by the daily digest notification. -->
+    <record id="action_evie_morning_brief" model="ir.actions.client">
+        <field name="name">Morning brief</field>
+        <field name="tag">evie_notifications.morning_brief</field>
+    </record>
+
     <record id="action_evie_notification_my" model="ir.actions.act_window">
         <field name="name">My Evie notifications</field>
         <field name="res_model">evie.notification</field>

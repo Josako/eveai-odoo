@@ -151,3 +151,165 @@ $evie-purple: #974a8c;
         }
     }
 }
+
+// Morning brief: floating sun button (bottom right) + dialog.
+.o_evie_brief_button {
+    position: fixed;
+    // Centred on Discuss's chat bubble column (right 25px, 56px wide) and
+    // clear above its bubbles.
+    right: 29px;
+    bottom: 5.5rem;
+    z-index: 1040; // above the page, below dialogs
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffd166 0%, #f8961e 70%, #f3722c 100%);
+    box-shadow: 0 6px 18px -4px rgba(243, 114, 44, 0.55), 0 0 0 4px rgba(255, 209, 102, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    svg {
+        transition: transform 0.6s ease;
+    }
+
+    &:hover,
+    &:focus-visible {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 10px 24px -6px rgba(243, 114, 44, 0.65), 0 0 0 6px rgba(255, 209, 102, 0.3);
+
+        svg {
+            transform: rotate(45deg);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        svg {
+            transition: none;
+        }
+    }
+}
+
+.o_evie_brief {
+    .modal-body {
+        background: linear-gradient(180deg, rgba($evie-purple, 0.07) 0%, transparent 9rem);
+    }
+
+    &__hero {
+        padding: 0.25rem 0.25rem 1rem;
+    }
+
+    &__date {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--text-muted, #6c757d);
+    }
+
+    &__greeting {
+        margin: 0.25rem 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+
+    &__lead {
+        margin: 0;
+        color: var(--text-muted, #6c757d);
+    }
+
+    &__empty {
+        padding: 2rem 1rem;
+        text-align: center;
+        color: var(--text-muted, #6c757d);
+
+        .fa {
+            font-size: 2rem;
+            color: $evie-purple;
+        }
+
+        h3 {
+            margin: 0.5rem 0 0.25rem;
+            font-size: 1.1rem;
+        }
+    }
+
+    &__sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 0.75rem;
+    }
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.75rem;
+        background: var(--body-bg, #fff);
+    }
+
+    &__section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.25rem 0.4rem 0.5rem;
+    }
+
+    &__section-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        font-weight: 600;
+
+        .fa {
+            color: $evie-purple;
+        }
+    }
+
+    &__count {
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: var(--light, #f8f9fa);
+    }
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.1rem;
+        width: 100%;
+        padding: 0.5rem 0.4rem;
+        border: 0;
+        border-radius: 0.5rem;
+        background: transparent;
+        text-align: left;
+
+        &:hover {
+            background: rgba($evie-purple, 0.07);
+        }
+    }
+
+    &__item-title {
+        font-weight: 600;
+    }
+
+    &__item-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-muted, #6c757d);
+    }
+
+    &__more {
+        align-self: flex-start;
+        margin-top: auto;
+    }
+}

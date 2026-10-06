@@ -22,6 +22,13 @@ HOT_LEAD_SCORE = 70
 #: Local hour from which the daily activity digest may be sent.
 DIGEST_HOUR = 7
 
+#: Local hour from which the morning brief may pop up on its own.
+BRIEF_HOUR = 5
+
+#: Activity categories the brief lists under "Today's meetings" (core
+#: Meeting and Call, the same ones that get an Evie meeting window).
+MEETING_CATEGORIES = ('meeting', 'phonecall')
+
 #: Evie action statuses that end a run (see crm.lead x_evie_action_status).
 ACTION_FINISHED_STATUSES = ('DONE', 'FAILED')
 
@@ -62,3 +69,9 @@ def due_digest_counts(deadlines, today):
 def digest_due(local_hour, overdue, due_today, digest_hour=DIGEST_HOUR):
     """True when the daily digest should go out now for this user."""
     return local_hour >= digest_hour and bool(overdue or due_today)
+
+
+def brief_due(local_hour, seen_on, today, brief_hour=BRIEF_HOUR):
+    """True when the morning brief should pop up on its own: once per local
+    day, from ``brief_hour`` on."""
+    return local_hour >= brief_hour and seen_on != today

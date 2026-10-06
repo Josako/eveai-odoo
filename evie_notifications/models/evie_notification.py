@@ -228,7 +228,14 @@ class EvieNotification(models.Model):
             return self.env['ir.actions.actions']._for_xml_id(self.action_xmlid)
         if not (self.res_model and self.res_id) or self.res_model not in self.env:
             return False
-        record = self.env[self.res_model].browse(self.res_id).exists()
+        return self._evie_record_action(self.env[self.res_model].browse(self.res_id))
+
+    @api.model
+    def _evie_record_action(self, record):
+        """The action opening ``record`` for the current user, or ``False``
+        when it is gone or not readable. A model can open its records its own
+        way with ``_evie_notification_action`` (e.g. the meeting window)."""
+        record = record.exists()
         if not record:
             return False
         try:
@@ -288,7 +295,7 @@ class EvieNotification(models.Model):
             self._notify(
                 user, _("Your activities for today"), body=body,
                 kind='activity', tone='warning' if overdue else 'info',
-                action_xmlid='mail.mail_activity_action_my',
+                action_xmlid='evie_notifications.action_evie_morning_brief',
                 dedupe_key=f'activity-digest:{today.isoformat()}',
                 author=no_author,
             )

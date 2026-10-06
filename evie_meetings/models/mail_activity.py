@@ -293,7 +293,7 @@ class MailActivity(models.Model):
     def _evie_notification_action(self):
         """Evie bell notifications about a meeting open its meeting window."""
         self.ensure_one()
-        if self.activity_category not in MEETING_CATEGORIES:
+        if self.activity_category not in MEETING_CATEGORIES or not self.x_evie_capsule_id:
             return False
         return {
             'type': 'ir.actions.client',
