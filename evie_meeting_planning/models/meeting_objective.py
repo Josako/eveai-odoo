@@ -10,23 +10,23 @@ objective list carries it inbound as an AD_HOC instance; every later
 local change is refused by the guard.
 """
 
-from odoo import _, fields, models
+from odoo import _, _lt, fields, models
 
 from .objective_template import OBJECTIVE_TYPE_SELECTION, PRIORITY_SELECTION
 
 ORIGIN_SELECTION = [
-    ('TEMPLATE', _('From a template')),
-    ('AD_HOC', _('Ad-hoc')),
-    ('CARRY_OVER', _('Carried over')),
-    ('SUGGESTED', _('Suggested')),
+    ('TEMPLATE', _lt('From a template')),
+    ('AD_HOC', _lt('Ad-hoc')),
+    ('CARRY_OVER', _lt('Carried over')),
+    ('SUGGESTED', _lt('Suggested')),
 ]
 
 ASSESSMENT_STATUS_SELECTION = [
-    ('ACHIEVED', _('Achieved')),
-    ('PARTIAL', _('Partially achieved')),
-    ('NOT_ADDRESSED', _('Not addressed')),
-    ('BLOCKED', _('Blocked')),
-    ('NOT_APPLICABLE', _('Not applicable')),
+    ('ACHIEVED', _lt('Achieved')),
+    ('PARTIAL', _lt('Partially achieved')),
+    ('NOT_ADDRESSED', _lt('Not addressed')),
+    ('BLOCKED', _lt('Blocked')),
+    ('NOT_APPLICABLE', _lt('Not applicable')),
 ]
 
 
