@@ -345,7 +345,9 @@ class MailActivity(models.Model):
         templates = self.env['meeting.template'].sudo().search(
             [('capsule_id', '!=', False)], order='name')
         return {
-            'plan': plan and {
+            # NB: an explicit False — an empty recordset would serialise
+            # to [], which is truthy in the client.
+            'plan': {
                 'id': plan.id,
                 'source': plan.source or '',
                 'status': plan.status or '',
@@ -356,7 +358,7 @@ class MailActivity(models.Model):
                     self._evie_meeting_objective_payload(objective)
                     for objective in plan.objective_ids
                 ],
-            },
+            } if plan else False,
             'templates': [{
                 'id': template.id,
                 'name': template.name,

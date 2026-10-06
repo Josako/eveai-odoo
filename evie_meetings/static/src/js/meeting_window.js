@@ -326,7 +326,8 @@ export class MeetingWindow extends Component {
     // ------------------------------------------------------------------
 
     applyPlan(payload) {
-        this.state.plan = payload.plan || null;
+        // Guard against a serialised empty recordset ([]) — truthy but plan-less.
+        this.state.plan = payload.plan && payload.plan.id ? payload.plan : null;
         this.state.planTemplates = payload.templates || [];
         if (this.state.plan) {
             this.state.planComposing = false;
