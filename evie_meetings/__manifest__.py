@@ -1,6 +1,6 @@
 {
     'name': 'Evie Meetings',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.3.0',
     'category': 'Sales/CRM',
     'summary': 'Meeting window for Meeting and Call activities: details, recording and notes, stored in Evie',
     'description': """
@@ -23,6 +23,9 @@ opened from the activity in the lead's chatter (odoo-meeting-window).
   the top bar leads back to the window
 * The window stays reachable after the activity is done: the "done" message
   in the chatter links back to it (``/odoo/evie-meeting/<activity id>``)
+* With Evie Notifications installed, the assignee gets a bell notification
+  when a recording's transcript is ready or its transcription failed;
+  clicking it opens the meeting window
 * Meeting plan (19.0.1.1.0, add-odoo-meeting-library-sync): the window
   shows the meeting's objectives in every phase — added from a library
   template or from scratch when scheduling (the Evie copy action, polled

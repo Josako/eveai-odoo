@@ -1,6 +1,6 @@
 {
     'name': 'Evie Notifications',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales/CRM',
     'summary': 'Evie notification center in the Odoo top bar: lead and activity changes, Evie action results',
     'description': """
@@ -28,6 +28,7 @@ notification center of the Evie admin client (odoo-notification-center).
   - activity completed on your record by someone else
   - hourly-evaluated morning digest of overdue / due-today activities
     (once per user per local day)
+  - meeting transcript ready / transcription failed (with Evie Meetings)
 
 * Never notifies the person who made the change; imports, module
   installs and writes with ``evie_skip_notifications`` stay silent. Evie's

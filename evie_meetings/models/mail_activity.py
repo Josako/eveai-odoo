@@ -18,6 +18,8 @@ from odoo.exceptions import UserError
 
 #: Activity type categories that get a meeting window (core Meeting and Call).
 MEETING_CATEGORIES = ('meeting', 'phonecall')
+#: Generating speech for a long speaker turn can take well over the default 10 s.
+SPEAK_TIMEOUT_SECONDS = 45
 
 
 def _html(value):
@@ -55,8 +57,8 @@ class MailActivity(models.Model):
         user = self.env.user
         return {'name': user.name, 'email': user.email, 'lang': user.lang, 'id': user.id}
 
-    def _evie_meeting_call(self, path, payload):
-        ok, data = self.env['evie.webhook'].post_for_json(path, payload)
+    def _evie_meeting_call(self, path, payload, **kwargs):
+        ok, data = self.env['evie.webhook'].post_for_json(path, payload, **kwargs)
         if not ok:
             raise UserError(_("Evie could not complete the request: %s") % data)
         return data
@@ -236,6 +238,61 @@ class MailActivity(models.Model):
             'document_id': int(document_id),
             'user': activity._evie_meeting_user(),
         })
+
+    def evie_meeting_replace_in_transcript(self, document_id, find, replace, segment=None, occurrence=None):
+        """Replace a word in the transcript: everywhere, or one match of one fragment."""
+        activity = self._evie_meeting_activity('write')
+        return activity._evie_meeting_call('/meeting/transcript/replace', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'find': find or '',
+            'replace': replace or '',
+            'segment': segment,
+            'occurrence': occurrence,
+        })
+
+    def evie_meeting_speak_segment(self, document_id, segment):
+        """One transcript fragment read aloud by Evie ({audio_base64, mime_type})."""
+        activity = self._evie_meeting_activity()
+        return activity._evie_meeting_call('/meeting/transcript/speak', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'segment': int(segment),
+        }, timeout=SPEAK_TIMEOUT_SECONDS)
+
+    def evie_meeting_transcription_finished(self, document_id, document_name, error=False, finished_at=False):
+        """Called by Evie when a recording of this activity finished
+        transcribing (or failed): the assignee hears about it in the Evie
+        bell when the notification center is installed."""
+        activity = self._evie_meeting_activity('write')
+        if 'evie.notification' not in self.env or not activity.user_id:
+            return False
+        name = document_name or _("Recording")
+        if error:
+            title, tone = _("Transcription failed"), 'danger'
+            body = _("%(name)s: %(error)s", name=name, error=error)
+        else:
+            title, tone, body = _("Transcript ready"), 'success', name
+        if activity.res_name:
+            body = _("%(text)s on %(record)s", text=body, record=activity.res_name)
+        self.env['evie.notification']._notify(
+            activity.user_id, title, body=body, record=activity, kind='evie', tone=tone,
+            dedupe_key=f"meeting-transcription:{int(document_id)}:{finished_at}" if finished_at else None,
+            author=self.env['res.users'],
+        )
+        return True
+
+    def _evie_notification_action(self):
+        """Evie bell notifications about a meeting open its meeting window."""
+        self.ensure_one()
+        if self.activity_category not in MEETING_CATEGORIES:
+            return False
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'evie_meetings.meeting_window',
+            'name': self.summary or self.activity_type_id.name or _("Meeting"),
+            'params': {'resId': self.id},
+        }
 
     def evie_meeting_save_speakers(self, document_id, speaker_labels):
         activity = self._evie_meeting_activity('write')

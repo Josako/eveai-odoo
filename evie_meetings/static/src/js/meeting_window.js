@@ -16,7 +16,7 @@
  * pause in typing, on blur, when leaving the window, or on "Save".
  */
 
-import { Component, markup, onWillStart, onWillUnmount, useEffect, useState } from "@odoo/owl";
+import { Component, markup, onWillStart, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import {
     deserializeDate,
@@ -45,6 +45,15 @@ export function formatElapsed(totalSec) {
     const m = Math.floor((sec % 3600) / 60);
     const s = String(sec % 60).padStart(2, "0");
     return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}
+
+/**
+ * One live note as a markdown list item stamped with its recording time.
+ * Same format as the Workspace client's formatLiveNote (workspace-meetings.js).
+ */
+export function formatLiveNote(atSec, text) {
+    const [first, ...rest] = String(text).trim().split("\n");
+    return `- **[${formatElapsed(atSec)}]** ${first}${rest.map((part) => `  \n  ${part}`).join("")}`;
 }
 
 export function openMeetingWindow(actionService, activityId, name) {
@@ -79,6 +88,46 @@ function transcriptBlocks(markdown) {
     }
     flush();
     return blocks.map((block, index) => ({ ...block, id: index }));
+}
+
+/**
+ * Case-insensitive whole-word matches, the same rule Evie replaces with.
+ * Same as the Workspace client's transcriptMatchRegex (workspace-meetings.js).
+ */
+function transcriptMatchRegex(find) {
+    const term = String(find || "").trim();
+    if (!term) {
+        return null;
+    }
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
+}
+
+/** `text` split into [{text, match}] parts; `match` is the 0-based occurrence index or -1. */
+function splitTranscriptMatches(text, regex) {
+    const source = String(text || "");
+    if (!regex) {
+        return [{ text: source, match: -1 }];
+    }
+    const parts = [];
+    let last = 0;
+    let index = 0;
+    for (const found of source.matchAll(regex)) {
+        if (found.index > last) {
+            parts.push({ text: source.slice(last, found.index), match: -1 });
+        }
+        parts.push({ text: found[0], match: index++ });
+        last = found.index + found[0].length;
+    }
+    if (last < source.length) {
+        parts.push({ text: source.slice(last), match: -1 });
+    }
+    return parts;
+}
+
+function base64ToBlob(base64, mimeType) {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    return new Blob([bytes], { type: mimeType });
 }
 
 export class MeetingWindow extends Component {
@@ -135,16 +184,33 @@ export class MeetingWindow extends Component {
             objectiveError: "",
             repNotes: {}, // objective id -> edited note (until saved)
             repNoteStatus: {}, // objective id -> "saving" | "error" | ""
+            liveDraft: "",
+            liveDraftAt: null,
+            find: "",
+            replaceWith: "",
+            matchIndex: 0,
+            replacing: false,
+            transcriptStatus: "",
+            transcriptStatusError: false,
+            speaking: null, // { documentId, segment, loading }
         });
         this.pollTimer = null;
         this.notesTimer = null;
         this.planPollTimer = null;
+        this.liveInput = useRef("liveNoteInput");
+        this.transcriptList = useRef("transcriptList");
+        this.speechUrls = new Map();
+        this.speechAudio = null;
+        this.speechToken = 0;
 
         onWillStart(() => this.load());
         onWillUnmount(() => {
             browser.clearTimeout(this.pollTimer);
             browser.clearTimeout(this.notesTimer);
             browser.clearTimeout(this.planPollTimer);
+            this.stopSpeaking();
+            this.clearSpeechCache();
+            this.commitLiveNote();
             if (this.state.notesStatus === "dirty") {
                 this.saveNotes();
             }
@@ -156,6 +222,14 @@ export class MeetingWindow extends Component {
                 }
             },
             () => [this.recorderState.uploadCount]
+        );
+        useEffect(
+            (active) => {
+                if (active) {
+                    this.liveInput.el?.focus();
+                }
+            },
+            () => [this.liveNotesActive]
         );
     }
 
@@ -495,6 +569,7 @@ export class MeetingWindow extends Component {
     }
 
     stopRecording() {
+        this.commitLiveNote();
         this.recorder.stop();
     }
 
@@ -528,6 +603,9 @@ export class MeetingWindow extends Component {
 
     selectRecording(recording) {
         this.state.selectedId = recording.document_id;
+        this.state.matchIndex = 0;
+        this.setTranscriptStatus("");
+        this.stopSpeaking();
         this.ensureSelectedLoaded();
     }
 
@@ -563,7 +641,13 @@ export class MeetingWindow extends Component {
     }
 
     async loadTranscript(documentId) {
-        this.state.transcripts[documentId] = { loading: true, error: "", blocks: [], speakers: [] };
+        this.state.transcripts[documentId] = {
+            loading: true,
+            error: "",
+            blocks: [],
+            segments: [],
+            speakers: [],
+        };
         try {
             const data = await this.orm.silent.call(MODEL, "evie_meeting_transcript", [
                 [this.activityId],
@@ -573,17 +657,220 @@ export class MeetingWindow extends Component {
             this.state.transcripts[documentId] = {
                 loading: false,
                 error: "",
-                blocks: transcriptBlocks(data.markdown_content),
                 speakers: (data.speakers || []).map((key) => ({ key, name: labels[key] || "" })),
                 savedLabels: { ...labels },
             };
+            this.applyTranscriptContent(documentId, data);
         } catch (error) {
             this.state.transcripts[documentId] = {
                 loading: false,
                 error: errorMessage(error),
                 blocks: [],
+                segments: [],
                 speakers: [],
             };
+        }
+    }
+
+    /** New transcript text (after loading or a replace); cached speech is stale from here on. */
+    applyTranscriptContent(documentId, data) {
+        const transcript = this.state.transcripts[documentId];
+        transcript.blocks = transcriptBlocks(data.markdown_content);
+        transcript.segments = data.segments || [];
+        if (this.state.speaking?.documentId === documentId) {
+            this.stopSpeaking();
+        }
+        this.clearSpeechCache(documentId);
+    }
+
+    // ------------------------------------------------------------------
+    // Transcript: listen to a fragment, find and replace
+    // ------------------------------------------------------------------
+
+    get transcriptRegex() {
+        return transcriptMatchRegex(this.state.find);
+    }
+
+    get transcriptSegments() {
+        const regex = this.transcriptRegex;
+        return (this.selectedTranscript?.segments || []).map((segment) => ({
+            ...segment,
+            parts: splitTranscriptMatches(segment.text, regex),
+        }));
+    }
+
+    get transcriptMatches() {
+        return this.transcriptSegments.flatMap((segment) =>
+            segment.parts
+                .filter((part) => part.match >= 0)
+                .map((part) => ({ segment: segment.index, occurrence: part.match }))
+        );
+    }
+
+    get matchCountLabel() {
+        const total = this.transcriptMatches.length;
+        if (!total) {
+            return _t("No matches");
+        }
+        return _t("%(current)s of %(total)s", {
+            current: Math.min(this.state.matchIndex, total - 1) + 1,
+            total,
+        });
+    }
+
+    get canEditTranscript() {
+        return this.state.activity?.can_write !== false && !this.state.evieError;
+    }
+
+    isCurrentMatch(segmentIndex, occurrence) {
+        const match = this.transcriptMatches[this.state.matchIndex];
+        return Boolean(match) && match.segment === segmentIndex && match.occurrence === occurrence;
+    }
+
+    setTranscriptStatus(message, isError = false) {
+        this.state.transcriptStatus = message;
+        this.state.transcriptStatusError = isError;
+    }
+
+    onFindInput(ev) {
+        this.state.find = ev.target.value;
+        this.state.matchIndex = 0;
+        this.setTranscriptStatus("");
+        this.scrollToMatch();
+    }
+
+    onFindKeydown(ev) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            this.stepMatch(ev.shiftKey ? -1 : 1);
+        }
+    }
+
+    onReplaceKeydown(ev) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            this.replaceInTranscript(true);
+        }
+    }
+
+    stepMatch(delta) {
+        const total = this.transcriptMatches.length;
+        if (total) {
+            this.state.matchIndex = (this.state.matchIndex + delta + total) % total;
+            this.scrollToMatch();
+        }
+    }
+
+    scrollToMatch() {
+        browser.requestAnimationFrame(() => {
+            const match = this.transcriptMatches[this.state.matchIndex];
+            if (match) {
+                this.transcriptList.el
+                    ?.querySelector(`[data-match="${match.segment}-${match.occurrence}"]`)
+                    ?.scrollIntoView({ block: "center", behavior: "smooth" });
+            }
+        });
+    }
+
+    async replaceInTranscript(once) {
+        const documentId = this.state.selectedId;
+        const match = this.transcriptMatches[this.state.matchIndex];
+        if (!match || this.state.replacing) {
+            return;
+        }
+        this.state.replacing = true;
+        this.setTranscriptStatus("");
+        try {
+            const data = await this.orm.silent.call(MODEL, "evie_meeting_replace_in_transcript", [
+                [this.activityId],
+                documentId,
+                this.state.find,
+                this.state.replaceWith,
+                once ? match.segment : null,
+                once ? match.occurrence : null,
+            ]);
+            this.applyTranscriptContent(documentId, data);
+            const total = this.transcriptMatches.length;
+            this.state.matchIndex = total ? Math.min(this.state.matchIndex, total - 1) : 0;
+            const count = data.replaced || 0;
+            this.setTranscriptStatus(
+                count === 1
+                    ? _t("Replaced 1 occurrence.")
+                    : _t("Replaced %s occurrences.", count)
+            );
+        } catch (error) {
+            this.setTranscriptStatus(errorMessage(error), true);
+        } finally {
+            this.state.replacing = false;
+        }
+    }
+
+    clock(seconds) {
+        return formatElapsed(seconds);
+    }
+
+    speakLabel(speech) {
+        return speech ? _t("Stop") : _t("Listen to this part");
+    }
+
+    speakingState(segmentIndex) {
+        const speaking = this.state.speaking;
+        if (speaking?.documentId !== this.state.selectedId || speaking.segment !== segmentIndex) {
+            return "";
+        }
+        return speaking.loading ? "loading" : "playing";
+    }
+
+    async toggleSpeak(segmentIndex) {
+        const documentId = this.state.selectedId;
+        const wasThis = this.speakingState(segmentIndex);
+        this.stopSpeaking();
+        if (wasThis) {
+            return;
+        }
+        this.setTranscriptStatus("");
+        const key = `${documentId}:${segmentIndex}`;
+        const token = this.speechToken;
+        this.state.speaking = { documentId, segment: segmentIndex, loading: true };
+        try {
+            let url = this.speechUrls.get(key);
+            if (!url) {
+                const { audio_base64, mime_type } = await this.orm.silent.call(
+                    MODEL,
+                    "evie_meeting_speak_segment",
+                    [[this.activityId], documentId, segmentIndex]
+                );
+                url = URL.createObjectURL(base64ToBlob(audio_base64, mime_type));
+                this.speechUrls.set(key, url);
+            }
+            if (token !== this.speechToken) {
+                return;
+            }
+            this.speechAudio = new Audio(url);
+            this.speechAudio.onended = () => this.stopSpeaking();
+            this.state.speaking.loading = false;
+            await this.speechAudio.play();
+        } catch (error) {
+            if (token === this.speechToken) {
+                this.stopSpeaking();
+                this.setTranscriptStatus(errorMessage(error), true);
+            }
+        }
+    }
+
+    stopSpeaking() {
+        this.speechToken++;
+        this.speechAudio?.pause();
+        this.speechAudio = null;
+        this.state.speaking = null;
+    }
+
+    clearSpeechCache(documentId = null) {
+        for (const [key, url] of this.speechUrls) {
+            if (documentId === null || key.startsWith(`${documentId}:`)) {
+                URL.revokeObjectURL(url);
+                this.speechUrls.delete(key);
+            }
         }
     }
 
@@ -858,7 +1145,12 @@ export class MeetingWindow extends Component {
     }
 
     onNotesInput(ev) {
-        this.state.notes = ev.target.value;
+        this.setNotes(ev.target.value);
+    }
+
+    /** Every notes change goes through here: local draft, status and debounced save to Evie. */
+    setNotes(value) {
+        this.state.notes = value;
         this.state.draftRestored = false;
         if (this.state.notes === this.state.notesSaved) {
             this.state.notesStatus = "saved";
@@ -874,6 +1166,83 @@ export class MeetingWindow extends Component {
     onNotesBlur() {
         if (["dirty", "error"].includes(this.state.notesStatus)) {
             this.saveNotes();
+        }
+    }
+
+    // Live notes: lines typed while recording, appended to the notes with their recording time.
+
+    get liveNotesActive() {
+        return (
+            this.recordingHere &&
+            this.recorderState.phase === "recording" &&
+            this.state.activity?.can_write !== false
+        );
+    }
+
+    /** The recording time, frozen on the moment the current line was started. */
+    get liveStamp() {
+        return formatElapsed(this.state.liveDraftAt ?? this.recorderState.elapsedSec);
+    }
+
+    onLiveInput(ev) {
+        const text = ev.target.value;
+        this.state.liveDraft = text;
+        if (!text.trim()) {
+            this.state.liveDraftAt = null;
+        } else if (this.state.liveDraftAt === null) {
+            this.state.liveDraftAt = this.recorder.elapsedNow();
+        }
+        this.autosizeLiveInput();
+    }
+
+    onLiveKeydown(ev) {
+        if (ev.key !== "Enter" || ev.isComposing) {
+            return;
+        }
+        if (ev.metaKey || ev.ctrlKey) {
+            ev.preventDefault();
+            this.commitLiveNote();
+            return;
+        }
+        if (ev.shiftKey || ev.altKey) {
+            return;
+        }
+        const el = ev.target;
+        if (!el.value.trim()) {
+            ev.preventDefault();
+            return;
+        }
+        // Enter on an empty line (i.e. Enter twice) saves the line.
+        const before = el.value.slice(0, el.selectionStart);
+        const after = el.value.slice(el.selectionEnd);
+        if (before.endsWith("\n") && !after.trim()) {
+            ev.preventDefault();
+            this.commitLiveNote(before.slice(0, -1));
+        }
+    }
+
+    commitLiveNote(text = this.state.liveDraft) {
+        if (!text.trim()) {
+            return;
+        }
+        const line = formatLiveNote(this.state.liveDraftAt ?? this.recorder.elapsedNow(), text);
+        const notes = this.state.notes;
+        const separator = !notes.trim() ? "" : notes.endsWith("\n") ? "" : "\n";
+        this.setNotes(`${notes.trim() ? notes : ""}${separator}${line}\n`);
+        this.state.liveDraft = "";
+        this.state.liveDraftAt = null;
+        if (this.liveInput.el) {
+            this.liveInput.el.value = "";
+            this.autosizeLiveInput();
+            this.liveInput.el.focus();
+        }
+    }
+
+    autosizeLiveInput() {
+        const el = this.liveInput.el;
+        if (el) {
+            el.style.height = "auto";
+            el.style.height = `${el.scrollHeight}px`;
         }
     }
 

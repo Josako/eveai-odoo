@@ -70,6 +70,11 @@ export const meetingRecorderService = {
             }
         });
 
+        /** Wall-clock based so background-tab timer throttling can't make it drift. */
+        function elapsedNow() {
+            return startedAt ? Math.max(0, Math.floor((Date.now() - startedAt.getTime()) / 1000)) : 0;
+        }
+
         function stopStream() {
             stream?.getTracks().forEach((track) => track.stop());
             stream = null;
@@ -143,6 +148,8 @@ export const meetingRecorderService = {
                 return state.phase !== "idle";
             },
 
+            elapsedNow,
+
             async start({ activityId, title }) {
                 if (state.phase !== "idle") {
                     return;
@@ -183,7 +190,7 @@ export const meetingRecorderService = {
                             blob: new Blob(chunks, { type }),
                             filename: `meeting.${extensionFor(type)}`,
                             recordedAt: startedAt || new Date(),
-                            durationSec: state.elapsedSec,
+                            durationSec: elapsedNow(),
                         };
                         reset();
                         if (!item.blob.size) {
@@ -196,7 +203,7 @@ export const meetingRecorderService = {
                         upload(item);
                     };
                     recorder.start(1000);
-                    timer = browser.setInterval(() => state.elapsedSec++, 1000);
+                    timer = browser.setInterval(() => (state.elapsedSec = elapsedNow()), 1000);
                     state.phase = "recording";
                 } catch (error) {
                     reset();
