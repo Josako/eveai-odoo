@@ -193,6 +193,9 @@ export class MeetingWindow extends Component {
             transcriptStatus: "",
             transcriptStatusError: false,
             speaking: null, // { documentId, segment, loading }
+            doneForm: false,
+            doneFeedback: "",
+            markingDone: false,
         });
         this.pollTimer = null;
         this.notesTimer = null;
@@ -526,6 +529,28 @@ export class MeetingWindow extends Component {
 
     html(value) {
         return value ? markup(value) : "";
+    }
+
+    get canMarkDone() {
+        const activity = this.state.activity;
+        return Boolean(activity?.can_write && activity.state !== "done");
+    }
+
+    async markDone() {
+        this.state.markingDone = true;
+        try {
+            this.state.activity = await this.orm.call(MODEL, "evie_meeting_mark_done", [
+                [this.activityId],
+                this.state.doneFeedback,
+            ]);
+            this.state.doneForm = false;
+            this.state.doneFeedback = "";
+            this.notification.add(_t("Meeting marked as done."), { type: "success" });
+        } catch (error) {
+            this.notification.add(errorMessage(error), { type: "danger" });
+        } finally {
+            this.state.markingDone = false;
+        }
     }
 
     openRecord() {

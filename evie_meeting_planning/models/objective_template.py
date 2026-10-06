@@ -10,20 +10,21 @@ carries it — guarded against every other local change (composition is a
 copy action, never a link).
 """
 
-from odoo import _, _lt, fields, models
+from odoo import _, fields, models
 
+# Selection labels must be plain strings (Odoo translates them itself).
 OBJECTIVE_TYPE_SELECTION = [
-    ('INFORMATION', _lt('Information')),
-    ('COMMITMENT', _lt('Commitment')),
-    ('PERCEPTION', _lt('Perception')),
-    ('RELATIONSHIP', _lt('Relationship')),
+    ('INFORMATION', 'Information'),
+    ('COMMITMENT', 'Commitment'),
+    ('PERCEPTION', 'Perception'),
+    ('RELATIONSHIP', 'Relationship'),
 ]
 
 PRIORITY_SELECTION = [
-    ('LOW', _lt('Low')),
-    ('MEDIUM', _lt('Medium')),
-    ('HIGH', _lt('High')),
-    ('CRITICAL', _lt('Critical')),
+    ('LOW', 'Low'),
+    ('MEDIUM', 'Medium'),
+    ('HIGH', 'High'),
+    ('CRITICAL', 'Critical'),
 ]
 
 

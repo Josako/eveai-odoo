@@ -26,6 +26,10 @@
                         </div>
                     </div>
                     <div class="o_evie_meeting__header-actions">
+                        <button t-if="canMarkDone and !state.doneForm" type="button" class="btn btn-primary"
+                                t-on-click="() => this.state.doneForm = true">
+                            <i class="fa fa-check me-1" aria-hidden="true"/>Mark Done
+                        </button>
                         <button t-if="activity.res_id" type="button" class="btn btn-secondary" t-on-click="openRecord">
                             <i class="fa fa-external-link me-1" aria-hidden="true"/>
                             <t t-if="activity.lead">Open lead</t>
@@ -36,6 +40,19 @@
                         </span>
                     </div>
                 </header>
+
+                <div t-if="canMarkDone and state.doneForm" class="o_evie_meeting__done-form mx-3">
+                    <textarea class="form-control" rows="2" placeholder="Write feedback (optional)"
+                              t-model="state.doneFeedback" t-att-disabled="state.markingDone"/>
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+                        <button type="button" class="btn btn-sm btn-link" t-att-disabled="state.markingDone"
+                                t-on-click="() => this.state.doneForm = false">Cancel</button>
+                        <button type="button" class="btn btn-sm btn-primary" t-att-disabled="state.markingDone"
+                                t-on-click="markDone">
+                            <i t-attf-class="fa {{ state.markingDone ? 'fa-circle-o-notch fa-spin' : 'fa-check' }} me-1" aria-hidden="true"/>Done
+                        </button>
+                    </div>
+                </div>
 
                 <div t-if="state.evieError" class="alert alert-warning mx-3 mb-0" role="alert">
                     <strong>Evie is not reachable.</strong>

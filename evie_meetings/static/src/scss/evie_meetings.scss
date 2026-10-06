@@ -85,6 +85,13 @@ $evie-recording-red: #e03131;
         gap: 0.75rem;
     }
 
+    &__done-form {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.5rem;
+    }
+
     &__brand .o_evie_icon {
         width: 1.8em;
         height: 1.8em;

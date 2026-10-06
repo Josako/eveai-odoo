@@ -1,6 +1,6 @@
 {
     'name': 'Evie Meetings',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Sales/CRM',
     'summary': 'Meeting window for Meeting and Call activities: details, recording and notes, stored in Evie',
     'description': """
@@ -21,6 +21,7 @@ opened from the activity in the lead's chatter (odoo-meeting-window).
   to Evie as the activity's meeting notes
 * Recording keeps running while you navigate Odoo; a recording indicator in
   the top bar leads back to the window
+* "Mark Done" (with optional feedback) right in the window
 * The window stays reachable after the activity is done: the "done" message
   in the chatter links back to it (``/odoo/evie-meeting/<activity id>``)
 * With Evie Notifications installed, the assignee gets a bell notification

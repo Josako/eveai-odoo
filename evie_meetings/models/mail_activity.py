@@ -171,6 +171,14 @@ class MailActivity(models.Model):
         data['plan'] = activity._evie_meeting_plan_payload()
         return data
 
+    def evie_meeting_mark_done(self, feedback=False):
+        """Mark the activity done from the window, like the chatter's
+        "Mark Done"; returns the refreshed details (the window stays open)."""
+        activity = self._evie_meeting_activity('write')
+        if activity.active:
+            activity.action_feedback(feedback=(feedback or '').strip() or False)
+        return activity._evie_meeting_details()
+
     def evie_meeting_overview(self):
         """Recordings (with transcription status) and notes from Evie."""
         activity = self._evie_meeting_activity()

@@ -9,19 +9,20 @@ per activity (enforced by the constraint). Objectives are the pure
 inverse of the member side.
 """
 
-from odoo import _, _lt, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
+# Selection labels must be plain strings (Odoo translates them itself).
 PLAN_SOURCE_SELECTION = [
-    ('USER', _lt('Planned by the rep')),
-    ('SUGGESTED_ACCEPTED', _lt('System proposal accepted')),
-    ('INFERRED_POST_HOC', _lt('Inferred afterwards')),
+    ('USER', 'Planned by the rep'),
+    ('SUGGESTED_ACCEPTED', 'System proposal accepted'),
+    ('INFERRED_POST_HOC', 'Inferred afterwards'),
 ]
 
 PLAN_STATUS_SELECTION = [
-    ('DRAFT', _lt('Draft')),
-    ('CONFIRMED', _lt('Confirmed')),
-    ('SUPERSEDED', _lt('Superseded')),
+    ('DRAFT', 'Draft'),
+    ('CONFIRMED', 'Confirmed'),
+    ('SUPERSEDED', 'Superseded'),
 ]
 
 
