@@ -3,7 +3,9 @@
     <!-- marketing.initiative: mirror of MARKETING_INITIATIVE capsules.
          New model without a core notebook → the evie_brand_header widget
          carries the branding (odoo-evie-ui-branding). Section order:
-         Actions → Evie content → Synchronisation. -->
+         result tiles → Actions → definition → notebook, with the
+         synchronisation plumbing in the branded Evie tab (same as the
+         lead). -->
 
     <record id="marketing_initiative_view_form" model="ir.ui.view">
         <field name="name">marketing.initiative.form</field>
@@ -36,7 +38,31 @@
                     <div class="oe_title">
                         <h1><field name="name" placeholder="Initiative name"/></h1>
                     </div>
-                    <group>
+                    <div class="o_evie_kpis">
+                        <div class="o_evie_kpi">
+                            <span class="o_evie_kpi__label">Captures</span>
+                            <field name="capture_count" class="o_evie_kpi__value"/>
+                        </div>
+                        <div class="o_evie_kpi">
+                            <span class="o_evie_kpi__label">Leads</span>
+                            <field name="lead_count" class="o_evie_kpi__value"/>
+                        </div>
+                        <div class="o_evie_kpi">
+                            <span class="o_evie_kpi__label">Cost per capture</span>
+                            <field name="cost_per_capture" class="o_evie_kpi__value"/>
+                        </div>
+                        <div class="o_evie_kpi">
+                            <span class="o_evie_kpi__label">ROI</span>
+                            <field name="roi" class="o_evie_kpi__value"/>
+                        </div>
+                    </div>
+                    <group string="Actions" name="evie_actions" class="o_evie_card"
+                           invisible="not capsule_id">
+                        <field name="sync_state" nolabel="1"
+                               widget="evie_actions"
+                               options="{'capsule_type': 'MARKETING_INITIATIVE', 'capsule_id_field': 'capsule_id'}"/>
+                    </group>
+                    <group class="o_evie_card">
                         <group string="Definition">
                             <field name="code"/>
                             <field name="type"/>
@@ -56,55 +82,6 @@
                     </group>
                     <group string="Description" colspan="2">
                         <field name="description" nolabel="1"/>
-                    </group>
-                    <group string="UTM Strategy">
-                        <group>
-                            <field name="utm_campaign"/>
-                            <field name="utm_medium"/>
-                        </group>
-                        <group>
-                            <field name="utm_term"/>
-                            <field name="utm_content"/>
-                        </group>
-                    </group>
-                    <group string="UTM Records (materialised)">
-                        <group>
-                            <field name="campaign_id"/>
-                        </group>
-                        <group>
-                            <field name="medium_id"/>
-                        </group>
-                    </group>
-                    <group string="Results (computed)" colspan="2">
-                        <group>
-                            <field name="capture_count"/>
-                            <field name="lead_count"/>
-                        </group>
-                        <group>
-                            <field name="cost_per_capture"/>
-                            <field name="roi"/>
-                        </group>
-                    </group>
-                    <group string="Actions" name="evie_actions" colspan="2"
-                           invisible="not capsule_id">
-                        <field name="sync_state" nolabel="1"
-                               widget="evie_actions"
-                               options="{'capsule_type': 'MARKETING_INITIATIVE', 'capsule_id_field': 'capsule_id'}"/>
-                    </group>
-                    <group string="Synchronisation" name="evie_sync" colspan="2">
-                        <group>
-                            <field name="capsule_id" widget="evie_link"
-                                   invisible="not capsule_id"
-                                   options="{'kind': 'capsule'}"/>
-                            <field name="capsule_version"
-                                   invisible="not capsule_id"/>
-                        </group>
-                        <group>
-                            <field name="sync_state" widget="badge"/>
-                            <field name="last_sync_date"
-                                   invisible="not capsule_id"/>
-                            <field name="local_dirty"/>
-                        </group>
                     </group>
                     <notebook colspan="2">
                         <page string="Cost Lines" name="cost_lines">
@@ -160,6 +137,45 @@
                                     <field name="stage_id" readonly="1"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="UTM" name="utm">
+                            <group string="UTM Strategy" class="o_evie_card">
+                                <group>
+                                    <field name="utm_campaign"/>
+                                    <field name="utm_medium"/>
+                                </group>
+                                <group>
+                                    <field name="utm_term"/>
+                                    <field name="utm_content"/>
+                                </group>
+                            </group>
+                            <group string="UTM Records (materialised)"
+                                   class="o_evie_card o_evie_card--muted">
+                                <group>
+                                    <field name="campaign_id"/>
+                                </group>
+                                <group>
+                                    <field name="medium_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Evie" name="evie">
+                            <group string="Synchronisation" name="evie_sync"
+                                   class="o_evie_card o_evie_card--muted">
+                                <group>
+                                    <field name="capsule_id" widget="evie_link"
+                                           invisible="not capsule_id"
+                                           options="{'kind': 'capsule'}"/>
+                                    <field name="capsule_version"
+                                           invisible="not capsule_id"/>
+                                </group>
+                                <group>
+                                    <field name="sync_state" widget="badge"/>
+                                    <field name="last_sync_date"
+                                           invisible="not capsule_id"/>
+                                    <field name="local_dirty"/>
+                                </group>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>

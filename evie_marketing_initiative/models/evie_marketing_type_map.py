@@ -73,8 +73,12 @@ class EvieMarketingTypeMap(models.Model):
 
     @api.model
     def selection_for_kind(self, kind):
-        """The (key, label) selection list for one kind, in map order."""
+        """The (key, label) selection list for one kind, in map order.
+
+        Read as superuser: every user who can see an initiative or channel
+        (e.g. sales users) needs the dropdown labels, while editing the map
+        stays restricted to Evie Marketing managers."""
         return [
             (record.evie_key, record.label or record.evie_key)
-            for record in self.search([('kind', '=', kind)])
+            for record in self.sudo().search([('kind', '=', kind)])
         ]

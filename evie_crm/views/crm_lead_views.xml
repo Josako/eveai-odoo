@@ -19,51 +19,68 @@
                     <!-- No x_evie_action_message field on the form: the
                          chatter (automation below) is the natural place for
                          the outcome; the field itself stays for the sync. -->
-                    <group string="Actions" name="evie_actions">
+                    <group string="Actions" name="evie_actions" class="o_evie_card">
                         <field name="x_evie_action_status" nolabel="1"
                                widget="evie_actions"
                                options="{'capsule_type': 'CRM_LEAD'}"/>
                     </group>
                     <!-- Canonical order (crm-sync-polish): Actions → Evie
                          Context → Synchronisation — content before plumbing. -->
-                    <group string="Evie Context" name="evie_context">
-                        <!-- Editable (add-inbound-odoo-sync): direct phase
-                             edits post via the stage-change channel. The other
-                             x_evie_* fields stay readonly = Evie-master. -->
-                        <field name="x_evie_phase"/>
-                        <field name="x_evie_source" readonly="1"/>
-                        <!-- Editable + mirrored (crm-sync-polish): rep
-                             corrections sync back to Evie, tracked in the
-                             chatter. -->
-                        <field name="x_evie_linkedin_url" widget="url"/>
-                        <!-- Editable + mirrored (crm-sync-polish), like
-                             x_evie_phase: rep picks a language, it syncs
-                             back as the Evie ISO code. The dropdown offers
-                             exactly the languages of evie.language_map —
-                             enforced server-side in res_lang.name_search
-                             (context key evie_mapped_only), including
-                             not-activated languages. -->
-                        <field name="x_evie_language" options="{'no_create': True}"
-                               context="{'evie_mapped_only': True}"/>
-                        <field name="x_evie_qualification_score" readonly="1"/>
-                        <field name="x_evie_report_doc_version_id" readonly="1"
-                               widget="evie_link" options="{'kind': 'document'}"/>
-                        <field name="x_evie_rationale_doc_version_id" readonly="1"
-                               widget="evie_link" options="{'kind': 'document'}"/>
-                        <!-- Originating conversation (sync-lead-chat-session):
-                             read-only session page via the chat_session kind. -->
-                        <field name="x_evie_chat_session_id" readonly="1"
-                               widget="evie_link" options="{'kind': 'chat_session'}"/>
-                        <!-- Marketing opt-in (privacy-lead-capture): the only
-                             consent control, as first-class consent data. -->
-                        <field name="x_evie_marketing_opt_in" readonly="1"/>
-                        <field name="x_evie_marketing_opt_in_at" readonly="1"/>
-                        <field name="x_evie_privacy_text_version" readonly="1"/>
+                    <group name="evie_context" class="o_evie_card">
+                        <group string="Qualification" name="evie_qualification">
+                            <!-- Editable (add-inbound-odoo-sync): direct phase
+                                 edits post via the stage-change channel. The
+                                 other x_evie_* fields stay readonly =
+                                 Evie-master. -->
+                            <field name="x_evie_phase"/>
+                            <field name="x_evie_qualification_score" readonly="1"
+                                   widget="progressbar"/>
+                            <field name="x_evie_source" readonly="1"/>
+                            <!-- Editable + mirrored (crm-sync-polish), like
+                                 x_evie_phase: rep picks a language, it syncs
+                                 back as the Evie ISO code. The dropdown offers
+                                 exactly the languages of evie.language_map —
+                                 enforced server-side in res_lang.name_search
+                                 (context key evie_mapped_only), including
+                                 not-activated languages. -->
+                            <field name="x_evie_language" options="{'no_create': True}"
+                                   context="{'evie_mapped_only': True}"/>
+                            <!-- Editable + mirrored (crm-sync-polish): rep
+                                 corrections sync back to Evie, tracked in the
+                                 chatter. -->
+                            <field name="x_evie_linkedin_url" widget="url"/>
+                        </group>
+                        <group string="Evie Documents" name="evie_documents">
+                            <field name="x_evie_report_doc_version_id" readonly="1"
+                                   widget="evie_link" options="{'kind': 'document'}"/>
+                            <field name="x_evie_rationale_doc_version_id" readonly="1"
+                                   widget="evie_link" options="{'kind': 'document'}"/>
+                            <!-- Originating conversation (sync-lead-chat-session):
+                                 read-only session page via the chat_session kind. -->
+                            <field name="x_evie_chat_session_id" readonly="1"
+                                   widget="evie_link" options="{'kind': 'chat_session'}"/>
+                        </group>
                     </group>
-                    <group string="Synchronisation" name="evie_sync">
-                        <field name="x_evie_capsule_id" readonly="1"
-                               widget="evie_link" options="{'kind': 'capsule'}"/>
-                        <field name="x_evie_last_synced" readonly="1"/>
+                    <!-- Marketing opt-in (privacy-lead-capture): the only
+                         consent control, as first-class consent data. -->
+                    <group string="Consent" name="evie_consent" class="o_evie_card">
+                        <group>
+                            <field name="x_evie_marketing_opt_in" readonly="1"/>
+                            <field name="x_evie_marketing_opt_in_at" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="x_evie_privacy_text_version" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Synchronisation" name="evie_sync"
+                           class="o_evie_card o_evie_card--muted">
+                        <group>
+                            <field name="x_evie_capsule_id" readonly="1"
+                                   widget="evie_link" options="{'kind': 'capsule'}"/>
+                        </group>
+                        <group>
+                            <field name="x_evie_last_synced" readonly="1"/>
+                        </group>
                     </group>
                 </page>
             </xpath>

@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.6.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """
@@ -54,6 +54,11 @@ models.
   tabs so the mobile client never renders display-name-only rows; the
   unreadable "Answers (raw)" group leaves the capture form (the field and
   its sync mapping remain)
+* Form polish (1.6.0): the initiative form opens with result tiles
+  (captures, leads, cost per capture, ROI) and the Evie actions; UTM moves
+  to its own tab and synchronisation to the branded Evie tab; sections
+  render as Evie cards. Marketing attribution on the lead's Evie tab is a
+  card too
 
 The sync itself (field mappings, per-field ownership, UTM
 materialisation, reconciliation) lives Evie-side in the ODOO_CRM
