@@ -89,6 +89,10 @@ conscious choice with security, audit and licence consequences:
 Recommendation: option B. Create a dedicated internal user (e.g. `evie-sync`),
 restrict its rights to the synced models, generate its API key under
 *My Preferences → Account Security*, and upload the Evie logo as its avatar.
+Grant the required groups with the idempotent shell script
+`scripts/grant_integration_user_groups.py` (Sales/User: All Documents plus,
+per installed mirror module, that module's manager group — the sales groups
+deliberately have no create-rights on the mirror models).
 
 ## Branding assets
 
