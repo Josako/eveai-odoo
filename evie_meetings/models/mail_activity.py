@@ -158,6 +158,16 @@ class MailActivity(models.Model):
     # Meeting window API (called from the client action)
     # ------------------------------------------------------------------
 
+    def action_open_evie_meeting_window(self):
+        """Opens the meeting window (row click in the Evie Meetings list)."""
+        activity = self._evie_meeting_activity()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'evie_meetings.meeting_window',
+            'name': activity.summary or activity.display_name,
+            'params': {'resId': activity.id},
+        }
+
     def evie_meeting_window_data(self):
         """Everything the window shows on open. An unreachable Evie does not
         block the details: the Evie part then carries an error instead."""

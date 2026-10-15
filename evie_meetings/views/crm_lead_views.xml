@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- "Evie Meetings" smart button: the lead's Meeting and Call activities,
+         planned and done, in a searchable list instead of scrolling the
+         chatter for the "done" message. Named apart from CRM's own
+         "Meetings" button (calendar events). -->
+    <record id="crm_lead_view_form_evie_meetings" model="ir.ui.view">
+        <field name="name">crm.lead.form.evie.meetings</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_evie_meetings" type="object"
+                        class="oe_stat_button" icon="fa-microphone"
+                        invisible="not x_evie_meeting_count">
+                    <div class="o_stat_info">
+                        <field name="x_evie_meeting_count" class="o_stat_value"/>
+                        <span class="o_stat_text">Evie Meetings</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- A row opens the meeting window, not the activity form. -->
+    <record id="mail_activity_view_list_evie_meetings" model="ir.ui.view">
+        <field name="name">mail.activity.list.evie.meetings</field>
+        <field name="model">mail.activity</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list string="Evie Meetings" create="0" edit="0" delete="0"
+                  default_order="date_deadline desc"
+                  action="action_open_evie_meeting_window" type="object"
+                  decoration-muted="not active">
+                <field name="active" column_invisible="1"/>
+                <field name="date_deadline" string="Date"/>
+                <field name="activity_type_id" string="Type"/>
+                <field name="summary"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="x_evie_outcome" optional="show"/>
+                <field name="date_done" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'overdue'"
+                       decoration-warning="state == 'today'"
+                       decoration-info="state == 'planned'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mail_activity_view_search_evie_meetings" model="ir.ui.view">
+        <field name="name">mail.activity.search.evie.meetings</field>
+        <field name="model">mail.activity</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <search string="Evie Meetings">
+                <field name="summary" string="Meeting"
+                       filter_domain="['|', ('summary', 'ilike', self), ('note', 'ilike', self)]"/>
+                <field name="activity_type_id"/>
+                <field name="user_id"/>
+                <filter name="filter_meetings" string="Meetings"
+                        domain="[('activity_type_id.category', '=', 'meeting')]"/>
+                <filter name="filter_calls" string="Calls"
+                        domain="[('activity_type_id.category', '=', 'phonecall')]"/>
+                <separator/>
+                <filter name="filter_planned" string="Planned" domain="[('active', '=', True)]"/>
+                <filter name="filter_done" string="Done" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="filter_mine" string="Mine" domain="[('user_id', '=', uid)]"/>
+                <group>
+                    <filter name="group_type" string="Type" context="{'group_by': 'activity_type_id'}"/>
+                    <filter name="group_user" string="Assigned To" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date_deadline'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

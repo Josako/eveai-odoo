@@ -1,6 +1,6 @@
 {
     'name': 'Evie Meetings',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Sales/CRM',
     'summary': 'Meeting window for Meeting and Call activities: details, recording and notes, stored in Evie',
     'description': """
@@ -24,6 +24,10 @@ opened from the activity in the lead's chatter (odoo-meeting-window).
 * "Mark Done" (with optional feedback) right in the window
 * The window stays reachable after the activity is done: the "done" message
   in the chatter links back to it (``/odoo/evie-meeting/<activity id>``)
+* "Evie Meetings" smart button on the lead (19.0.1.5.0): all its Meeting
+  and Call activities, planned and done, in a list with search, filters
+  (meetings, calls, planned, done, mine) and grouping; a row opens the
+  meeting window
 * With Evie Notifications installed, the assignee gets a bell notification
   when a recording's transcript is ready or its transcription failed;
   clicking it opens the meeting window
@@ -45,6 +49,7 @@ server-side with the API key.
     'depends': ['evie_base', 'evie_crm', 'evie_meeting_planning', 'mail', 'calendar'],
     'data': [
         'data/mail_templates.xml',
+        'views/crm_lead_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
