@@ -188,6 +188,10 @@ $evie-recording-red: #e03131;
         color: $evie-recording-red;
     }
 
+    &__context-terms {
+        max-width: 32rem;
+    }
+
     &__live {
         display: flex;
         flex: 1 1 auto;

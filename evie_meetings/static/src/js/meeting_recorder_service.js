@@ -50,6 +50,7 @@ export const meetingRecorderService = {
             phase: "idle", // idle | starting | recording | uploading
             activityId: false,
             title: "",
+            contextTerms: [],
             elapsedSec: 0,
             failedUpload: null,
             // Bumped after every successful upload so an open window reloads.
@@ -91,6 +92,7 @@ export const meetingRecorderService = {
             state.phase = "idle";
             state.activityId = false;
             state.title = "";
+            state.contextTerms = [];
         }
 
         async function upload(item) {
@@ -103,14 +105,15 @@ export const meetingRecorderService = {
                 ]);
                 const form = new FormData();
                 form.append("file", item.blob, item.filename);
-                form.append(
-                    "data",
-                    JSON.stringify({
-                        name: safeName(item.title),
-                        recorded_at: item.recordedAt.toISOString(),
-                        duration_sec: item.durationSec ?? null,
-                    })
-                );
+                const payload = {
+                    name: safeName(item.title),
+                    recorded_at: item.recordedAt.toISOString(),
+                    duration_sec: item.durationSec ?? null,
+                };
+                if (item.contextTerms?.length) {
+                    payload.context_terms = item.contextTerms;
+                }
+                form.append("data", JSON.stringify(payload));
                 const response = await browser.fetch(upload_url, { method: "POST", body: form });
                 if (!response.ok) {
                     let message = "";
@@ -150,7 +153,7 @@ export const meetingRecorderService = {
 
             elapsedNow,
 
-            async start({ activityId, title }) {
+            async start({ activityId, title, contextTerms }) {
                 if (state.phase !== "idle") {
                     return;
                 }
@@ -161,6 +164,7 @@ export const meetingRecorderService = {
                 state.phase = "starting";
                 state.activityId = activityId;
                 state.title = title;
+                state.contextTerms = contextTerms || [];
                 try {
                     stream = await browser.navigator.mediaDevices.getUserMedia({ audio: true });
                     const mimeType = pickMimeType();
@@ -187,6 +191,7 @@ export const meetingRecorderService = {
                         const item = {
                             activityId: state.activityId,
                             title: state.title,
+                            contextTerms: state.contextTerms,
                             blob: new Blob(chunks, { type }),
                             filename: `meeting.${extensionFor(type)}`,
                             recordedAt: startedAt || new Date(),
@@ -224,13 +229,14 @@ export const meetingRecorderService = {
             },
 
             /** Add an existing audio/video file as a recording of the activity. */
-            async uploadFile({ activityId, title, file }) {
+            async uploadFile({ activityId, title, file, contextTerms }) {
                 if (state.phase !== "idle") {
                     return;
                 }
                 await upload({
                     activityId,
                     title: title || file.name.replace(/\.[^.]+$/, ""),
+                    contextTerms: contextTerms || [],
                     blob: file,
                     filename: file.name,
                     recordedAt: new Date(file.lastModified || Date.now()),

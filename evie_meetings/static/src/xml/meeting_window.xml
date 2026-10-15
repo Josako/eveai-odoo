@@ -424,6 +424,14 @@
                                     <div t-if="recorderBusyElsewhere" class="text-muted small w-100">
                                         Another meeting is being recorded (<t t-esc="recorderState.title"/>). Stop it first.
                                     </div>
+                                    <div class="o_evie_meeting__context-terms w-100">
+                                        <input type="text" class="form-control form-control-sm"
+                                               t-att-disabled="!canRecord"
+                                               t-model="state.contextTerms"
+                                               placeholder="Context terms (optional): names or jargon Evie should recognise"
+                                               aria-label="Context terms for transcription"/>
+                                        <div class="form-text">Up to 10 terms, separated by commas — e.g. the guest's name or a product name.</div>
+                                    </div>
                                 </t>
                             </div>
 

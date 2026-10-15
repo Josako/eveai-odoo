@@ -155,6 +155,7 @@ export class MeetingWindow extends Component {
             activity: null,
             recordings: [],
             evieError: "",
+            contextTerms: "",
             selectedId: false,
             audioUrls: {},
             transcripts: {},
@@ -590,8 +591,27 @@ export class MeetingWindow extends Component {
         return this.state.activity?.can_write !== false && !this.state.evieError;
     }
 
+    /** Adhoc transcription bias terms as a parsed array (max 10). */
+    contextTermsArray() {
+        const seen = new Set();
+        const terms = [];
+        for (const raw of String(this.state.contextTerms || "").split(",")) {
+            const term = raw.trim();
+            const key = term.toLowerCase();
+            if (term && !seen.has(key)) {
+                seen.add(key);
+                terms.push(term);
+            }
+        }
+        return terms.slice(0, 10);
+    }
+
     startRecording() {
-        this.recorder.start({ activityId: this.activityId, title: this.title });
+        this.recorder.start({
+            activityId: this.activityId,
+            title: this.title,
+            contextTerms: this.contextTermsArray(),
+        });
     }
 
     stopRecording() {
@@ -603,7 +623,12 @@ export class MeetingWindow extends Component {
         const file = ev.target.files?.[0];
         ev.target.value = "";
         if (file) {
-            this.recorder.uploadFile({ activityId: this.activityId, title: this.title, file });
+            this.recorder.uploadFile({
+                activityId: this.activityId,
+                title: this.title,
+                file,
+                contextTerms: this.contextTermsArray(),
+            });
         }
     }
 
