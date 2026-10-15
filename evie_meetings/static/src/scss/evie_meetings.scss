@@ -188,8 +188,90 @@ $evie-recording-red: #e03131;
         color: $evie-recording-red;
     }
 
+    &__recorder-idle {
+        display: flex;
+        flex: 1 1 100%;
+        flex-direction: column;
+        gap: 0.6rem;
+        min-width: 0;
+    }
+
+    &__recorder-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
     &__context-terms {
-        max-width: 32rem;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.5rem;
+        background-color: rgba($evie-purple, 0.03);
+    }
+
+    &__context-head {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+
+        .fa {
+            color: $evie-purple;
+        }
+    }
+
+    &__context-optional {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--text-muted, #6c757d);
+    }
+
+    &__context-count {
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-muted, #6c757d);
+
+        &.is-over {
+            color: #b45309;
+        }
+    }
+
+    &__context-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-top: 0.45rem;
+    }
+
+    &__context-chip {
+        max-width: 100%;
+        padding: 0.1rem 0.55rem;
+        overflow: hidden;
+        border: 1px solid rgba($evie-purple, 0.25);
+        border-radius: 999px;
+        background-color: rgba($evie-purple, 0.08);
+        color: $evie-purple;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &.is-unused {
+            border-style: dashed;
+            background-color: transparent;
+            color: var(--text-muted, #6c757d);
+            text-decoration: line-through;
+        }
+    }
+
+    &__context-help {
+        margin-top: 0.35rem;
+        font-size: 0.75rem;
+        color: var(--text-muted, #6c757d);
     }
 
     &__live {

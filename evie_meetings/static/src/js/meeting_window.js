@@ -38,6 +38,7 @@ const NOTES_AUTOSAVE_MS = 10000;
 const DRAFT_KEY_PREFIX = "evie_meetings.notes_draft.";
 const PLAN_POLL_INTERVAL_MS = 3000;
 const PLAN_POLL_MAX = 30; // ~90s for the composed plan mirrors to land
+const MAX_CONTEXT_TERMS = 10;
 
 export function formatElapsed(totalSec) {
     const sec = Math.max(0, Math.floor(totalSec || 0));
@@ -591,8 +592,12 @@ export class MeetingWindow extends Component {
         return this.state.activity?.can_write !== false && !this.state.evieError;
     }
 
-    /** Adhoc transcription bias terms as a parsed array (max 10). */
-    contextTermsArray() {
+    get maxContextTerms() {
+        return MAX_CONTEXT_TERMS;
+    }
+
+    /** All distinct adhoc transcription bias terms typed, in order. */
+    allContextTerms() {
         const seen = new Set();
         const terms = [];
         for (const raw of String(this.state.contextTerms || "").split(",")) {
@@ -603,7 +608,12 @@ export class MeetingWindow extends Component {
                 terms.push(term);
             }
         }
-        return terms.slice(0, 10);
+        return terms;
+    }
+
+    /** Adhoc transcription bias terms as a parsed array (max 10). */
+    contextTermsArray() {
+        return this.allContextTerms().slice(0, MAX_CONTEXT_TERMS);
     }
 
     startRecording() {
@@ -746,16 +756,34 @@ export class MeetingWindow extends Component {
         const regex = this.transcriptRegex;
         return (this.selectedTranscript?.segments || []).map((segment) => ({
             ...segment,
+            speakerParts: splitTranscriptMatches(segment.speaker, regex),
             parts: splitTranscriptMatches(segment.text, regex),
         }));
     }
 
+    /** Matches in reading order: the speaker name of a fragment, then its text. */
     get transcriptMatches() {
-        return this.transcriptSegments.flatMap((segment) =>
-            segment.parts
+        const found = (segment, parts, inSpeaker) =>
+            parts
                 .filter((part) => part.match >= 0)
-                .map((part) => ({ segment: segment.index, occurrence: part.match }))
-        );
+                .map((part) => ({ segment: segment.index, occurrence: part.match, inSpeaker }));
+        return this.transcriptSegments.flatMap((segment) => [
+            ...found(segment, segment.speakerParts, true),
+            ...found(segment, segment.parts, false),
+        ]);
+    }
+
+    /** Only the spoken text can be replaced; speakers are renamed under "Name the speakers". */
+    get textMatchCount() {
+        return this.transcriptMatches.filter((match) => !match.inSpeaker).length;
+    }
+
+    get currentMatchInSpeaker() {
+        return Boolean(this.transcriptMatches[this.state.matchIndex]?.inSpeaker);
+    }
+
+    matchKey(segmentIndex, occurrence, inSpeaker = false) {
+        return `${segmentIndex}-${inSpeaker ? "s" : ""}${occurrence}`;
     }
 
     get matchCountLabel() {
@@ -773,9 +801,14 @@ export class MeetingWindow extends Component {
         return this.state.activity?.can_write !== false && !this.state.evieError;
     }
 
-    isCurrentMatch(segmentIndex, occurrence) {
+    isCurrentMatch(segmentIndex, occurrence, inSpeaker = false) {
         const match = this.transcriptMatches[this.state.matchIndex];
-        return Boolean(match) && match.segment === segmentIndex && match.occurrence === occurrence;
+        return (
+            Boolean(match) &&
+            match.segment === segmentIndex &&
+            match.occurrence === occurrence &&
+            match.inSpeaker === inSpeaker
+        );
     }
 
     setTranscriptStatus(message, isError = false) {
@@ -817,7 +850,7 @@ export class MeetingWindow extends Component {
             const match = this.transcriptMatches[this.state.matchIndex];
             if (match) {
                 this.transcriptList.el
-                    ?.querySelector(`[data-match="${match.segment}-${match.occurrence}"]`)
+                    ?.querySelector(`[data-match="${this.matchKey(match.segment, match.occurrence, match.inSpeaker)}"]`)
                     ?.scrollIntoView({ block: "center", behavior: "smooth" });
             }
         });
@@ -826,7 +859,7 @@ export class MeetingWindow extends Component {
     async replaceInTranscript(once) {
         const documentId = this.state.selectedId;
         const match = this.transcriptMatches[this.state.matchIndex];
-        if (!match || this.state.replacing) {
+        if (!match || this.state.replacing || (once && match.inSpeaker) || !this.textMatchCount) {
             return;
         }
         this.state.replacing = true;

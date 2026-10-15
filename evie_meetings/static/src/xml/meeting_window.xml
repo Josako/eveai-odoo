@@ -407,32 +407,53 @@
                                         <i class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>Saving the recording to Evie…
                                     </span>
                                 </t>
-                                <t t-else="">
-                                    <button type="button" class="btn btn-primary o_evie_meeting__record-btn"
-                                            t-att-disabled="!canRecord or recorderBusyElsewhere"
-                                            t-on-click="startRecording">
-                                        <i class="fa fa-circle me-1" aria-hidden="true"/>
-                                        <t t-if="isCall">Record call</t>
-                                        <t t-else="">Record meeting</t>
-                                    </button>
-                                    <label t-attf-class="btn btn-secondary mb-0 {{ !canRecord or recorderBusyElsewhere ? 'disabled' : '' }}">
-                                        <i class="fa fa-upload me-1" aria-hidden="true"/>Add a recording
-                                        <input type="file" class="d-none" accept="audio/*,video/*"
-                                               t-att-disabled="!canRecord or recorderBusyElsewhere"
-                                               t-on-change="onFileChosen"/>
-                                    </label>
-                                    <div t-if="recorderBusyElsewhere" class="text-muted small w-100">
+                                <div t-else="" class="o_evie_meeting__recorder-idle">
+                                    <div class="o_evie_meeting__recorder-actions">
+                                        <button type="button" class="btn btn-primary o_evie_meeting__record-btn"
+                                                t-att-disabled="!canRecord or recorderBusyElsewhere"
+                                                t-on-click="startRecording">
+                                            <i class="fa fa-circle me-1" aria-hidden="true"/>
+                                            <t t-if="isCall">Record call</t>
+                                            <t t-else="">Record meeting</t>
+                                        </button>
+                                        <label t-attf-class="btn btn-secondary mb-0 {{ !canRecord or recorderBusyElsewhere ? 'disabled' : '' }}">
+                                            <i class="fa fa-upload me-1" aria-hidden="true"/>Add a recording
+                                            <input type="file" class="d-none" accept="audio/*,video/*"
+                                                   t-att-disabled="!canRecord or recorderBusyElsewhere"
+                                                   t-on-change="onFileChosen"/>
+                                        </label>
+                                    </div>
+                                    <div t-if="recorderBusyElsewhere" class="text-muted small">
                                         Another meeting is being recorded (<t t-esc="recorderState.title"/>). Stop it first.
                                     </div>
-                                    <div class="o_evie_meeting__context-terms w-100">
-                                        <input type="text" class="form-control form-control-sm"
+                                    <t t-set="contextTerms" t-value="allContextTerms()"/>
+                                    <t t-set="contextTermsOver" t-value="contextTerms.length > maxContextTerms"/>
+                                    <div class="o_evie_meeting__context-terms">
+                                        <label class="o_evie_meeting__context-head" for="o_evie_meeting_context_terms">
+                                            <i class="fa fa-tags" aria-hidden="true"/>
+                                            <span>Context terms</span>
+                                            <span class="o_evie_meeting__context-optional">optional</span>
+                                            <span t-if="contextTerms.length"
+                                                  t-attf-class="o_evie_meeting__context-count {{ contextTermsOver ? 'is-over' : '' }}"
+                                                  t-att-title="contextTermsOver ? 'Only the first ' + maxContextTerms + ' terms are used' : null">
+                                                <t t-esc="contextTerms.length"/>/<t t-esc="maxContextTerms"/>
+                                            </span>
+                                        </label>
+                                        <input id="o_evie_meeting_context_terms" type="text" class="form-control form-control-sm"
                                                t-att-disabled="!canRecord"
                                                t-model="state.contextTerms"
-                                               placeholder="Context terms (optional): names or jargon Evie should recognise"
-                                               aria-label="Context terms for transcription"/>
-                                        <div class="form-text">Up to 10 terms, separated by commas — e.g. the guest's name or a product name.</div>
+                                               placeholder="e.g. Jane Peeters, Acme Cloud, ARR"/>
+                                        <div t-if="contextTerms.length" class="o_evie_meeting__context-chips">
+                                            <span t-foreach="contextTerms" t-as="term" t-key="term_index"
+                                                  t-attf-class="o_evie_meeting__context-chip {{ term_index >= maxContextTerms ? 'is-unused' : '' }}"
+                                                  t-att-title="term_index >= maxContextTerms ? 'Not used: over the limit of ' + maxContextTerms : null"
+                                                  t-esc="term"/>
+                                        </div>
+                                        <div class="o_evie_meeting__context-help">
+                                            Names or jargon Evie should recognise in the transcript. Separate with commas, up to <t t-esc="maxContextTerms"/>.
+                                        </div>
                                     </div>
-                                </t>
+                                </div>
                             </div>
 
                             <div t-if="failedUpload" class="alert alert-danger d-flex flex-wrap align-items-center gap-2" role="alert">
@@ -509,7 +530,7 @@
                                                 <div class="o_evie_meeting__transcript-tools" role="search">
                                                     <div class="o_evie_meeting__transcript-row">
                                                         <input type="search" class="form-control form-control-sm"
-                                                               placeholder="Find a word" aria-label="Find in transcript"
+                                                               placeholder="Find a word or speaker" aria-label="Find in transcript"
                                                                t-att-value="state.find"
                                                                t-on-input="onFindInput" t-on-keydown="onFindKeydown"/>
                                                         <span t-if="transcriptRegex" class="o_evie_meeting__transcript-count text-muted small" aria-live="polite" t-esc="matchCountLabel"/>
@@ -528,14 +549,16 @@
                                                                t-model="state.replaceWith"
                                                                t-on-keydown="onReplaceKeydown"/>
                                                         <button type="button" class="btn btn-sm btn-secondary"
-                                                                t-att-disabled="state.replacing or !transcriptMatches.length"
+                                                                t-att-disabled="state.replacing or !textMatchCount or currentMatchInSpeaker"
+                                                                t-att-title="currentMatchInSpeaker ? 'This match is a speaker name: rename speakers under Name the speakers' : null"
                                                                 t-on-click="() => this.replaceInTranscript(true)">
                                                             Replace
                                                         </button>
                                                         <button type="button" class="btn btn-sm btn-primary text-nowrap"
-                                                                t-att-disabled="state.replacing or !transcriptMatches.length"
+                                                                t-att-disabled="state.replacing or !textMatchCount"
+                                                                t-att-title="textMatchCount !== transcriptMatches.length ? 'Replaces in the spoken text only, not in speaker names' : null"
                                                                 t-on-click="() => this.replaceInTranscript(false)">
-                                                            Replace all <t t-if="transcriptMatches.length">(<t t-esc="transcriptMatches.length"/>)</t>
+                                                            Replace all <t t-if="textMatchCount">(<t t-esc="textMatchCount"/>)</t>
                                                         </button>
                                                     </div>
                                                     <div t-if="state.transcriptStatus" role="status"
@@ -554,11 +577,13 @@
                                                                 <i t-att-class="'fa ' + (speech === 'loading' ? 'fa-circle-o-notch fa-spin' : speech ? 'fa-stop' : 'fa-volume-up')" aria-hidden="true"/>
                                                             </button>
                                                             <span class="o_evie_meeting__segment-time" t-esc="clock(segment.start)"/>
-                                                            <span t-if="segment.speaker" class="o_evie_meeting__segment-speaker" t-esc="segment.speaker"/>
+                                                            <span t-if="segment.speaker" class="o_evie_meeting__segment-speaker"><t t-foreach="segment.speakerParts" t-as="part" t-key="part_index"><mark t-if="part.match >= 0"
+                                                                t-att-class="'o_evie_meeting__mark' + (isCurrentMatch(segment.index, part.match, true) ? ' is-current' : '')"
+                                                                t-att-data-match="matchKey(segment.index, part.match, true)" t-esc="part.text"/><t t-else="" t-esc="part.text"/></t></span>
                                                         </div>
                                                         <p class="o_evie_meeting__segment-text"><t t-foreach="segment.parts" t-as="part" t-key="part_index"><mark t-if="part.match >= 0"
                                                             t-att-class="'o_evie_meeting__mark' + (isCurrentMatch(segment.index, part.match) ? ' is-current' : '')"
-                                                            t-att-data-match="segment.index + '-' + part.match" t-esc="part.text"/><t t-else="" t-esc="part.text"/></t></p>
+                                                            t-att-data-match="matchKey(segment.index, part.match)" t-esc="part.text"/><t t-else="" t-esc="part.text"/></t></p>
                                                     </li>
                                                 </ol>
                                             </t>
