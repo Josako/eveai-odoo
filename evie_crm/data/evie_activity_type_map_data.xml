@@ -14,6 +14,15 @@
             <field name="evie_activity_type">Email</field>
             <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_email"/>
         </record>
+        <!-- Link Click (personal-lead-outreach-links): an Evie-native
+             inbound interaction (a lead clicked a personal outreach link);
+             it maps onto the generic Email activity type. Higher sequence
+             than map_email so inbound Email always resolves to 'Email'. -->
+        <record id="map_link_click" model="evie.activity_type_map">
+            <field name="sequence">25</field>
+            <field name="evie_activity_type">Link Click</field>
+            <field name="odoo_activity_type_id" ref="evie_crm.mail_activity_data_email"/>
+        </record>
         <record id="map_meeting" model="evie.activity_type_map">
             <field name="sequence">30</field>
             <field name="evie_activity_type">Meeting</field>
