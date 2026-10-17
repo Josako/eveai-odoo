@@ -10,7 +10,6 @@ people never get notified about their own edits.
 from odoo import _, api, models
 
 from odoo.addons.evie_notifications.rules import (
-    ACTION_FINISHED_STATUSES,
     crossed_hot_threshold,
     is_muted,
     lead_change_events,
@@ -93,15 +92,4 @@ class CrmLead(models.Model):
 
     def evie_notify_action_completed(self):
         super().evie_notify_action_completed()
-        notifications = self.env['evie.notification']
-        for lead in self.filtered('user_id'):
-            status = lead.x_evie_action_status
-            if status not in ACTION_FINISHED_STATUSES:
-                continue
-            done = status == 'DONE'
-            notifications._notify(
-                lead.user_id,
-                _("Evie finished an action") if done else _("Evie action failed"),
-                body=lead.x_evie_action_message or lead.display_name,
-                record=lead, kind='evie', tone='success' if done else 'danger',
-            )
+        self.env['evie.notification']._notify_action_completed(self)

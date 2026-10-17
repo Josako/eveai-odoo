@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EvieCapsuleDocuments">
+        <div class="o_evie_documents">
+            <span t-if="!state.loaded" class="text-muted">
+                <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-label="Loading"/>
+                Loading documents…
+            </span>
+            <span t-elif="!state.ok" class="text-muted fst-italic">Evie documents unavailable</span>
+            <span t-elif="!state.linked" class="text-muted fst-italic">Not linked to Evie yet</span>
+            <span t-elif="!state.documents.length" class="text-muted fst-italic">No documents yet</span>
+            <ul t-else="" class="o_evie_documents__list list-unstyled mb-0">
+                <li t-foreach="state.documents" t-as="document" t-key="document.relation_id">
+                    <button type="button" class="o_evie_documents__item"
+                            t-att-disabled="state.opening ? true : null"
+                            t-att-title="document.description or document.name"
+                            t-on-click="() => this.openDocument(document)">
+                        <i t-attf-class="fa {{ state.opening === document.document_version_id ? 'fa-circle-o-notch fa-spin' : fileIcon(document) }} o_evie_documents__icon"
+                           role="img" aria-hidden="true"/>
+                        <span class="o_evie_documents__body">
+                            <span class="o_evie_documents__head">
+                                <span class="o_evie_documents__name" t-esc="document.name"/>
+                                <span t-if="document.document_type_label" class="o_evie_documents__type"
+                                      t-esc="document.document_type_label"/>
+                            </span>
+                            <span t-if="document.description" class="o_evie_documents__description"
+                                  t-esc="document.description"/>
+                            <span class="o_evie_documents__meta">
+                                <t t-esc="formatDate(document)"/>
+                                <t t-if="document.processing"> · processing…</t>
+                            </span>
+                        </span>
+                        <i class="fa fa-external-link o_evie_documents__open" role="img" aria-hidden="true"/>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="evie_base.EvieCapsuleDocumentsWidget">
+        <EvieCapsuleDocuments resModel="props.record.resModel"
+                              resId="props.record.resId || false"
+                              capsuleIdField="props.capsuleIdField"
+                              refreshKey="props.record.data[props.capsuleIdField || 'x_evie_capsule_id']"/>
+    </t>
+
+</templates>

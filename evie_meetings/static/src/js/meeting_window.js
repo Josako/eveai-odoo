@@ -27,6 +27,8 @@ import {
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { EvieCapsuleActions } from "@evie_base/js/evie_capsule_actions";
+import { EvieCapsuleDocuments } from "@evie_base/js/evie_capsule_documents";
 import { errorMessage } from "./meeting_recorder_service";
 
 const { DateTime } = luxon;
@@ -134,6 +136,7 @@ function base64ToBlob(base64, mimeType) {
 export class MeetingWindow extends Component {
     static template = "evie_meetings.MeetingWindow";
     static props = ["*"];
+    static components = { EvieCapsuleActions, EvieCapsuleDocuments };
     static path = "evie-meeting";
     static displayName = _t("Meeting");
 
@@ -198,6 +201,7 @@ export class MeetingWindow extends Component {
             doneForm: false,
             doneFeedback: "",
             markingDone: false,
+            documentsKey: 0,
         });
         this.pollTimer = null;
         this.notesTimer = null;
@@ -305,6 +309,11 @@ export class MeetingWindow extends Component {
         }
         this.ensureSelectedLoaded();
         this.schedulePoll();
+    }
+
+    onActionSettled() {
+        this.state.documentsKey++;
+        this.refreshRecordings();
     }
 
     async refreshRecordings(options = {}) {

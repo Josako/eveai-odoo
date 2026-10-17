@@ -28,6 +28,11 @@ opened from the activity in the lead's chatter (odoo-meeting-window).
   and Call activities, planned and done, in a list with search, filters
   (meetings, calls, planned, done, mine) and grouping; a row opens the
   meeting window
+* Evie actions and documents in the meeting window (19.0.1.5.0): the
+  activity capsule's actions (process meeting, refine proposal, ...) with
+  live running state in a panel right after the details, and a Documents
+  panel with the documents linked to the capsule, via
+  the reusable ``evie_base`` components (requires evie_base 19.0.1.19.0)
 * With Evie Notifications installed, the assignee gets a bell notification
   when a recording's transcript is ready or its transcription failed;
   clicking it opens the meeting window

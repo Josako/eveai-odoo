@@ -146,6 +146,18 @@
                             </t>
                         </section>
 
+                        <!-- Evie actions on the activity capsule -->
+                        <section class="o_evie_meeting__panel">
+                            <h3 class="o_evie_meeting__panel-title">
+                                <i class="fa fa-bolt" aria-hidden="true"/> Evie actions
+                            </h3>
+                            <EvieCapsuleActions capsuleType="'CRM_ACTIVITY'"
+                                                resModel="'mail.activity'"
+                                                resId="activityId"
+                                                stacked="true"
+                                                onSettled.bind="onActionSettled"/>
+                        </section>
+
                         <!-- Meeting plan (add-odoo-meeting-library-sync):
                              objectives in every phase — added at planning,
                              annotated in preparation, the guideline live. -->
@@ -662,6 +674,16 @@
                                     <t t-set="documentTypeText" t-value="state.notesDocument.label"/>
                                 </t>
                             </div>
+                        </section>
+
+                        <!-- Documents linked to the activity capsule -->
+                        <section class="o_evie_meeting__panel">
+                            <h3 class="o_evie_meeting__panel-title">
+                                <i class="fa fa-folder-open-o" aria-hidden="true"/> Documents
+                            </h3>
+                            <EvieCapsuleDocuments resModel="'mail.activity'"
+                                                  resId="activityId"
+                                                  refreshKey="state.documentsKey"/>
                         </section>
                     </div>
                 </div>

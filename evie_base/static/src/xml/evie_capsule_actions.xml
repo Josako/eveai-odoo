@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EvieCapsuleActions">
+        <div t-attf-class="o_evie_actions {{ props.stacked ? 'o_evie_actions--stacked' : '' }}">
+            <!-- Evie unreachable: unobtrusive placeholder, the host keeps working -->
+            <span t-if="!state.ok" class="text-muted fst-italic">
+                Evie actions unavailable
+            </span>
+            <span t-elif="live and state.loaded and !state.capsuleId" class="text-muted fst-italic">
+                Not linked to Evie yet
+            </span>
+            <t t-else="">
+                <t t-foreach="state.actions" t-as="action" t-key="action.action_type">
+                    <t t-set="actionRunning" t-value="isActionRunning(action)"/>
+                    <button type="button"
+                            t-att-class="buttonClass(action) + (actionRunning ? ' is-running' : '')"
+                            t-att-disabled="isDisabled(action) || null"
+                            t-att-title="action.available ? false : action.unavailable_reason"
+                            t-on-click="() => this.onAction(action)">
+                        <t t-if="props.stacked">
+                            <i t-attf-class="fa {{ actionRunning ? 'fa-circle-o-notch fa-spin' : actionIcon(action) }} o_evie_actions__row-icon" aria-hidden="true"/>
+                            <span class="o_evie_actions__row-label" t-esc="action.text"/>
+                            <span t-if="actionRunning" class="o_evie_actions__row-status">In progress</span>
+                            <i t-else="" class="fa fa-chevron-right o_evie_actions__row-chevron" aria-hidden="true"/>
+                        </t>
+                        <t t-else="">
+                            <i t-if="actionRunning" class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>
+                            <t t-esc="action.text"/>
+                        </t>
+                    </button>
+                </t>
+                <span t-if="state.loaded and state.actions.length === 0" class="text-muted">—</span>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="evie_base.EvieSpecialistDialog">
+        <Dialog title="props.title">
+            <div class="mb-3">
+                <label class="form-label">Specialist</label>
+                <select class="form-select"
+                        t-on-change="(ev) => this.state.specialistId = parseInt(ev.target.value, 10)">
+                    <t t-foreach="props.specialists" t-as="spec" t-key="spec.id">
+                        <option t-att-value="spec.id"
+                                t-att-selected="spec.id === state.specialistId ? true : null"
+                                t-esc="spec.name"/>
+                    </t>
+                </select>
+                <p class="form-text" t-if="state.specialistId">
+                    <t t-esc="props.specialists.find(s => s.id === state.specialistId)?.description || ''"/>
+                </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="onConfirm">Start</button>
+                <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

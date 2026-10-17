@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.25.0',
+    'version': '19.0.1.26.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -80,6 +80,12 @@ Everything Evie adds to Odoo CRM:
   type ``CRM_ACTIVITY``) so Evie actions like *Generate Proposal* and
   *Approve Proposal* run straight from the activity (mapping
   CRM_ACTIVITY_ODOO_CRM 1.2.0)
+
+* Activity action completed hook (19.0.1.26.0): the automation
+  ``[AUTO] Evie: activity action completed`` fires on writes of
+  ``x_evie_action_status`` into DONE/FAILED, mirroring the lead; the
+  Evie notification center (when installed) rings the bell for the
+  assignee
 
 * Evie form branding (odoo-evie-form-branding): the activity popup shows
   the same recognisable Evie section as the lead's Evie tab —

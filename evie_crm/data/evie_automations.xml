@@ -207,6 +207,27 @@
         <field name="active" eval="True"/>
     </record>
 
+    <!-- Action completion on activities (same as the lead): fires when the
+         synced action status transitions into DONE/FAILED. The outbound
+         sync is hash-diffed, so the rule only fires on real transitions.
+         The Evie notification center (when installed) rings the bell for
+         the assignee; Meeting / Call clicks open the meeting window. -->
+    <record id="action_evie_activity_action_completed" model="ir.actions.server">
+        <field name="name">[AUTO] Evie: activity action completed</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="state">code</field>
+        <field name="code">records.evie_notify_action_completed()</field>
+    </record>
+
+    <record id="automation_evie_activity_action_completed" model="base.automation">
+        <field name="name">[AUTO] Evie: activity action completed</field>
+        <field name="model_id" ref="mail.model_mail_activity"/>
+        <field name="trigger">on_write</field>
+        <field name="trigger_field_ids" eval="[(4, ref('field_mail_activity__x_evie_action_status'))]"/>
+        <field name="action_server_ids" eval="[(4, ref('action_evie_activity_action_completed'))]"/>
+        <field name="active" eval="True"/>
+    </record>
+
     <!-- Activity cancelled (true unlink) → generic remote-delete channel.
          The record is gone afterwards, so the event carries the remote id
          and the Evie anchor with it. -->
