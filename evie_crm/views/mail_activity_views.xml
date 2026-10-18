@@ -33,6 +33,15 @@
                     <field name="x_evie_action_message" readonly="1" colspan="2"
                            invisible="not x_evie_action_message"/>
                 </group>
+                <!-- Personal outreach link (short-personal-link-surfaces):
+                     the (lead, activity) variant, fetched on demand from
+                     Evie — copyable when the rep sends the message through
+                     their own client instead of the proposal flow. -->
+                <group string="Personal link" name="evie_personal_link" colspan="2"
+                       invisible="not x_evie_capsule_id">
+                    <field name="x_evie_capsule_id" nolabel="1" colspan="2"
+                           widget="evie_personal_link" options="{'kind': 'activity'}"/>
+                </group>
                 <!-- Evie Context: the remaining Evie-master fields plus the
                      rep-editable outcome (add-activity-sequences): the rep
                      sets the outcome before marking the activity done; the

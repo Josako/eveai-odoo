@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_base.EviePersonalLinkField">
+        <div class="o_evie_personal_link">
+            <div t-if="!state.url" class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-secondary btn-sm"
+                        t-att-disabled="state.loading or null"
+                        t-on-click="onFetch">
+                    <i t-att-class="state.loading ? 'fa fa-circle-o-notch fa-spin me-1' : 'fa fa-link me-1'"
+                       role="img" aria-hidden="true"/>
+                    <t t-esc="state.loading ? 'Fetching…' : 'Get personal link'"/>
+                </button>
+                <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
+            </div>
+            <div t-if="state.url" class="input-group input-group-sm">
+                <input type="text" class="form-control" readonly="1"
+                       t-att-value="state.url" aria-label="Personal link"/>
+                <button type="button" class="btn btn-outline-secondary"
+                        t-on-click="onCopy" title="Copy to clipboard">
+                    <i class="fa fa-clipboard" role="img" aria-label="Copy to clipboard"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

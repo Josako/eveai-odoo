@@ -72,6 +72,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/xml/evie_actions_field.xml',
             'evie_base/static/src/js/evie_brand_header.js',
             'evie_base/static/src/xml/evie_brand_header.xml',
+            'evie_base/static/src/js/evie_personal_link_field.js',
+            'evie_base/static/src/xml/evie_personal_link_field.xml',
         ],
     },
     'installable': True,

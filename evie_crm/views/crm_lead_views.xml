@@ -24,6 +24,14 @@
                                widget="evie_actions"
                                options="{'capsule_type': 'CRM_LEAD'}"/>
                     </group>
+                    <!-- Personal outreach link (short-personal-link-surfaces):
+                         on-demand fetch from Evie, copyable for ad-hoc
+                         messages (mail, LinkedIn, …). Never stored in Odoo. -->
+                    <group string="Personal link" name="evie_personal_link"
+                           class="o_evie_card" invisible="not x_evie_capsule_id">
+                        <field name="x_evie_capsule_id" nolabel="1"
+                               widget="evie_personal_link" options="{'kind': 'lead'}"/>
+                    </group>
                     <!-- Canonical order (crm-sync-polish): Actions → Evie
                          Context → Synchronisation — content before plumbing. -->
                     <group name="evie_context" class="o_evie_card">
