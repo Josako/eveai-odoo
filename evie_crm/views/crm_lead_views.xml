@@ -26,9 +26,13 @@
                     </group>
                     <!-- Personal outreach link (short-personal-link-surfaces):
                          on-demand fetch from Evie, copyable for ad-hoc
-                         messages (mail, LinkedIn, …). Never stored in Odoo. -->
+                         messages (mail, LinkedIn, …). Never stored in Odoo.
+                         The target choice (lead-level-outreach-link-target)
+                         is rep-editable and syncs inbound to Evie; empty
+                         follows the tenant make default. -->
                     <group string="Personal link" name="evie_personal_link"
                            class="o_evie_card" invisible="not x_evie_capsule_id">
+                        <field name="x_evie_outreach_link_target"/>
                         <field name="x_evie_capsule_id" nolabel="1"
                                widget="evie_personal_link" options="{'kind': 'lead'}"/>
                     </group>

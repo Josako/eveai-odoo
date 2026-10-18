@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.26.0',
+    'version': '19.0.1.27.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -86,6 +86,15 @@ Everything Evie adds to Odoo CRM:
   ``x_evie_action_status`` into DONE/FAILED, mirroring the lead; the
   Evie notification center (when installed) rings the bell for the
   assignee
+
+* Lead-level outreach link target (19.0.1.27.0,
+  lead-level-outreach-link-target): ``x_evie_outreach_link_target`` on
+  ``crm.lead`` — the rep's per-lead choice of where the lead-only
+  personal link lands (website with chat widget, or the standalone chat
+  client; empty follows the tenant make default). Editable in the
+  Personal link group of the lead form, watched by the lead upsert
+  automation, and synced inbound-only to Evie (mapping
+  CRM_LEAD_ODOO_CRM 1.12.0)
 
 * Evie form branding (odoo-evie-form-branding): the activity popup shows
   the same recognisable Evie section as the lead's Evie tab —

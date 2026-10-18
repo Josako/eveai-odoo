@@ -144,6 +144,24 @@ class CrmLead(models.Model):
              "read-only view of the conversation in Evie.",
     )
 
+    # Personal outreach link target (19.0.1.27.0,
+    # lead-level-outreach-link-target): the rep's per-lead choice of where
+    # the lead-only personal link lands the visitor. Editable; synced to
+    # Evie inbound-only (Evie never writes it back). Empty follows the
+    # tenant make default (website configured → website, else chat
+    # client). Activity links follow the activity's own stamped target.
+    x_evie_outreach_link_target = fields.Selection(
+        selection=[('WEBSITE', 'Website (chat widget)'),
+                   ('CHAT_DIRECT', 'Chat client (direct)')],
+        string='Outreach Link Target',
+        copy=False,
+        tracking=True,
+        help="Where the lead-only personal outreach link lands the "
+             "visitor: the website running the Evie chat widget, or the "
+             "standalone chat client directly. Empty follows the tenant "
+             "make default.",
+    )
+
     # Marketing opt-in (19.0.1.21.0, privacy-lead-capture): the only
     # consent control of Evie lead capture, written by the Evie → Odoo
     # sync as first-class consent data — its own fields, never "agreed to

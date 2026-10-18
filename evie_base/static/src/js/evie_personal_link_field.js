@@ -34,7 +34,21 @@ export class EviePersonalLinkField extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.state = useState({ loading: false, url: "", error: "" });
+        this.state = useState({ loading: false, url: "", error: "", target: "" });
+    }
+
+    get targetLabel() {
+        // Where the link lands (lead-level-outreach-link-target): the
+        // endpoint resolves the target live; shown so the rep copies with
+        // the right expectation. Display-only — the choice itself is the
+        // x_evie_outreach_link_target field on the form.
+        if (this.state.target === "WEBSITE") {
+            return _t("Lands on: website");
+        }
+        if (this.state.target === "CHAT_DIRECT") {
+            return _t("Lands on: chat client");
+        }
+        return "";
     }
 
     get capsuleId() {
@@ -50,6 +64,7 @@ export class EviePersonalLinkField extends Component {
                 [this.props.kind, this.capsuleId]);
             if (result.ok && result.url) {
                 this.state.url = result.url;
+                this.state.target = result.target || "";
             } else {
                 this.state.error = result.message
                     || _t("No personal link could be resolved.");

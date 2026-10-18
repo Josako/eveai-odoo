@@ -13,13 +13,16 @@
                 </button>
                 <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
             </div>
-            <div t-if="state.url" class="input-group input-group-sm">
-                <input type="text" class="form-control" readonly="1"
-                       t-att-value="state.url" aria-label="Personal link"/>
-                <button type="button" class="btn btn-outline-secondary"
-                        t-on-click="onCopy" title="Copy to clipboard">
-                    <i class="fa fa-clipboard" role="img" aria-label="Copy to clipboard"/>
-                </button>
+            <div t-if="state.url" class="d-flex flex-column gap-1">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" readonly="1"
+                           t-att-value="state.url" aria-label="Personal link"/>
+                    <button type="button" class="btn btn-outline-secondary"
+                            t-on-click="onCopy" title="Copy to clipboard">
+                        <i class="fa fa-clipboard" role="img" aria-label="Copy to clipboard"/>
+                    </button>
+                </div>
+                <span t-if="targetLabel" class="text-muted small" t-esc="targetLabel"/>
             </div>
         </div>
     </t>
