@@ -122,6 +122,15 @@ class MailActivity(models.Model):
              "activity; synced from Evie, read-only.",
     )
 
+    def evie_notify_action_completed(self):
+        """Hook for the ``[AUTO] Evie: activity action completed`` rule.
+
+        The chatter lives on the lead; activities have no chatter of their
+        own. ``evie_notifications`` extends this to ring the Evie bell for
+        the assignee when a synced action finishes or fails.
+        """
+        return True
+
     def _selection_evie_outcome(self):
         """Outcome options from the evie.activity_outcome module data.
 

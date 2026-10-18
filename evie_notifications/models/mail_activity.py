@@ -21,6 +21,23 @@ from odoo.addons.evie_notifications.rules import is_muted
 class MailActivity(models.Model):
     _inherit = 'mail.activity'
 
+    def evie_notify_action_completed(self):
+        """Bell when a synced Evie action on this activity finishes or fails.
+
+        Called by the ``[AUTO] Evie: activity action completed`` rule on
+        writes of ``x_evie_action_status``. The assignee hears about it; for
+        Meeting / Call activities the click opens the meeting window.
+        """
+        super().evie_notify_action_completed()
+
+        def body(activity):
+            text = activity.x_evie_action_message or activity._evie_label()
+            if activity.res_name:
+                return _("%(text)s on %(record)s", text=text, record=activity.res_name)
+            return text
+
+        self.env['evie.notification']._notify_action_completed(self, body=body)
+
     @api.model_create_multi
     def create(self, vals_list):
         activities = super().create(vals_list)

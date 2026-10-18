@@ -39,7 +39,7 @@ import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.evie_base.consts import EVIE_OPEN_KINDS
+from odoo.addons.evie_base.tools import evie_open_action
 
 _logger = logging.getLogger(__name__)
 
@@ -193,21 +193,4 @@ class EvieCapsuleLink(models.AbstractModel):
         the token flow is the live detail link.
         """
         self.ensure_one()
-        request_key = EVIE_OPEN_KINDS.get(kind)
-        if not request_key:
-            raise UserError(_("Unknown Evie reference type '%s'.") % kind)
-        if not reference:
-            raise UserError(_("No Evie %s is linked to this record yet.") % kind)
-        user = self.env.user
-        ok, data = self.env['evie.webhook'].post_for_json('/view-token', {
-            'kind': kind,
-            request_key: int(reference),
-            'user': {'name': user.name, 'email': user.email, 'id': user.id},
-        })
-        if not ok:
-            raise UserError(_("Could not open the Evie %s (%s).") % (kind, data))
-        return {
-            'type': 'ir.actions.act_url',
-            'url': data['view_url'],
-            'target': 'new',
-        }
+        return evie_open_action(self.env, kind, reference)

@@ -19,6 +19,8 @@ from odoo import _, api, models
 from odoo.exceptions import UserError
 from odoo.tools import ormcache
 
+from odoo.addons.evie_base.tools import evie_record_capsule_id
+
 _logger = logging.getLogger(__name__)
 
 #: TTL of the discovery cache (seconds). Actions change only with Evie
@@ -55,6 +57,31 @@ class EvieActions(models.AbstractModel):
                 "Evie action discovery failed for %s: %s", capsule_type, data)
             return {'ok': False, 'actions': []}
         return {'ok': True, 'actions': data.get('actions', [])}
+
+    @api.model
+    def get_record_actions(self, capsule_type, res_model, res_id, capsule_id_field=None):
+        """Return the actions for one record's capsule (not cached).
+
+        Scoped discovery: only the actions applicable to the capsule, each
+        carrying its live ``running`` flag, so record-bound components can
+        reflect progress without a bound status field. Never raises on
+        Evie failures.
+
+        Returns:
+            dict: ``{'ok': bool, 'actions': [...], 'capsule_id': int|False}``
+        """
+        capsule_id = evie_record_capsule_id(self.env, res_model, res_id, capsule_id_field)
+        if not capsule_type or not capsule_id:
+            return {'ok': True, 'actions': [], 'capsule_id': capsule_id}
+        ok, data = self.env['evie.webhook'].get_for_json(
+            '/capsule-actions',
+            params={'capsule_type': capsule_type, 'capsule_id': capsule_id})
+        if not ok:
+            _logger.warning(
+                "Evie action discovery failed for %s capsule %s: %s",
+                capsule_type, capsule_id, data)
+            return {'ok': False, 'actions': [], 'capsule_id': capsule_id}
+        return {'ok': True, 'actions': data.get('actions', []), 'capsule_id': capsule_id}
 
     @api.model
     def execute_action(self, action_type, capsule_id=None, remote_id=None,

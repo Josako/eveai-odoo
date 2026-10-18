@@ -3,19 +3,13 @@
 /**
  * evie_actions field widget (odoo-capsule-actions).
  *
- * Renders the configured Evie data capsule actions for the record's capsule
- * type as buttons, discovered live from the Evie platform (cached
- * server-side with a TTL) — action definitions are never hardcoded here.
+ * Form binding of the reusable ``EvieCapsuleActions`` component: renders
+ * the configured Evie data capsule actions for the record's capsule type.
  *
  * The widget is bound to the record's ``x_evie_action_status`` field: its
  * value drives the running state (buttons disabled + indicator while an
- * action is in flight). Since sync-activity-proposal-to-odoo the running
- * state is derived from the discovery payload: each action carries its
- * ``busy_statuses`` (matched against the bound status field) instead of the
- * widget hardcoding a status value. Fallback for discovery payloads
- * predating that metadata: any non-empty status means running. When Evie
- * is unreachable the widget degrades to an unobtrusive placeholder; the
- * form always keeps working.
+ * action is in flight), matched against each action's ``busy_statuses``
+ * from the discovery payload (sync-activity-proposal-to-odoo).
  *
  * Usage in a form view:
  *     <field name="x_evie_action_status" widget="evie_actions"
@@ -29,161 +23,19 @@
  *         'x_evie_capsule_id' (the anchor contract on every synced model).
  */
 
-import { Component, useState, onWillStart } from "@odoo/owl";
-import { Dialog } from "@web/core/dialog/dialog";
+import { Component } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { _t } from "@web/core/l10n/translation";
-
-export class EvieSpecialistDialog extends Component {
-    static template = "evie_base.EvieSpecialistDialog";
-    static components = { Dialog };
-    static props = {
-        close: Function,
-        title: String,
-        specialists: Array,
-        onConfirm: Function,
-    };
-
-    setup() {
-        this.state = useState({
-            specialistId: this.props.specialists[0]?.id,
-        });
-    }
-
-    onConfirm() {
-        this.props.onConfirm(this.state.specialistId);
-        this.props.close();
-    }
-}
+import { EvieCapsuleActions } from "@evie_base/js/evie_capsule_actions";
 
 export class EvieActionsField extends Component {
     static template = "evie_base.EvieActionsField";
+    static components = { EvieCapsuleActions };
     static props = {
         ...standardFieldProps,
         capsuleType: { type: String },
         capsuleIdField: { type: String, optional: true },
     };
-
-    setup() {
-        this.orm = useService("orm");
-        this.notification = useService("notification");
-        this.dialogService = useService("dialog");
-        this.state = useState({ ok: true, actions: [], executing: false });
-
-        onWillStart(async () => {
-            try {
-                const result = await this.orm.call(
-                    "evie.actions", "get_actions", [this.props.capsuleType]);
-                this.state.ok = result.ok;
-                this.state.actions = result.actions || [];
-            } catch {
-                this.state.ok = false;
-            }
-        });
-    }
-
-    get status() {
-        return this.props.record.data[this.props.name] || false;
-    }
-
-    get running() {
-        // Any action in flight? Drives the indicator badge; individual
-        // buttons disable via isActionRunning (per-action busy metadata).
-        return this.state.actions.some((action) => this.isActionRunning(action));
-    }
-
-    isActionRunning(action) {
-        // Busy-state metadata from the discovery payload
-        // (sync-activity-proposal-to-odoo): the action's declared
-        // busy_statuses matched against the bound status field. An
-        // explicitly EMPTY list means the action has no busy concept —
-        // the bound status field holds the LAST run's terminal state
-        // (e.g. DONE), which must never mark this action as running.
-        if (action && Array.isArray(action.busy_statuses)) {
-            return action.busy_statuses.length > 0
-                && action.busy_statuses.includes(this.status);
-        }
-        // Fallback for discovery payloads predating busy metadata (old
-        // Evie version or cache during rollout): any non-empty status
-        // means an action is in flight.
-        return Boolean(this.status);
-    }
-
-    buttonClass(action) {
-        const base = "btn btn-sm me-1 mb-1";
-        return `${base} ${action.class === "btn-primary" ? "btn-primary" : "btn-outline-secondary"}`;
-    }
-
-    isInteractive(action) {
-        // Interactive actions (interactive-activity-proposal-entry-points)
-        // open an Evie popup instead of enqueueing a background run.
-        return String(action?.execution || "").toLowerCase() === "interactive";
-    }
-
-    async onAction(action) {
-        if (!action.available || this.isActionRunning(action) || this.state.executing) {
-            return;
-        }
-        // Interactive actions resolve their specialist per capsule (the
-        // activity type's item configuration) — no picker.
-        if (this.isInteractive(action)) {
-            await this._execute(action, null);
-            return;
-        }
-        const specialists = action.specialists || [];
-        if (specialists.length > 1) {
-            this.dialogService.add(EvieSpecialistDialog, {
-                title: action.text,
-                specialists,
-                onConfirm: (specialistId) => this._execute(action, specialistId),
-            });
-        } else {
-            await this._execute(action, null);
-        }
-    }
-
-    async _execute(action, specialistId) {
-        this.state.executing = true;
-        try {
-            const capsuleId = this.props.record.data[this.props.capsuleIdField];
-            const data = await this.orm.call(
-                "evie.actions", "execute_action",
-                [action.action_type],
-                {
-                    capsule_id: capsuleId || null,
-                    remote_id: this.props.record.resId,
-                    specialist_id: specialistId,
-                });
-            // Interactive actions (whitelist — capture-form-action,
-            // odoo-external-capture-review): chat opens the proposal session
-            // popup, form opens the capture form popup, review opens the
-            // capture review popup; all use the same popup pattern.
-            const POPUP_WINDOWS = {
-                chat: "evie_proposal_chat",
-                form: "evie_capture_form",
-                review: "evie_capture_review",
-            };
-            if (data && POPUP_WINDOWS[data.kind] && data.url) {
-                window.open(
-                    data.url,
-                    POPUP_WINDOWS[data.kind],
-                    "width=520,height=720,popup=yes",
-                );
-                return;
-            }
-            this.notification.add(
-                data.message || _t("The action was accepted by Evie."),
-                { type: "success" });
-        } catch (error) {
-            this.notification.add(
-                error.data?.message || _t("Could not execute the Evie action."),
-                { type: "danger" });
-        } finally {
-            this.state.executing = false;
-        }
-    }
 }
 
 export const evieActionsField = {

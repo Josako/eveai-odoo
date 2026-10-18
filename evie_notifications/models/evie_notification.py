@@ -23,6 +23,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError
 
 from odoo.addons.evie_notifications.rules import (
+    ACTION_FINISHED_STATUSES,
     digest_due,
     due_digest_counts,
     is_muted,
@@ -163,6 +164,31 @@ class EvieNotification(models.Model):
             users, title or record.display_name, body=body, record=record,
             kind='other', tone=tone,
         )
+
+    @api.model
+    def _notify_action_completed(self, records, body=None):
+        """Bell notification when a synced Evie action finishes or fails.
+
+        ``records`` must expose ``user_id``, ``x_evie_action_status`` and
+        ``x_evie_action_message`` (lead and activity). The sync write is the
+        author of the change, so we pass an empty author — the assignee
+        always hears about it (same pattern as the meeting-transcription
+        notification).
+        """
+        for record in records.filtered('user_id'):
+            status = record.x_evie_action_status
+            if status not in ACTION_FINISHED_STATUSES:
+                continue
+            done = status == 'DONE'
+            text = body(record) if body else (
+                record.x_evie_action_message or record.display_name)
+            self._notify(
+                record.user_id,
+                _("Evie finished an action") if done else _("Evie action failed"),
+                body=text, record=record, kind='evie',
+                tone='success' if done else 'danger',
+                author=self.env['res.users'],
+            )
 
     # ------------------------------------------------------------------
     # Bell API (called from the systray, scoped to the current user)

@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.18.0',
+    'version': '19.0.1.19.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -32,6 +32,14 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   discovery payload's per-action busy metadata (busy_statuses matched
   against the bound status field), with a fallback for older payloads
   (sync-activity-proposal-to-odoo)
+* Reusable record-bound Evie components (1.19.0): ``EvieCapsuleActions``
+  (the component behind ``evie_actions``; given ``resModel``/``resId`` it
+  discovers the actions applicable to that record's capsule with their live
+  running state, so any OWL component can embed them) and
+  ``EvieCapsuleDocuments`` (the documents linked to the record's capsule,
+  opened in the Evie document view; also the ``evie_capsule_documents``
+  form view widget), backed by ``evie.actions.get_record_actions`` and
+  ``evie.capsule.documents``
 * The ``evie.capsule.link`` abstract mixin (odoo-marketing-adapter):
   reusable link state for mirror models (``capsule_id``,
   ``capsule_version``, ``capsule_url``, ``sync_state``,
@@ -68,8 +76,12 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/scss/evie_brand.scss',
             'evie_base/static/src/js/evie_link_field.js',
             'evie_base/static/src/xml/evie_link_field.xml',
+            'evie_base/static/src/js/evie_capsule_actions.js',
+            'evie_base/static/src/xml/evie_capsule_actions.xml',
             'evie_base/static/src/js/evie_actions_field.js',
             'evie_base/static/src/xml/evie_actions_field.xml',
+            'evie_base/static/src/js/evie_capsule_documents.js',
+            'evie_base/static/src/xml/evie_capsule_documents.xml',
             'evie_base/static/src/js/evie_brand_header.js',
             'evie_base/static/src/xml/evie_brand_header.xml',
             'evie_base/static/src/js/evie_personal_link_field.js',

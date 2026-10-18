@@ -1,6 +1,6 @@
 {
     'name': 'Evie Notifications',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Sales/CRM',
     'summary': 'Evie notification center in the Odoo top bar: lead and activity changes, Evie action results',
     'description': """
@@ -23,7 +23,9 @@ notification center of the Evie admin client (odoo-notification-center).
   - stage changed / lead won on your lead
   - your lead marked as lost
   - hot lead: the Evie qualification score crosses 70
-  - Evie action finished or failed on your lead
+  - Evie action finished or failed on your lead or your activity
+    (Process meeting, Generate proposal, …); Meeting / Call clicks open
+    the meeting window
   - activity assigned to you (any model)
   - activity completed on your record by someone else
   - hourly-evaluated morning digest of overdue / due-today activities

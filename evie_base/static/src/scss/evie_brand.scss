@@ -132,6 +132,186 @@ $o-evie-lilac: #9c8ae1;
     }
 }
 
+// EvieCapsuleActions: wrapping row of action buttons, or (stacked) full
+// width rows for side panels.
+.o_evie_actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+
+    &--stacked {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0.4rem;
+    }
+}
+
+.o_evie_actions__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: $o-view-background-color;
+    color: inherit;
+    font-weight: 500;
+    text-align: left;
+    transition: border-color 0.15s, background-color 0.15s;
+
+    &:hover:not(:disabled) {
+        border-color: rgba($o-evie-purple, 0.5);
+        background: rgba($o-evie-purple, 0.04);
+
+        .o_evie_actions__row-chevron {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+    &.is-running {
+        border-color: rgba($o-evie-purple, 0.45);
+        background: rgba($o-evie-purple, 0.05);
+        cursor: progress;
+        opacity: 1;
+    }
+}
+
+.o_evie_actions__row-status {
+    flex: 0 0 auto;
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    background: rgba($o-evie-purple, 0.12);
+    color: $o-evie-purple;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.o_evie_actions__row-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: rgba($o-evie-purple, 0.1);
+    color: $o-evie-purple;
+    font-size: 0.8rem;
+}
+
+.o_evie_actions__row-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.o_evie_actions__row-chevron {
+    flex: 0 0 auto;
+    color: $text-muted;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+// EvieCapsuleDocuments: clickable document rows.
+.o_evie_documents__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.o_evie_documents__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: $o-view-background-color;
+    text-align: left;
+    color: inherit;
+    transition: border-color 0.15s, background-color 0.15s;
+
+    &:hover:not(:disabled) {
+        border-color: rgba($o-evie-purple, 0.5);
+        background: rgba($o-evie-purple, 0.04);
+
+        .o_evie_documents__open {
+            opacity: 1;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.7;
+    }
+}
+
+.o_evie_documents__icon {
+    flex: 0 0 auto;
+    margin-top: 0.15rem;
+    font-size: 1.15rem;
+    color: $o-evie-purple;
+}
+
+.o_evie_documents__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.o_evie_documents__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.o_evie_documents__name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.o_evie_documents__type {
+    padding: 0.05rem 0.45rem;
+    border-radius: 1rem;
+    background: rgba($o-evie-purple, 0.1);
+    color: $o-evie-purple;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.o_evie_documents__description {
+    color: $text-muted;
+    font-size: 0.85rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.o_evie_documents__meta {
+    color: $text-muted;
+    font-size: 0.75rem;
+}
+
+.o_evie_documents__open {
+    flex: 0 0 auto;
+    margin-top: 0.2rem;
+    color: $text-muted;
+    opacity: 0.4;
+}
+
 // evie_link field widget: the reference renders as one clearly clickable
 // button — Evie icon first, then the identifier.
 .o_evie_link__button {
