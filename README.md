@@ -14,6 +14,7 @@ instance and a TenantProject API key they do nothing.
 |--------|---------|
 | `evie_base` | Namespace conventions, Evie settings (webhook URL + API key), health surface (`evie.health.get_status`), shared webhook client, Evie menu root, shared brand assets (`o_evie_icon`, `evie_link` widget, notebook tab branding), generic `evie_actions` widget (dynamic capsule actions) |
 | `evie_crm` | `x_evie_*` anchor fields on `crm.lead` (chatter-tracked, rendered as branded open-in-Evie links), `evie.phase_stage_map` (tenant phase ↔ stage mapping, seeded), `[AUTO] Evie` automation rules, Evie actions on the lead form |
+| `evie_website` | Website Builder **Evie Chat** block (Strapi-style): drag onto a page, set magic link / chat client URL / chat API key in Customize. Complements the Embed Code / paste-snippet path (still supported, including on Odoo Online). Loads `EvieChat.init` on the published page. Depends on `website` + `evie_base` |
 | `evie_notifications` *(not yet in the release set)* | Evie notification center: bell in the Odoo top bar with live notifications about lead and activity changes and finished Evie actions (`evie.notification`). Install it on top of `evie_crm`. See `documentation/odoo-notification-center.md` |
 | `evie_meetings` *(not yet in the release set)* | Meeting window for Meeting and Call activities, opened from the chatter: meeting details and preparation, participants, in-browser recording or audio upload with Evie transcription, and meeting notes, all stored in Evie on the activity's capsule. Install it on top of `evie_crm`. See `documentation/odoo-meeting-window.md` |
 
@@ -50,6 +51,15 @@ Copy (or clone) this directory onto the Odoo addons path, e.g. as
    API key.
 3. Review Evie ▸ Configuration ▸ Phase Mapping (seeded with the default
    funnel mapping; adjust stages per tenant).
+4. **Website chat (optional, two paths):**
+   - **Paste snippet** (any Odoo, including Online): Embed Code or Code
+     Injection with the Evie widget snippet — unchanged.
+   - **Building block** (Odoo.sh / self-hosted): install `evie_website`, then
+     Website → Edit → Blocks → **Evie** → drag **Evie Chat**. In Customize
+     set Magic link, Chat client URL (`https://<evie-host>/chat-client`) and
+     a **CHAT**-scoped API key. Add the website domain to Evie’s allowed
+     domains. The live widget appears on the published page (editor shows a
+     placeholder only).
 
 Upgrades: pull the new code, then upgrade the module per database
 (`odoo -d <db> -u evie_crm --stop-after-init`) — a plain restart does not
