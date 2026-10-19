@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="snippets" inherit_id="website.snippets" name="Evie Website Snippets">
+        <xpath expr="//snippets[@id='snippet_groups']/*[1]" position="before">
+            <t snippet-group="evie"
+               t-snippet="website.s_snippet_group"
+               string="Evie"
+               t-thumbnail="/evie_base/static/src/img/evie.svg"/>
+        </xpath>
+        <xpath expr="//snippets[@id='snippet_structure']/*[1]" position="before">
+            <t t-snippet="evie_website.s_evie_chat"
+               string="Evie Chat"
+               group="evie"
+               t-thumbnail="/evie_base/static/src/img/evie.svg">
+                <keywords>evie chat widget assistant ai magic link</keywords>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

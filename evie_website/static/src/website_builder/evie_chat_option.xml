@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="evie_website.EvieChatOption">
+        <BuilderRow label.translate="Magic link code">
+            <BuilderTextInput dataAttributeAction="'evieMagicLinkCode'"
+                              placeholder.translate="SPECIALIST_ML-…"
+                              preview="false"/>
+        </BuilderRow>
+        <BuilderRow label.translate="Chat client URL">
+            <BuilderTextInput dataAttributeAction="'evieBaseUrl'"
+                              placeholder.translate="https://evie.example.com/chat-client"
+                              preview="false"/>
+        </BuilderRow>
+        <BuilderRow label.translate="Chat API key">
+            <BuilderTextInput dataAttributeAction="'evieApiKey'"
+                              placeholder.translate="Tenant CHAT API key"
+                              preview="false"/>
+        </BuilderRow>
+        <BuilderRow label.translate="Height (px)">
+            <BuilderTextInput action="'evieHeight'"
+                              placeholder.translate="600"
+                              preview="false"/>
+        </BuilderRow>
+    </t>
+
+</templates>

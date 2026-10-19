@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="s_evie_chat" name="Evie Chat">
+        <section class="s_evie_chat pt32 pb32 o_colored_level"
+                 data-snippet="s_evie_chat"
+                 data-name="Evie Chat">
+            <div class="container">
+                <div class="s_evie_chat__mount"
+                     data-evie-magic-link-code=""
+                     data-evie-base-url=""
+                     data-evie-api-key=""
+                     data-evie-height="600"
+                     style="min-height: 600px; height: 600px;">
+                    <div class="s_evie_chat__placeholder">
+                        <div class="s_evie_chat__placeholder-icon" role="img" aria-label="Evie"/>
+                        <p class="s_evie_chat__placeholder-title">Evie Chat</p>
+                        <p class="s_evie_chat__placeholder-hint">
+                            Set Magic link, Chat client URL and Chat API key
+                            in the Customize panel. The live chat loads on
+                            the published page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+</odoo>
