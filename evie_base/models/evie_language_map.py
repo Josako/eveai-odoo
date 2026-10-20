@@ -8,12 +8,16 @@ unique: one res.lang per Evie code, one Evie code per res.lang — so the
 reverse lookup (Odoo → Evie) is always unambiguous. No default fallback:
 an unmapped language is skipped by the sync (never cleared), by design
 (crm-sync-polish).
+
+Lives in evie_base (relocated from evie_crm,
+odoo-user-preferences-sync): the map is shared by every consumer — the
+lead language sync and the user preferences sync — so it belongs to the
+shared base, not to a vertical.
 """
 
 import logging
 
 from odoo import fields, models
-
 from odoo.addons.evie_base.consts import EVIE_LANGUAGE_SELECTION
 
 _logger = logging.getLogger(__name__)

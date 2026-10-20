@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Evie tab on the user's own Preferences form (My Preferences).
+         The core view has a multi-page notebook, so the branding guide's
+         mechanism applies: a branded <page name="evie"> tab (the logo
+         comes from the shared evie_brand.scss notebook CSS). The language
+         preference needs no field here — the native lang field on the
+         Preferences tab doubles as the Evie preferred language. -->
+    <record id="res_users_preferences_form_evie" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.evie</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Evie" name="evie">
+                    <group string="Evie Context">
+                        <field name="x_evie_booking_page_url" widget="url"
+                               readonly="0" placeholder="https://calendly.com/…"/>
+                    </group>
+                    <group string="Synchronisation">
+                        <p class="text-muted">
+                            Your booking page URL and your language (Preferences tab)
+                            are synchronised with Evie — edits in either surface update
+                            the other. A language without an entry in the Evie language
+                            mapping (Evie ▸ Configuration) is never synchronised.
+                        </p>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

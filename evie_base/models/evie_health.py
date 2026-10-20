@@ -19,8 +19,12 @@ _logger = logging.getLogger(__name__)
 #: Fields the integration expects per model, per providing module.
 #: ``evie_crm`` keeps its own contract; evie_base reports what is installed.
 EXPECTED_MODELS = {
-    'evie_crm': ['evie.phase_stage_map', 'evie.activity_type_map',
-                 'evie.language_map'],
+    # evie_base is always installed (the health surface lives there), so
+    # listing it here never reports a missing module — it keys the model
+    # and field contract of evie_base itself (the shared language map
+    # relocated from evie_crm, odoo-user-preferences-sync).
+    'evie_base': ['evie.language_map'],
+    'evie_crm': ['evie.phase_stage_map', 'evie.activity_type_map'],
     # Mirror models (evie_marketing_initiative 19.0.1.0.0,
     # odoo-marketing-adapter)
     'evie_marketing_initiative': [
@@ -40,6 +44,13 @@ EXPECTED_MODELS = {
     ],
 }
 EXPECTED_FIELDS = {
+    # res.users preference extension (evie_base 19.0.1.20.0,
+    # odoo-user-preferences-sync)
+    'evie_base': {
+        'res.users': [
+            'x_evie_booking_page_url',
+        ],
+    },
     'evie_crm': {
         'crm.lead': [
             'x_evie_capsule_id',

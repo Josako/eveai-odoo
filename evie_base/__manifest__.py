@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.19.0',
+    'version': '19.0.1.20.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -59,6 +59,16 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
 * Shared marketing vocabulary (odoo-marketing-adapter): the stable
   MARKETING_INITIATIVE_TYPE / MARKETING_CHANNEL_TYPE key selections,
   mirroring the Evie dynamic lists (like EVIE_PHASES for the funnel)
+* The shared tenant language map ``evie.language_map`` (relocated from
+  ``evie_crm`` at 19.0.1.20.0, odoo-user-preferences-sync): one mapping
+  for every consumer — the lead language sync and the user preferences
+  sync — with existing entries adopted on upgrade
+* Evie user preferences (odoo-user-preferences-sync): an Evie tab on the
+  user's own Preferences form (My Preferences) editing the synced
+  ``x_evie_booking_page_url``, with the native language field doubling as
+  the Evie preferred language; preference writes are pushed to Evie via
+  the ``/user-preferences`` webhook (echo-guarded), and Evie's outbound
+  writes land here through the JSON-2 API
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.
@@ -68,8 +78,12 @@ This module contains no business logic itself; vertical modules
     'license': 'LGPL-3',
     'depends': ['base', 'base_setup'],
     'data': [
+        'security/ir.model.access.csv',
+        'data/evie_language_map_data.xml',
         'views/evie_menus.xml',
         'views/res_config_settings_views.xml',
+        'views/evie_language_map_views.xml',
+        'views/res_users_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

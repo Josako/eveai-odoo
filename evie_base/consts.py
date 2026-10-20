@@ -24,7 +24,9 @@ EVIE_PHASE_SELECTION = [(phase, phase) for phase in EVIE_PHASES]
 
 #: Stable Evie language codes (ISO 639-1, Evie is master). Must match the
 #: supported-language list on the Evie side (config.py). Used by
-#: evie_crm's evie.language_map to bind each code to one res.lang.
+#: evie.language_map (in this module since 19.0.1.20.0 — shared by the
+#: lead sync and the user preferences sync) to bind each code to one
+#: res.lang.
 EVIE_LANGUAGES = [
     ("en", "English"),
     ("fr", "French"),
