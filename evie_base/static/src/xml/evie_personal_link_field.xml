@@ -3,26 +3,38 @@
 
     <t t-name="evie_base.EviePersonalLinkField">
         <div class="o_evie_personal_link">
-            <div t-if="!state.url" class="d-flex align-items-center gap-2">
+            <div t-if="!state.variants" class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-secondary btn-sm"
                         t-att-disabled="state.loading or null"
                         t-on-click="onFetch">
                     <i t-att-class="state.loading ? 'fa fa-circle-o-notch fa-spin me-1' : 'fa fa-link me-1'"
                        role="img" aria-hidden="true"/>
-                    <t t-esc="state.loading ? 'Fetching…' : 'Get personal link'"/>
+                    <t t-esc="state.loading ? 'Fetching…' : 'Get personal links'"/>
                 </button>
                 <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
             </div>
-            <div t-if="state.url" class="d-flex flex-column gap-1">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" readonly="1"
-                           t-att-value="state.url" aria-label="Personal link"/>
-                    <button type="button" class="btn btn-outline-secondary"
-                            t-on-click="onCopy" title="Copy to clipboard">
-                        <i class="fa fa-clipboard" role="img" aria-label="Copy to clipboard"/>
-                    </button>
+            <div t-if="state.variants" class="d-flex flex-column gap-2 w-100">
+                <div t-foreach="rows" t-as="row" t-key="row.key"
+                     class="o_evie_personal_link__row w-100">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i t-att-class="row.icon" role="img" aria-hidden="true"/>
+                        <span class="fw-bold small" t-esc="row.label"/>
+                        <span class="text-muted small"
+                              t-esc="row.clicks + ' clicks'"/>
+                    </div>
+                    <div class="input-group input-group-sm w-100">
+                        <input type="text" class="form-control" readonly="1"
+                               t-att-value="row.url"
+                               t-att-title="row.target_url"
+                               t-att-aria-label="row.label"/>
+                        <button type="button" class="btn btn-outline-secondary"
+                                t-on-click="() => this.onCopy(row.url)"
+                                title="Copy to clipboard"
+                                aria-label="Copy to clipboard">
+                            <i class="fa fa-clipboard" role="img" aria-hidden="true"/>
+                        </button>
+                    </div>
                 </div>
-                <span t-if="targetLabel" class="text-muted small" t-esc="targetLabel"/>
             </div>
         </div>
     </t>

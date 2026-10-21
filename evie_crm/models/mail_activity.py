@@ -67,6 +67,22 @@ class MailActivity(models.Model):
         help="Timestamp of the last Evie → Odoo sync for this record "
              "(odoo-evie-form-branding — same anchor as on crm.lead).",
     )
+    # Outreach link target (19.0.1.29.0, dual-personal-link-surfaces): the
+    # activity's stamped outreach link target, synced outbound from Evie
+    # (Evie-master, system-stamped at activity creation — campaign default
+    # or tenant make default). Read-only display; Odoo is never an
+    # editing surface for it (mapping CRM_ACTIVITY_ODOO_CRM 1.8.0).
+    x_evie_outreach_link_target = fields.Selection(
+        selection=[('WEBSITE', 'Website (chat widget)'),
+                   ('CHAT_DIRECT', 'Chat client (direct)')],
+        string='Evie Outreach Link Target',
+        copy=False,
+        readonly=True,
+        help="Where the activity's personal outreach link lands the "
+             "visitor: the website running the Evie chat widget, or the "
+             "standalone chat client directly. Stamped by Evie at activity "
+             "creation; read-only here.",
+    )
     x_evie_outcome = fields.Selection(
         string='Evie Outcome',
         selection='_selection_evie_outcome',

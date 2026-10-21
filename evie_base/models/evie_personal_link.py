@@ -1,9 +1,10 @@
 """Server side of the personal outreach link copy widget
-(short-personal-link-surfaces).
+(dual-personal-link-surfaces).
 
-Fetches a record's short personal link from the Evie copy-surface endpoints
-on demand. The personal link code itself is never stored in Odoo — only the
-composed short URL passes through on fetch (the "never synced" rule stays
+Fetches a record's short personal links — both pinned variants (website
+and chat-direct) — from the Evie copy-surface endpoints on demand. The
+personal link code itself is never stored in Odoo — only the composed
+short URLs pass through on fetch (the "never synced" rule stays
 intact).
 
 The fetch never raises: failures return ``ok: False`` with a message so
@@ -30,15 +31,18 @@ class EviePersonalLink(models.AbstractModel):
 
     @api.model
     def get_personal_link(self, kind, capsule_id):
-        """Fetch the short personal link for a record from Evie.
+        """Fetch both short personal link variants for a record from Evie.
 
         Args:
             kind: 'lead' or 'activity' — selects the endpoint variant.
             capsule_id: the record's Evie capsule id (x_evie_capsule_id).
 
         Returns:
-            dict: ``{'ok': True, 'url': ..., 'target': ...}`` on success,
-            ``{'ok': False, 'message': ...}`` otherwise. Never raises.
+            dict: ``{'ok': True, 'website': {...}, 'chat': {...}}`` on
+            success (each variant a dict with ``url``, ``target_url``,
+            ``resolved_target`` and ``clicks``, or None when that variant
+            could not be composed), ``{'ok': False, 'message': ...}``
+            otherwise. Never raises.
         """
         endpoint = _ENDPOINTS.get(kind)
         if not endpoint or not capsule_id:
@@ -51,7 +55,9 @@ class EviePersonalLink(models.AbstractModel):
                 "Evie personal link fetch failed (%s, capsule %s): %s",
                 kind, capsule_id, data)
             return {'ok': False, 'message': str(data)}
-        if not data.get('url'):
+        website = data.get('website')
+        chat = data.get('chat')
+        if not website and not chat:
             return {'ok': False,
                     'message': data.get('message') or 'no link resolvable'}
-        return {'ok': True, 'url': data['url'], 'target': data.get('target')}
+        return {'ok': True, 'website': website, 'chat': chat}

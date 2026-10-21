@@ -145,21 +145,27 @@ class CrmLead(models.Model):
     )
 
     # Personal outreach link target (19.0.1.27.0,
-    # lead-level-outreach-link-target): the rep's per-lead choice of where
-    # the lead-only personal link lands the visitor. Editable; synced to
+    # lead-level-outreach-link-target; role narrowed in 19.0.1.29.0,
+    # dual-personal-link-surfaces): the rep's per-lead default for where
+    # personal outreach links land the visitor in automated flows
+    # (proposal mails, legacy live-resolving links). Editable; synced to
     # Evie inbound-only (Evie never writes it back). Empty follows the
     # tenant make default (website configured → website, else chat
-    # client). Activity links follow the activity's own stamped target.
+    # client). The copy surfaces always offer both link variants, so this
+    # field no longer influences what the rep copies. Activity links
+    # follow the activity's own stamped target first.
     x_evie_outreach_link_target = fields.Selection(
         selection=[('WEBSITE', 'Website (chat widget)'),
                    ('CHAT_DIRECT', 'Chat client (direct)')],
         string='Outreach Link Target',
         copy=False,
         tracking=True,
-        help="Where the lead-only personal outreach link lands the "
-             "visitor: the website running the Evie chat widget, or the "
-             "standalone chat client directly. Empty follows the tenant "
-             "make default.",
+        help="Default for where personal outreach links land the visitor "
+             "in automated flows (proposal mails): the website running "
+             "the Evie chat widget, or the standalone chat client "
+             "directly. An activity's own stamped target wins. Empty "
+             "follows the tenant make default. The Personal links below "
+             "always offer both variants to copy, whatever this value.",
     )
 
     # Marketing opt-in (19.0.1.21.0, privacy-lead-capture): the only
