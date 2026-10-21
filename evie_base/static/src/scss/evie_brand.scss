@@ -228,6 +228,22 @@ $o-evie-lilac: #9c8ae1;
     gap: 0.4rem;
 }
 
+.o_evie_documents__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.o_evie_documents__share {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 0.65rem;
+    font-size: 0.8rem;
+    color: $text-muted;
+    cursor: pointer;
+}
+
 .o_evie_documents__item {
     display: flex;
     align-items: flex-start;

@@ -48,3 +48,28 @@ class EvieCapsuleDocuments(models.AbstractModel):
                    for document in result['documents']):
             raise UserError(_("This document is not linked to the record."))
         return evie_open_action(self.env, 'document', document_version_id)
+
+    @api.model
+    def set_shared_in_outreach(self, res_model, res_id, relation_id, shared,
+                               capsule_id_field=None):
+        """Toggle the shared-in-outreach flag on one of the record's
+        document relations (tracked-document-links): shared documents of an
+        activity go out as tracked short links in composed outreach.
+
+        Returns the new flag value; raises on Evie failures so the widget
+        can revert the checkbox.
+        """
+        result = self.get_documents(res_model, res_id, capsule_id_field)
+        if not result['ok']:
+            raise UserError(_("Evie is unreachable; try again in a moment."))
+        if not any(document['relation_id'] == int(relation_id)
+                   for document in result['documents']):
+            raise UserError(_("This document is not linked to the record."))
+        ok, data = self.env['evie.webhook'].post_for_json(
+            '/capsule-document-share',
+            {'relation_id': int(relation_id), 'shared_in_outreach': bool(shared)})
+        if not ok:
+            _logger.warning("Evie shared-in-outreach toggle failed for relation %s: %s",
+                            relation_id, data)
+            raise UserError(_("Evie is unreachable; try again in a moment."))
+        return bool(data.get('shared_in_outreach'))

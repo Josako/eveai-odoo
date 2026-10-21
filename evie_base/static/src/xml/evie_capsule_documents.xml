@@ -11,7 +11,8 @@
             <span t-elif="!state.linked" class="text-muted fst-italic">Not linked to Evie yet</span>
             <span t-elif="!state.documents.length" class="text-muted fst-italic">No documents yet</span>
             <ul t-else="" class="o_evie_documents__list list-unstyled mb-0">
-                <li t-foreach="state.documents" t-as="document" t-key="document.relation_id">
+                <li t-foreach="state.documents" t-as="document" t-key="document.relation_id"
+                    class="o_evie_documents__row">
                     <button type="button" class="o_evie_documents__item"
                             t-att-disabled="state.opening ? true : null"
                             t-att-title="document.description or document.name"
@@ -33,6 +34,17 @@
                         </span>
                         <i class="fa fa-external-link o_evie_documents__open" role="img" aria-hidden="true"/>
                     </button>
+                    <label t-if="showShare" class="o_evie_documents__share"
+                           title="Include this document as a tracked link in outreach composed for this activity">
+                        <input type="checkbox" class="form-check-input"
+                               t-att-checked="document.shared_in_outreach"
+                               t-att-disabled="state.savingShare ? true : null"
+                               t-on-change="() => this.toggleShared(document)"/>
+                        <span class="o_evie_documents__share-label">
+                            <t t-if="state.savingShare === document.relation_id">Saving…</t>
+                            <t t-else="">Share in outreach</t>
+                        </span>
+                    </label>
                 </li>
             </ul>
         </div>

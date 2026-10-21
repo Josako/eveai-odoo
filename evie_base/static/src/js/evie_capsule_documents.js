@@ -111,6 +111,33 @@ export class EvieCapsuleDocuments extends Component {
         return value.isValid ? formatDateTime(value) : "";
     }
 
+    get showShare() {
+        // The shared-in-outreach flag only makes sense on activities
+        // (tracked-document-links): outreach is composed per activity.
+        return this.props.resModel === "mail.activity";
+    }
+
+    async toggleShared(document) {
+        if (this.state.savingShare) {
+            return;
+        }
+        const wanted = !document.shared_in_outreach;
+        this.state.savingShare = document.relation_id;
+        try {
+            const applied = await this.orm.call(
+                "evie.capsule.documents", "set_shared_in_outreach",
+                [this.props.resModel, this.props.resId, document.relation_id,
+                    wanted, this.props.capsuleIdField || "x_evie_capsule_id"]);
+            document.shared_in_outreach = applied;
+        } catch (error) {
+            this.notification.add(
+                error.data?.message || _t("Could not update the document."),
+                { type: "danger" });
+        } finally {
+            this.state.savingShare = null;
+        }
+    }
+
     async openDocument(document) {
         if (this.state.opening) {
             return;
