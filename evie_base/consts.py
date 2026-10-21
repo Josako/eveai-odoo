@@ -96,4 +96,7 @@ EVIE_OPEN_KINDS = {
     # Capture list popup (capture-list-view): the reference is the scope
     # capsule id (marketing initiative or channel mirror).
     'capture_list': 'capsule_id',
+    # Document picker popup (odoo-capsule-document-linking): the reference
+    # is the capsule the picked document gets linked to.
+    'document_picker': 'capsule_id',
 }

@@ -75,6 +75,16 @@
                                    widget="evie_link" options="{'kind': 'chat_session'}"/>
                         </group>
                     </group>
+                    <!-- All documents linked to the lead's capsule
+                         (odoo-capsule-document-linking): the reusable
+                         component below the featured links, which stay as
+                         the curated entries. Own full-width card, like the
+                         actions group. -->
+                    <group string="Linked documents" name="evie_linked_documents"
+                           class="o_evie_card" colspan="2"
+                           invisible="not x_evie_capsule_id">
+                        <widget name="evie_capsule_documents" colspan="2"/>
+                    </group>
                     <!-- Marketing opt-in (privacy-lead-capture): the only
                          consent control, as first-class consent data. -->
                     <group string="Consent" name="evie_consent" class="o_evie_card">

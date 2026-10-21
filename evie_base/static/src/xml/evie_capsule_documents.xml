@@ -13,27 +13,37 @@
             <ul t-else="" class="o_evie_documents__list list-unstyled mb-0">
                 <li t-foreach="state.documents" t-as="document" t-key="document.relation_id"
                     class="o_evie_documents__row">
-                    <button type="button" class="o_evie_documents__item"
-                            t-att-disabled="state.opening ? true : null"
-                            t-att-title="document.description or document.name"
-                            t-on-click="() => this.openDocument(document)">
-                        <i t-attf-class="fa {{ state.opening === document.document_version_id ? 'fa-circle-o-notch fa-spin' : fileIcon(document) }} o_evie_documents__icon"
-                           role="img" aria-hidden="true"/>
-                        <span class="o_evie_documents__body">
-                            <span class="o_evie_documents__head">
-                                <span class="o_evie_documents__name" t-esc="document.name"/>
-                                <span t-if="document.document_type_label" class="o_evie_documents__type"
-                                      t-esc="document.document_type_label"/>
+                    <div class="o_evie_documents__line">
+                        <button type="button" class="o_evie_documents__item"
+                                t-att-disabled="state.opening ? true : null"
+                                t-att-title="document.description or document.name"
+                                t-on-click="() => this.openDocument(document)">
+                            <i t-attf-class="fa {{ state.opening === document.document_version_id ? 'fa-circle-o-notch fa-spin' : fileIcon(document) }} o_evie_documents__icon"
+                               role="img" aria-hidden="true"/>
+                            <span class="o_evie_documents__body">
+                                <span class="o_evie_documents__head">
+                                    <span class="o_evie_documents__name" t-esc="document.name"/>
+                                    <span t-if="document.document_type_label" class="o_evie_documents__type"
+                                          t-esc="document.document_type_label"/>
+                                </span>
+                                <span t-if="document.description" class="o_evie_documents__description"
+                                      t-esc="document.description"/>
+                                <span class="o_evie_documents__meta">
+                                    <t t-esc="formatDate(document)"/>
+                                    <t t-if="document.processing"> · processing…</t>
+                                </span>
                             </span>
-                            <span t-if="document.description" class="o_evie_documents__description"
-                                  t-esc="document.description"/>
-                            <span class="o_evie_documents__meta">
-                                <t t-esc="formatDate(document)"/>
-                                <t t-if="document.processing"> · processing…</t>
-                            </span>
-                        </span>
-                        <i class="fa fa-external-link o_evie_documents__open" role="img" aria-hidden="true"/>
-                    </button>
+                            <i class="fa fa-external-link o_evie_documents__open" role="img" aria-hidden="true"/>
+                        </button>
+                        <button t-if="showActions" type="button"
+                                class="o_evie_documents__unlink"
+                                title="Unlink document" aria-label="Unlink document"
+                                t-att-disabled="state.unlinking ? true : null"
+                                t-on-click="() => this.unlinkDocument(document)">
+                            <i t-attf-class="fa {{ state.unlinking === document.relation_id ? 'fa-circle-o-notch fa-spin' : 'fa-chain-broken' }}"
+                               role="img" aria-hidden="true"/>
+                        </button>
+                    </div>
                     <label t-if="showShare" class="o_evie_documents__share"
                            title="Include this document as a tracked link in outreach composed for this activity">
                         <input type="checkbox" class="form-check-input"
@@ -47,6 +57,14 @@
                     </label>
                 </li>
             </ul>
+            <div t-if="showActions" class="o_evie_documents__actions">
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        t-att-disabled="state.openingPicker"
+                        t-on-click="openPicker">
+                    <i t-attf-class="fa {{ state.openingPicker ? 'fa-circle-o-notch fa-spin' : 'fa-link' }} me-1" aria-hidden="true"/>
+                    Link document
+                </button>
+            </div>
         </div>
     </t>
 

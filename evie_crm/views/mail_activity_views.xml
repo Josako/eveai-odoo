@@ -55,6 +55,15 @@
                     <field name="x_evie_activity_type" readonly="1"/>
                     <field name="x_evie_outcome"/>
                 </group>
+                <!-- Linked documents (odoo-capsule-document-linking): the
+                     reusable capsule documents component — list, open in
+                     Evie, link via the Evie picker breakout, unlink. Content,
+                     so it sits with the Evie Context, before the
+                     Synchronisation plumbing. -->
+                <group string="Linked documents" name="evie_documents" colspan="2"
+                       invisible="not x_evie_capsule_id">
+                    <widget name="evie_capsule_documents" colspan="2"/>
+                </group>
                 <!-- Synchronisation: the capsule reference and the last
                      push-sync timestamp — same contents as the lead's
                      Synchronisation group. Last: metadata about the

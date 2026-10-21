@@ -5,9 +5,12 @@
  *
  * Lists the documents linked to a record's capsule in Evie (the
  * CRM_ENTITY_HAS_DOCUMENT relation) and opens one in the Evie document
- * view on click. Refreshes when the window regains focus (e.g. after an
- * Evie popup produced a document) and whenever ``refreshKey`` changes, so a
- * host can trigger a reload after an action settled.
+ * view on click. Users with write access on the record can link an
+ * existing Evie document (Evie picker breakout) and unlink documents.
+ * Refreshes when the window regains focus (e.g. after an Evie popup
+ * produced a document or the picker linked one) and whenever
+ * ``refreshKey`` changes, so a host can trigger a reload after an action
+ * settled.
  *
  * Usage in a component:
  *     <EvieCapsuleDocuments resModel="'mail.activity'" resId="activityId"
@@ -22,6 +25,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { formatDateTime } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 
 const { DateTime } = luxon;
 
@@ -59,12 +63,17 @@ export class EvieCapsuleDocuments extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+        this.dialog = useService("dialog");
         this.state = useState({
             loaded: false,
             ok: true,
             linked: true,
+            canWrite: false,
             documents: [],
             opening: null,
+            openingPicker: false,
+            savingShare: null,
+            unlinking: null,
         });
         this.loading = false;
 
@@ -90,6 +99,7 @@ export class EvieCapsuleDocuments extends Component {
                 [props.resModel, props.resId, props.capsuleIdField || "x_evie_capsule_id"]);
             this.state.ok = result.ok;
             this.state.linked = result.linked;
+            this.state.canWrite = Boolean(result.can_write);
             this.state.documents = result.documents || [];
         } catch {
             this.state.ok = false;
@@ -115,6 +125,58 @@ export class EvieCapsuleDocuments extends Component {
         // The shared-in-outreach flag only makes sense on activities
         // (tracked-document-links): outreach is composed per activity.
         return this.props.resModel === "mail.activity";
+    }
+
+    get showActions() {
+        return this.state.ok && this.state.linked && this.state.canWrite;
+    }
+
+    async openPicker() {
+        if (this.state.openingPicker) {
+            return;
+        }
+        this.state.openingPicker = true;
+        try {
+            const action = await this.orm.call(
+                "evie.capsule.documents", "open_picker",
+                [this.props.resModel, this.props.resId,
+                    this.props.capsuleIdField || "x_evie_capsule_id"]);
+            await this.action.doAction(action);
+        } catch (error) {
+            this.notification.add(
+                error.data?.message || _t("Could not open the document picker."),
+                { type: "danger" });
+        } finally {
+            this.state.openingPicker = false;
+        }
+    }
+
+    unlinkDocument(document) {
+        if (this.state.unlinking) {
+            return;
+        }
+        this.dialog.add(ConfirmationDialog, {
+            body: _t("Unlink \"%s\" from this record? The document itself stays in Evie.", document.name),
+            confirmLabel: _t("Unlink"),
+            confirm: async () => {
+                this.state.unlinking = document.relation_id;
+                try {
+                    await this.orm.call(
+                        "evie.capsule.documents", "unlink_document",
+                        [this.props.resModel, this.props.resId, document.relation_id,
+                            this.props.capsuleIdField || "x_evie_capsule_id"]);
+                    this.state.documents = this.state.documents.filter(
+                        (entry) => entry.relation_id !== document.relation_id);
+                } catch (error) {
+                    this.notification.add(
+                        error.data?.message || _t("Could not unlink the document."),
+                        { type: "danger" });
+                } finally {
+                    this.state.unlinking = null;
+                }
+            },
+            cancel: () => {},
+        });
     }
 
     async toggleShared(document) {
