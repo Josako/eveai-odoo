@@ -203,28 +203,65 @@
         </field>
     </record>
 
+    <!-- Kanban styled closer to the Evie admin lead pipeline / Evie Lead
+         Pipeline board: compact columns, branded cards with a left accent,
+         title + meta + footer stats (captures / leads). -->
     <record id="marketing_initiative_view_kanban" model="ir.ui.view">
         <field name="name">marketing.initiative.kanban</field>
         <field name="model">marketing.initiative</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state">
+            <kanban default_group_by="state"
+                    quick_create="false"
+                    sample="1"
+                    class="o_kanban_small_column o_evie_kanban">
                 <field name="name"/>
                 <field name="state"/>
+                <field name="type"/>
                 <field name="date_start"/>
-                <field name="budget"/>
+                <field name="date_end"/>
+                <field name="user_id"/>
                 <field name="capture_count"/>
                 <field name="lead_count"/>
+                <field name="location"/>
                 <templates>
+                    <!-- Odoo 19 card structure (same pattern as
+                         crm_lead_view_kanban_evie_pipeline): no wrapper div. -->
                     <t t-name="card">
-                        <div class="oe_kanban_content">
-                            <strong><field name="name"/></strong>
-                            <div><field name="state" widget="badge"/></div>
-                            <div><i class="fa fa-calendar" title="Start date"/> <field name="date_start"/></div>
-                            <div>
-                                <i class="fa fa-clipboard" title="Captures"/> <field name="capture_count"/> captures ·
-                                <i class="fa fa-bullseye" title="Leads"/> <field name="lead_count"/> leads
-                            </div>
+                        <field class="fw-bold fs-5" name="name"/>
+                        <div class="o_evie_kanban__type" invisible="not type">
+                            <field name="type"/>
                         </div>
+                        <div class="o_evie_kanban__meta"
+                             invisible="not location">
+                            <i class="fa fa-map-marker" title="Location"/>
+                            <field name="location"/>
+                        </div>
+                        <div class="o_evie_kanban__meta"
+                             invisible="not date_start">
+                            <i class="fa fa-calendar" title="Dates"/>
+                            <field name="date_start"/>
+                            <t t-if="record.date_end.raw_value">
+                                – <field name="date_end"/>
+                            </t>
+                        </div>
+                        <footer class="o_evie_kanban__footer">
+                            <div class="d-flex mt-auto align-items-center gap-1 flex-wrap">
+                                <span class="o_evie_kanban__stat"
+                                      title="Captures">
+                                    <i class="fa fa-clipboard" title="Captures"/>
+                                    <field name="capture_count"/>
+                                </span>
+                                <span class="o_evie_kanban__stat"
+                                      title="Leads">
+                                    <i class="fa fa-bullseye" title="Leads"/>
+                                    <field name="lead_count"/>
+                                </span>
+                            </div>
+                            <div class="ms-auto d-flex align-items-center gap-1">
+                                <field name="user_id" widget="many2one_avatar_user"
+                                       invisible="not user_id"/>
+                            </div>
+                        </footer>
                     </t>
                 </templates>
             </kanban>

@@ -380,3 +380,244 @@ $o-evie-lilac: #9c8ae1;
         height: 1.1rem;
     }
 }
+
+// ---------------------------------------------------------------------------
+// Evie kanban boards (Marketing Initiatives, Evie Lead Pipeline, …)
+// Echoes the admin CapsuleKanbanBoard / .dcl-kanban look: soft slate
+// columns, cards with a brand left accent, muted meta, compact stat pills.
+//
+// IMPORTANT: the <kanban class="…"> attribute lands on the controller root
+// (same as o_kanban_small_column), NOT on .o_kanban_renderer. Scope from
+// .o_evie_kanban like core does for .o_kanban_small_column.
+// ---------------------------------------------------------------------------
+.o_evie_kanban,
+.o_kanban_view.o_evie_kanban {
+    // Beat core `.o_kanban_view` var definitions (same specificity, later load
+    // isn’t guaranteed) so group width still = record + 2*padding.
+    --KanbanGroup-padding-h: 1rem;
+    --KanbanGroup-padding-bottom: 0.85rem;
+}
+
+.o_evie_kanban {
+    // Space the board away from the control-panel header + between columns
+    .o_kanban_renderer.o_kanban_grouped {
+        gap: 0.85rem;
+        padding: 0.75rem 0.65rem 0.9rem;
+        background: transparent;
+    }
+
+    // Soft column shells — admin .dcl-kanban__column
+    .o_kanban_group {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        // Explicit padding so side inset isn’t lost if vars lose the cascade
+        padding: 0 var(--KanbanGroup-padding-h, 1rem) var(--KanbanGroup-padding-bottom, 0.85rem) !important;
+        margin-inline: 0 !important;
+        box-shadow: none;
+        // visible so the settings gear + dropdown aren’t clipped
+        overflow: visible;
+        box-sizing: border-box;
+        transition:
+            border-color 0.15s ease,
+            background 0.15s ease,
+            box-shadow 0.15s ease;
+
+        &.o_kanban_hover,
+        &.o_kanban_group_show {
+            border-color: rgba($o-evie-purple, 0.55) !important;
+            background: mix(#fff, $o-evie-purple, 90%) !important;
+            box-shadow: inset 0 0 0 1px rgba($o-evie-lilac, 0.3);
+        }
+    }
+
+    .o_kanban_group .o_kanban_header {
+        // Vertical breathing room only — horizontal inset comes from
+        // --KanbanGroup-padding-h so the title row lines up with the cards
+        // and the gear sits on the same right edge as the card column.
+        padding: 0.7rem 0 0.45rem !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        overflow: visible;
+
+        .o_kanban_header_title {
+            align-items: center !important;
+            gap: 0.15rem;
+            min-height: 1.75rem;
+            overflow: visible;
+        }
+
+        .o_column_title {
+            align-items: center !important; // override core align-top
+            gap: 0.4rem !important;
+            font-weight: 700 !important;
+            font-size: 0.8125rem !important;
+            letter-spacing: 0.01em;
+            text-transform: none !important;
+            color: #0f172a !important;
+            line-height: 1.25 !important;
+            min-width: 0;
+        }
+
+        // Brand dot as a proper flex item (not a misaligned ::before inline)
+        .o_column_title::before {
+            content: "";
+            flex: 0 0 auto;
+            align-self: center;
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, $o-evie-purple, $o-evie-lilac);
+        }
+
+        // Count "(N)" → compact brand chip like admin column-count
+        .o_column_title > span:not(.text-truncate) {
+            flex: 0 0 auto;
+            min-width: 1.35rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 999px;
+            font-size: 0.6875rem !important;
+            font-weight: 700 !important;
+            line-height: 1.25;
+            text-align: center;
+            color: $o-evie-purple;
+            background: rgba($o-evie-purple, 0.1);
+            border: 1px solid rgba($o-evie-purple, 0.2);
+        }
+
+        // Settings gear + quick-add: keep them on the title baseline
+        .o_group_config,
+        .o_kanban_quick_add {
+            flex: 0 0 auto;
+            align-self: center;
+            margin: 0;
+        }
+
+        .o_group_config .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            padding: 0 !important;
+            border-radius: 0.4rem;
+            line-height: 1;
+        }
+
+        .o_kanban_counter {
+            margin-top: 0.35rem;
+        }
+    }
+
+    // Cards — admin .dcl-kanban__card
+    // Grouped mode already sets width: 100%; stay inside the padded group.
+    .o_kanban_record {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important; // override core min-width: 150px in tight cols
+        margin: 0 0 0.55rem !important; // no side margins — group padding is the inset
+        padding: 0.7rem 0.75rem 0.65rem !important;
+        border-radius: 10px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-left: 3px solid $o-evie-purple !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        background: #fff !important;
+        overflow: hidden;
+        transition:
+            transform 0.14s ease,
+            box-shadow 0.14s ease,
+            border-color 0.14s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            border-color: mix(#e2e8f0, $o-evie-purple, 65%) !important;
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba($o-evie-purple, 0.28);
+        }
+
+        .o_kanban_record_title,
+        .fw-bold.fs-5 {
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            line-height: 1.25 !important;
+            margin: 0 !important;
+        }
+
+        // Soften Odoo’s default record chrome
+        .o_dropdown_kanban,
+        .oe_kanban_bottom_left,
+        .oe_kanban_bottom_right {
+            margin-top: 0.15rem;
+        }
+    }
+
+    .o_evie_kanban__type {
+        display: inline-flex;
+        align-self: flex-start;
+        max-width: 100%;
+        margin-top: 0.15rem;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #334155;
+        font-size: 0.68rem;
+        font-weight: 600;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .o_evie_kanban__meta {
+        margin-top: 0.15rem;
+        font-size: 0.75rem;
+        line-height: 1.3;
+        color: #64748b;
+
+        .fa {
+            margin-right: 0.25rem;
+            opacity: 0.75;
+            color: $o-evie-purple;
+        }
+    }
+
+    .o_evie_kanban__footer {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        width: 100%;
+        margin-top: 0.45rem;
+        padding-top: 0.45rem !important;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .o_evie_kanban__stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 999px;
+        background: rgba($o-evie-lilac, 0.14);
+        border: 1px solid rgba($o-evie-purple, 0.22);
+        color: #334155;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        line-height: 1.2;
+
+        .fa {
+            color: $o-evie-purple;
+            opacity: 0.95;
+        }
+    }
+}
