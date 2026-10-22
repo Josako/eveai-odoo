@@ -17,8 +17,13 @@
  *   polled while an action runs and refreshed when the window regains
  *   focus. Usable in any component, with no bound status field.
  *
- * ``stacked`` renders the actions as full-width rows (icon, label,
- * chevron) for side panels instead of a wrapping row of buttons.
+ * ``stacked`` (default false) renders a wrapping row of buttons — the
+ * CRM form layout. Pass ``stacked`` true for full-width rows (icon,
+ * label, chevron) as in the meeting window.
+ *
+ * Actions that declare ``ui_group`` / ``ui_group_label`` /
+ * ``ui_group_order`` in their YAML are rendered under labeled sections
+ * (Proposal / Meeting / Follow-up, …). Ungrouped actions stay flat.
  *
  * ``onSettled`` is called after an action completed: immediately for
  * accepted non-popup actions, and (live mode) when a running action ends.
@@ -82,7 +87,12 @@ export class EvieCapsuleActions extends Component {
         resId: { type: [Number, Boolean], optional: true },
         capsuleIdField: { type: String, optional: true },
         onSettled: { type: Function, optional: true },
+        // Default false: wrapping button row (CRM forms). Meeting window
+        // passes stacked=true for full-width rows.
         stacked: { type: Boolean, optional: true },
+    };
+    static defaultProps = {
+        stacked: false,
     };
 
     setup() {
@@ -141,6 +151,69 @@ export class EvieCapsuleActions extends Component {
     /** Whether the capsule is busy, i.e. any action holds its busy status. */
     get busy() {
         return this.state.actions.some((action) => this.isActionBusy(action));
+    }
+
+    /**
+     * Actions clustered by YAML ``ui_group`` for labeled sections.
+     * Groups sort by ``ui_group_order`` then key; actions within a group
+     * by ``order`` then text. Actions without a group form one unlabeled
+     * bucket (kept last) so older payloads still render flat.
+     */
+    /**
+     * Display label for a group key — prefer YAML ``ui_group_label``, else
+     * title-case the key so CRM forms always show section chrome.
+     */
+    _groupLabel(key, explicit) {
+        if (explicit) {
+            return explicit;
+        }
+        if (!key) {
+            return "Actions";
+        }
+        return String(key)
+            .split(/[_-]+/)
+            .filter(Boolean)
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(" ");
+    }
+
+    get actionGroups() {
+        const buckets = new Map();
+        for (const action of this.state.actions) {
+            const key = action.ui_group || "";
+            if (!buckets.has(key)) {
+                buckets.set(key, {
+                    key: key || "_ungrouped",
+                    label: this._groupLabel(key, action.ui_group_label || ""),
+                    order: Number.isFinite(action.ui_group_order)
+                        ? action.ui_group_order
+                        : (key ? 1000 : Number.POSITIVE_INFINITY),
+                    actions: [],
+                });
+            } else if (action.ui_group_label) {
+                // Prefer an explicit label once one arrives in the bucket.
+                buckets.get(key).label = action.ui_group_label;
+            }
+            buckets.get(key).actions.push(action);
+        }
+        const groups = [...buckets.values()];
+        for (const group of groups) {
+            group.actions.sort((a, b) => {
+                const ao = Number.isFinite(a.order) ? a.order : 1000;
+                const bo = Number.isFinite(b.order) ? b.order : 1000;
+                if (ao !== bo) {
+                    return ao - bo;
+                }
+                return String(a.text || "").localeCompare(String(b.text || ""));
+            });
+        }
+        groups.sort((a, b) => {
+            if (a.order !== b.order) {
+                return a.order - b.order;
+            }
+            return String(a.key).localeCompare(String(b.key));
+        });
+        return groups;
     }
 
     /** The started action while the capsule is busy, when known. */
@@ -226,11 +299,14 @@ export class EvieCapsuleActions extends Component {
         return !action.available || this.isActionRunning(action) || this.isActionBusy(action);
     }
 
+    get isStacked() {
+        return Boolean(this.props.stacked);
+    }
+
     buttonClass(action) {
-        if (this.props.stacked) {
-            return "o_evie_actions__row";
-        }
-        return `btn btn-sm ${action.class === "btn-primary" ? "btn-primary" : "btn-outline-secondary"}`;
+        // Same meeting-window chrome everywhere; only the flex direction
+        // differs (column when stacked, wrapping row otherwise).
+        return "o_evie_actions__row";
     }
 
     actionIcon(action) {

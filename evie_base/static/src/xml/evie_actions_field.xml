@@ -2,10 +2,15 @@
 <templates xml:space="preserve">
 
     <t t-name="evie_base.EvieActionsField">
+        <!-- Live discovery (resModel/resId) so CRM forms get the same
+             grouped payload as the meeting window. stacked defaults false
+             (row of tiles); meeting window passes stacked on its own. -->
         <EvieCapsuleActions capsuleType="props.capsuleType"
-                            capsuleId="props.record.data[props.capsuleIdField] || false"
-                            remoteId="props.record.resId || false"
-                            status="props.record.data[props.name] || false"/>
+                            resModel="props.record.resModel"
+                            resId="props.record.resId || false"
+                            capsuleIdField="props.capsuleIdField"
+                            status="props.record.data[props.name] || false"
+                            stacked="props.stacked"/>
     </t>
 
 </templates>

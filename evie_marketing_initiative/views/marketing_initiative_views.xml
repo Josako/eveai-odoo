@@ -57,8 +57,8 @@
                         </div>
                     </div>
                     <group string="Actions" name="evie_actions" class="o_evie_card"
-                           invisible="not capsule_id">
-                        <field name="sync_state" nolabel="1"
+                           colspan="2" invisible="not capsule_id">
+                        <field name="sync_state" nolabel="1" colspan="2"
                                widget="evie_actions"
                                options="{'capsule_type': 'MARKETING_INITIATIVE', 'capsule_id_field': 'capsule_id'}"/>
                     </group>

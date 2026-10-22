@@ -2,35 +2,40 @@
 <templates xml:space="preserve">
 
     <t t-name="evie_base.EvieCapsuleActions">
-        <div t-attf-class="o_evie_actions {{ props.stacked ? 'o_evie_actions--stacked' : '' }}">
+        <div t-attf-class="o_evie_actions {{ isStacked ? 'o_evie_actions--stacked' : 'o_evie_actions--wrap' }}">
             <!-- Evie unreachable: unobtrusive placeholder, the host keeps working -->
             <span t-if="!state.ok" class="text-muted fst-italic">
                 Evie actions unavailable
             </span>
-            <span t-elif="live and state.loaded and !state.capsuleId" class="text-muted fst-italic">
-                Not linked to Evie yet
-            </span>
             <t t-else="">
-                <t t-foreach="state.actions" t-as="action" t-key="action.action_type">
-                    <t t-set="actionRunning" t-value="isActionRunning(action)"/>
-                    <button type="button"
-                            t-att-class="buttonClass(action) + (actionRunning ? ' is-running' : '')"
-                            t-att-disabled="isDisabled(action) || null"
-                            t-att-title="action.available ? false : action.unavailable_reason"
-                            t-on-click="() => this.onAction(action)">
-                        <t t-if="props.stacked">
-                            <i t-attf-class="fa {{ actionRunning ? 'fa-circle-o-notch fa-spin' : actionIcon(action) }} o_evie_actions__row-icon" aria-hidden="true"/>
-                            <span class="o_evie_actions__row-label" t-esc="action.text"/>
-                            <span t-if="actionRunning" class="o_evie_actions__row-status">In progress</span>
-                            <i t-else="" class="fa fa-chevron-right o_evie_actions__row-chevron" aria-hidden="true"/>
-                        </t>
-                        <t t-else="">
-                            <i t-if="actionRunning" class="fa fa-circle-o-notch fa-spin me-1" aria-hidden="true"/>
-                            <t t-esc="action.text"/>
-                        </t>
-                    </button>
+                <!-- Type-level catalog (and live discovery) always render
+                     YAML ui_group sections on every Evie-actions surface. -->
+                <t t-foreach="actionGroups" t-as="group" t-key="group.key">
+                    <section t-attf-class="o_evie_actions__group {{ group.label ? 'o_evie_actions__group--labeled' : '' }}">
+                        <h4 t-if="group.label" class="o_evie_actions__group-label"
+                            t-esc="group.label"/>
+                        <div class="o_evie_actions__group-body">
+                            <t t-foreach="group.actions" t-as="action" t-key="action.action_type">
+                                <t t-set="actionRunning" t-value="isActionRunning(action)"/>
+                                <button type="button"
+                                        t-att-class="buttonClass(action) + (actionRunning ? ' is-running' : '')"
+                                        t-att-disabled="isDisabled(action) || null"
+                                        t-att-title="action.available ? false : action.unavailable_reason"
+                                        t-on-click="() => this.onAction(action)">
+                                    <i t-attf-class="fa {{ actionRunning ? 'fa-circle-o-notch fa-spin' : actionIcon(action) }} o_evie_actions__row-icon" aria-hidden="true"/>
+                                    <span class="o_evie_actions__row-label" t-esc="action.text"/>
+                                    <span t-if="actionRunning" class="o_evie_actions__row-status">In progress</span>
+                                    <i t-else="" class="fa fa-chevron-right o_evie_actions__row-chevron" aria-hidden="true"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
                 </t>
-                <span t-if="state.loaded and state.actions.length === 0" class="text-muted">—</span>
+                <span t-if="state.loaded and state.actions.length === 0 and live and !state.capsuleId"
+                      class="text-muted fst-italic">
+                    Not linked to Evie yet
+                </span>
+                <span t-elif="state.loaded and state.actions.length === 0" class="text-muted">—</span>
             </t>
         </div>
     </t>
