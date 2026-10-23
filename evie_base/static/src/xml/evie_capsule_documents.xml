@@ -37,11 +37,13 @@
                         </button>
                         <button t-if="showActions" type="button"
                                 class="o_evie_documents__unlink"
-                                title="Unlink document" aria-label="Unlink document"
+                                title="Unlink from this record"
+                                aria-label="Unlink from this record"
                                 t-att-disabled="state.unlinking ? true : null"
                                 t-on-click="() => this.unlinkDocument(document)">
-                            <i t-attf-class="fa {{ state.unlinking === document.relation_id ? 'fa-circle-o-notch fa-spin' : 'fa-chain-broken' }}"
+                            <i t-attf-class="fa {{ state.unlinking === document.relation_id ? 'fa-circle-o-notch fa-spin' : 'fa-unlink' }}"
                                role="img" aria-hidden="true"/>
+                            <span class="o_evie_documents__unlink-label">Unlink</span>
                         </button>
                     </div>
                     <label t-if="showShare" class="o_evie_documents__share"
@@ -58,11 +60,12 @@
                 </li>
             </ul>
             <div t-if="showActions" class="o_evie_documents__actions">
-                <button type="button" class="btn btn-sm btn-outline-secondary"
+                <button type="button" class="o_evie_documents__link"
                         t-att-disabled="state.openingPicker"
                         t-on-click="openPicker">
-                    <i t-attf-class="fa {{ state.openingPicker ? 'fa-circle-o-notch fa-spin' : 'fa-link' }} me-1" aria-hidden="true"/>
-                    Link document
+                    <i t-attf-class="fa {{ state.openingPicker ? 'fa-circle-o-notch fa-spin' : 'fa-link' }}"
+                       role="img" aria-hidden="true"/>
+                    <span>Link document</span>
                 </button>
             </div>
         </div>

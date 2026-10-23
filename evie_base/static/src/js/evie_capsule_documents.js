@@ -141,7 +141,17 @@ export class EvieCapsuleDocuments extends Component {
                 "evie.capsule.documents", "open_picker",
                 [this.props.resModel, this.props.resId,
                     this.props.capsuleIdField || "x_evie_capsule_id"]);
-            await this.action.doAction(action);
+            // Evie outbreak window (same pattern as interactive capsule
+            // actions): the Document Picker runs in Evie; Odoo refreshes
+            // the list when this window regains focus.
+            if (action?.type === "ir.actions.act_url" && action.url) {
+                window.open(
+                    action.url,
+                    "evie_document_picker",
+                    "width=960,height=720,popup=yes");
+            } else {
+                await this.action.doAction(action);
+            }
         } catch (error) {
             this.notification.add(
                 error.data?.message || _t("Could not open the document picker."),
@@ -156,8 +166,11 @@ export class EvieCapsuleDocuments extends Component {
             return;
         }
         this.dialog.add(ConfirmationDialog, {
-            body: _t("Unlink \"%s\" from this record? The document itself stays in Evie.", document.name),
-            confirmLabel: _t("Unlink"),
+            title: _t("Unlink document"),
+            body: _t(
+                "Unlink \"%s\" from this record? The document itself stays in Evie — only the link is removed.",
+                document.name),
+            confirmLabel: _t("Unlink from record"),
             confirm: async () => {
                 this.state.unlinking = document.relation_id;
                 try {
@@ -167,6 +180,9 @@ export class EvieCapsuleDocuments extends Component {
                             this.props.capsuleIdField || "x_evie_capsule_id"]);
                     this.state.documents = this.state.documents.filter(
                         (entry) => entry.relation_id !== document.relation_id);
+                    this.notification.add(
+                        _t("Unlinked \"%s\" from this record.", document.name),
+                        { type: "success" });
                 } catch (error) {
                     this.notification.add(
                         error.data?.message || _t("Could not unlink the document."),
