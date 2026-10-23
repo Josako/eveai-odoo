@@ -99,6 +99,7 @@
             (4, ref('field_marketing_initiative_channel__crm_defaults')),
             (4, ref('field_marketing_initiative_channel__initiative_id')),
             (4, ref('field_marketing_initiative_channel__capture_form_id')),
+            (4, ref('field_marketing_initiative_channel__lead_salesperson_id')),
             (4, ref('field_marketing_initiative_channel__active')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_channel_updated'))]"/>

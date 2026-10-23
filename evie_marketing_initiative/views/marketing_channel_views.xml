@@ -40,6 +40,7 @@
                                    invisible="channel_type != 'Other'"/>
                             <field name="initiative_id"/>
                             <field name="capture_form_id"/>
+                            <field name="lead_salesperson_id"/>
                         </group>
                         <group string="Capture Automation">
                             <field name="auto_promote"/>

@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.6.0',
+    'version': '19.0.1.7.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """
@@ -59,6 +59,12 @@ models.
   to its own tab and synchronisation to the branded Evie tab; sections
   render as Evie cards. Marketing attribution on the lead's Evie tab is a
   card too
+* Lead salesperson on the channel (1.7.0, channel-lead-assignment-sync):
+  ``lead_salesperson_id`` (m2o ``res.users``, tracked, editable) on the
+  channel mirror — the channel's lead-assignment rule, synced both
+  directions with the capsule's CHANNEL_ASSIGNS_LEAD_TO relation via the
+  assignee contract; the rule steers future lead creation only. On the
+  channel form's Definition group and on the upsert automation watchlist
 
 The sync itself (field mappings, per-field ownership, UTM
 materialisation, reconciliation) lives Evie-side in the ODOO_CRM

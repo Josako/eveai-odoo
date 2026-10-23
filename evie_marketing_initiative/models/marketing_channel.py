@@ -39,6 +39,13 @@ class MarketingInitiativeChannel(models.Model):
     utm_source = fields.Char(string='UTM Source')
     auto_promote = fields.Boolean(string='Auto Promote')
     auto_promote_threshold = fields.Integer(string='Auto Promote Threshold')
+    lead_salesperson_id = fields.Many2one(
+        'res.users', string='Lead Salesperson', tracking=True,
+        help='Designates whom leads generated through this channel are '
+             'assigned to. Synced both directions with the channel '
+             'capsule\'s CHANNEL_ASSIGNS_LEAD_TO relation '
+             '(channel-lead-assignment-sync); steers future lead '
+             'creation only — existing leads keep their salesperson.')
 
     # --- Odoo-master (in: opaque adapter values) ---
     crm_defaults = fields.Text(
