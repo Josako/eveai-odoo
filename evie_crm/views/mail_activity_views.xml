@@ -26,6 +26,7 @@
                      group the button row breaks the grid layout of the
                      following fields. -->
                 <group string="Actions" name="evie_actions" colspan="2"
+                       col="1"
                        invisible="not x_evie_capsule_id">
                     <field name="x_evie_action_status" nolabel="1" colspan="2"
                            widget="evie_actions"

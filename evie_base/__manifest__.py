@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.23.0',
+    'version': '19.0.1.41.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -31,7 +31,14 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   no hardcoded action definitions in Odoo. The running state follows the
   discovery payload's per-action busy metadata (busy_statuses matched
   against the bound status field), with a fallback for older payloads
-  (sync-activity-proposal-to-odoo)
+  (sync-activity-proposal-to-odoo). From 1.30.0 / 1.41.0 actions that
+  declare ``ui_group`` / ``ui_group_label`` / ``ui_group_order`` in YAML
+  render under labeled sections on every Evie-actions surface (CRM forms,
+  marketing mirrors, meeting window, …) — live discovery via
+  ``resModel``/``resId``, with type-catalog fallback before a capsule
+  exists; failed discovery is never cached. CRM forms use a wrapping
+  button row by default; the meeting window keeps stacked rows via
+  ``stacked=true``
 * Reusable record-bound Evie components (1.19.0): ``EvieCapsuleActions``
   (the component behind ``evie_actions``; given ``resModel``/``resId`` it
   discovers the actions applicable to that record's capsule with their live

@@ -30,7 +30,7 @@
         <field name="arch" type="xml">
             <kanban highlight_color="x_evie_score_color"
                     default_group_by="x_evie_phase" quick_create="false"
-                    sample="1" class="o_kanban_small_column">
+                    sample="1" class="o_kanban_small_column o_evie_kanban">
                 <field name="activity_ids"/>
                 <field name="name"/>
                 <field name="contact_name"/>

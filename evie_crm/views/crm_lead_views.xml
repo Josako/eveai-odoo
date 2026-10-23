@@ -19,8 +19,9 @@
                     <!-- No x_evie_action_message field on the form: the
                          chatter (automation below) is the natural place for
                          the outcome; the field itself stays for the sync. -->
-                    <group string="Actions" name="evie_actions" class="o_evie_card">
-                        <field name="x_evie_action_status" nolabel="1"
+                    <group string="Actions" name="evie_actions" class="o_evie_card"
+                           colspan="2">
+                        <field name="x_evie_action_status" nolabel="1" colspan="2"
                                widget="evie_actions"
                                options="{'capsule_type': 'CRM_LEAD'}"/>
                     </group>

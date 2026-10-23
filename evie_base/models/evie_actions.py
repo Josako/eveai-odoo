@@ -37,7 +37,8 @@ class EvieActions(models.AbstractModel):
         """Return the discovered actions for a capsule type.
 
         Cached server-side with a time-bucket TTL (per worker, per capsule
-        type). Never raises.
+        type). Never raises. Transient Evie failures are not cached so
+        ``ui_group`` sections recover as soon as Evie is reachable again.
 
         Returns:
             dict: ``{'ok': bool, 'actions': [...]}``
@@ -45,17 +46,22 @@ class EvieActions(models.AbstractModel):
         if not capsule_type:
             return {'ok': False, 'actions': []}
         bucket = int(time.time() // ACTION_CACHE_TTL_SECONDS)
-        return self._get_actions_cached(capsule_type, bucket)
+        try:
+            return self._get_actions_cached_ok(capsule_type, bucket)
+        except LookupError:
+            return {'ok': False, 'actions': []}
 
     @api.model
     @ormcache('capsule_type', 'bucket')
-    def _get_actions_cached(self, capsule_type, bucket):
+    def _get_actions_cached_ok(self, capsule_type, bucket):
         ok, data = self.env['evie.webhook'].get_for_json(
             '/capsule-actions', params={'capsule_type': capsule_type})
         if not ok:
             _logger.warning(
                 "Evie action discovery failed for %s: %s", capsule_type, data)
-            return {'ok': False, 'actions': []}
+            # Raise so ormcache does not store the failure (Odoo caches the
+            # return value of the decorated method, not exceptions).
+            raise LookupError(data)
         return {'ok': True, 'actions': data.get('actions', [])}
 
     @api.model
@@ -64,15 +70,27 @@ class EvieActions(models.AbstractModel):
 
         Scoped discovery: only the actions applicable to the capsule, each
         carrying its live ``running`` flag, so record-bound components can
-        reflect progress without a bound status field. Never raises on
-        Evie failures.
+        reflect progress without a bound status field. When the record is
+        not yet linked, falls back to the type-level catalog (still carrying
+        ``ui_group``) so every Evie-actions surface shows the same groups.
+
+        Never raises on Evie failures.
 
         Returns:
             dict: ``{'ok': bool, 'actions': [...], 'capsule_id': int|False}``
         """
         capsule_id = evie_record_capsule_id(self.env, res_model, res_id, capsule_id_field)
-        if not capsule_type or not capsule_id:
-            return {'ok': True, 'actions': [], 'capsule_id': capsule_id}
+        if not capsule_type:
+            return {'ok': False, 'actions': [], 'capsule_id': capsule_id}
+        if not capsule_id:
+            # Type catalog: same YAML groups as a linked record, so CRM forms
+            # and meeting surfaces stay consistent before the capsule exists.
+            type_result = self.get_actions(capsule_type)
+            return {
+                'ok': type_result.get('ok', False),
+                'actions': type_result.get('actions') or [],
+                'capsule_id': False,
+            }
         ok, data = self.env['evie.webhook'].get_for_json(
             '/capsule-actions',
             params={'capsule_type': capsule_type, 'capsule_id': capsule_id})

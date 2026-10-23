@@ -1,6 +1,6 @@
 {
     'name': 'Evie Meeting Planning',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales/CRM',
     'summary': 'Mirror models for the Evie meeting library (objective and meeting templates) and meeting plans with objectives',
     'description': """
