@@ -4,9 +4,9 @@
         <field name="name">evie.phase_stage_map.list</field>
         <field name="model">evie.phase_stage_map</field>
         <field name="arch" type="xml">
-            <list editable="bottom" string="Evie Phase Mapping">
+            <list editable="bottom" string="Evie Phase Mapping" delete="0">
                 <field name="sequence" widget="handle"/>
-                <field name="phase" readonly="1"/>
+                <field name="phase" readonly="id"/>
                 <field name="odoo_type"/>
                 <field name="odoo_stage_id"
                        options="{'no_create': True}"
@@ -24,7 +24,7 @@
             <form string="Evie Phase Mapping">
                 <sheet>
                     <group>
-                        <field name="phase" readonly="1"/>
+                        <field name="phase" readonly="id"/>
                         <field name="odoo_type"/>
                         <field name="odoo_stage_id"
                                options="{'no_create': True}"
@@ -38,6 +38,11 @@
                             each stable Evie phase to this database's Odoo type and stage.
                             Stages are referenced by ID, so renaming a stage never breaks
                             the mapping. Leads have no stage; opportunities require one.
+                            Entries are seeded at install and cannot be removed: Evie owns
+                            the phase list. Create an extra entry to map an additional
+                            stage to an existing phase; the default entry drives the
+                            forward direction, and flipping the default moves existing
+                            records of that phase at the next sync.
                         </p>
                     </group>
                 </sheet>
@@ -51,7 +56,8 @@
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                The phase mapping is seeded at install.
+                The phase mapping is seeded at install; create an entry to map an
+                extra Odoo stage to an existing Evie phase.
             </p>
         </field>
     </record>

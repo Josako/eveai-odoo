@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Evie Lead Pipeline (19.0.1.5.0, odoo-lead-pipeline-board).
-         Kanban/graph/pivot over Evie-linked leads, grouped by the stable
-         Evie phase (selection order = funnel order). Drag & drop between
+    <!-- Evie Pipeline (19.0.1.34.0, sales-accepted-phase-funnel-mapping:
+         widened to leads + opportunities, lane subtitles show the mapped
+         Odoo stage). Kanban/graph/pivot over Evie-linked records, grouped by
+         the stable Evie phase (selection order = funnel order). Drag & drop between
          columns writes x_evie_phase; the existing [AUTO] Evie: phase edited
          automation notifies Evie (value-based, idempotent — dragging back
          undoes a mistake). No quick_create: a card created here would have
@@ -30,6 +31,7 @@
         <field name="arch" type="xml">
             <kanban highlight_color="x_evie_score_color"
                     default_group_by="x_evie_phase" quick_create="false"
+                    js_class="evie_pipeline_kanban"
                     sample="1" class="o_kanban_small_column o_evie_kanban">
                 <field name="activity_ids"/>
                 <field name="name"/>
@@ -81,7 +83,7 @@
         <field name="name">crm.lead.graph.evie.pipeline</field>
         <field name="model">crm.lead</field>
         <field name="arch" type="xml">
-            <graph string="Evie Leads per Phase" type="bar">
+            <graph string="Evie Records per Phase" type="bar">
                 <field name="x_evie_phase"/>
                 <field name="x_evie_qualification_score" type="measure"/>
             </graph>
@@ -94,22 +96,24 @@
         <field name="name">crm.lead.pivot.evie.pipeline</field>
         <field name="model">crm.lead</field>
         <field name="arch" type="xml">
-            <pivot string="Evie Leads per Phase">
+            <pivot string="Evie Records per Phase">
                 <field name="x_evie_phase" type="row"/>
                 <field name="x_evie_qualification_score" type="measure"/>
             </pivot>
         </field>
     </record>
 
-    <!-- Domain (design D2): only Evie-linked leads. The Undefined column can
-         therefore only hold linked records without a phase — dragging those
-         out always resolves a capsule in Evie. Non-Evie leads and
-         opportunities never appear. -->
+    <!-- Domain: every Evie-linked record, leads and opportunities alike
+         (sales-accepted-phase-funnel-mapping — the board shows the whole
+         funnel; the D2 leads-only restriction is revised). The Undefined
+         column can therefore only hold linked records without a phase —
+         dragging those out always resolves a capsule in Evie.
+         Non-Evie records never appear. -->
     <record id="action_evie_lead_pipeline" model="ir.actions.act_window">
-        <field name="name">Evie Lead Pipeline</field>
+        <field name="name">Evie Pipeline</field>
         <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,graph,pivot,list,form</field>
-        <field name="domain">[('type', '=', 'lead'), ('x_evie_capsule_id', '!=', False)]</field>
+        <field name="domain">[('x_evie_capsule_id', '!=', False)]</field>
         <field name="context">{'search_default_assigned_to_me': 1}</field>
         <field name="view_ids" eval="[
             (5, 0, 0),
@@ -120,16 +124,17 @@
             (0, 0, {'view_mode': 'form'}),
         ]"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">No Evie leads yet</p>
-            <p>Leads appear on this board as soon as they are synced from Evie.
-               Drag a card to another column to change its Evie phase — Evie is
-               notified automatically. Dragging into SQL, Opportunity or
-               Converted converts the lead to an opportunity at the next sync.</p>
+            <p class="o_view_nocontent_smiling_face">No Evie records yet</p>
+            <p>Leads and opportunities appear on this board as soon as they are
+               synced from Evie. Drag a card to another column to change its Evie
+               phase — Evie is notified automatically. Dragging a lead into SQL
+               or beyond converts it to an opportunity at the next sync; the card
+               keeps its place on this board.</p>
         </field>
     </record>
 
     <menuitem id="menu_evie_lead_pipeline"
-              name="Evie Lead Pipeline"
+              name="Evie Pipeline"
               parent="crm.crm_menu_root"
               action="action_evie_lead_pipeline"
               sequence="15"/>

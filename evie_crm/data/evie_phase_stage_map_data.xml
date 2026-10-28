@@ -33,6 +33,12 @@
             <field name="sequence">60</field>
             <field name="phase">SQL</field>
             <field name="odoo_type">opportunity</field>
+            <field name="odoo_stage_id" ref="crm.stage_lead1"/>
+        </record>
+        <record id="map_sales_accepted" model="evie.phase_stage_map">
+            <field name="sequence">65</field>
+            <field name="phase">Sales Accepted</field>
+            <field name="odoo_type">opportunity</field>
             <field name="odoo_stage_id" ref="crm.stage_lead2"/>
         </record>
         <record id="map_opportunity" model="evie.phase_stage_map">

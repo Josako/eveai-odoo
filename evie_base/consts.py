@@ -14,6 +14,7 @@ EVIE_PHASES = [
     "Warm Lead",
     "MQL",
     "SQL",
+    "Sales Accepted",
     "Opportunity",
     "Converted",
     "Disqualified",

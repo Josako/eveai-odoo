@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.32.0',
+    'version': '19.0.1.34.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -14,6 +14,10 @@ Everything Evie adds to Odoo CRM:
   shared ``evie_link`` widget and brand assets from ``evie_base``
 * ``evie.phase_stage_map``: tenant-maintained translation between the stable
   Evie funnel phases and this database's CRM stages, with seeded defaults
+  (sales-accepted-phase-funnel-mapping: several stages may map to one phase —
+  the default entry drives the forward direction; Sales Accepted added between
+  SQL and Opportunity; corrected default stages SQL → New, Sales Accepted →
+  Qualified, Opportunity → Proposition, Converted → Won for fresh installs)
 * Automation rules keeping the anchor consistent and notifying Evie on
   stage changes and mapping changes
 * Inbound sync (add-inbound-odoo-sync): automations notify Evie of lead
@@ -133,6 +137,12 @@ same map.
         'views/crm_lead_views.xml',
         'views/evie_lead_pipeline_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'evie_crm/static/src/js/evie_pipeline_kanban.js',
+            'evie_crm/static/src/xml/evie_pipeline_kanban.xml',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,

@@ -2,8 +2,12 @@
 
 Evie anchors on stable funnel phases; stages in this database are unstable
 (tenants rename/reorder them freely). This model translates between the two
-on stable stage IDs — never on display names. One entry per phase, seeded
-with defaults at install (noupdate: tenant edits survive module upgrades).
+on stable stage IDs — never on display names. Several stages may map to the
+same phase (tenants split pipeline columns freely); exactly one entry per
+phase is the default and drives the forward (Evie → Odoo) direction. The
+mapping is seeded with defaults at install (noupdate: tenant edits survive
+module upgrades); later platform phases are added by module migrations that
+fill gaps only.
 """
 
 import logging
@@ -45,21 +49,22 @@ class EviePhaseStageMap(models.Model):
         string='Default',
         default=True,
         help="When several stages map to the same phase, the default is used "
-             "for the forward (Evie → Odoo) direction.",
+             "for the forward (Evie → Odoo) direction. Flipping the default "
+             "moves existing records of this phase to the new default stage "
+             "at their next sync (at the latest at the hourly reconciliation "
+             "sweep).",
     )
     active = fields.Boolean(default=True)
 
-    _phase_unique = models.Constraint(
-        'unique(phase)',
-        'Each Evie phase can only have one mapping entry.',
-    )
-
-    @api.constrains('odoo_type', 'odoo_stage_id')
+    @api.constrains('odoo_type', 'odoo_stage_id', 'active')
     def _check_stage_consistency(self):
         for record in self:
-            if record.odoo_type == 'opportunity' and not record.odoo_stage_id:
+            if (record.active and record.odoo_type == 'opportunity'
+                    and not record.odoo_stage_id):
                 raise ValidationError(_(
-                    "An opportunity mapping requires an Odoo stage (phase '%s').",
+                    "An active opportunity mapping requires an Odoo stage "
+                    "(phase '%s'). Deactivate the entry instead when no "
+                    "stage is available yet.",
                     record.phase,
                 ))
             if record.odoo_type == 'lead' and record.odoo_stage_id:
@@ -67,6 +72,41 @@ class EviePhaseStageMap(models.Model):
                     "A lead mapping cannot have a stage (phase '%s'); "
                     "leads do not live in the pipeline Kanban.",
                     record.phase,
+                ))
+
+    @api.constrains('odoo_stage_id', 'active')
+    def _check_stage_uniqueness(self):
+        """A stage maps to at most one active entry, so the reverse lookup
+        (stage → phase) stays deterministic."""
+        for record in self.filtered(lambda r: r.active and r.odoo_stage_id):
+            others = self.search([
+                ('odoo_stage_id', '=', record.odoo_stage_id.id),
+                ('id', '!=', record.id),
+            ])
+            if others:
+                raise ValidationError(_(
+                    "Stage '%(stage)s' is already mapped to phase "
+                    "'%(phase)s'; a stage can only feed one phase.",
+                    stage=record.odoo_stage_id.name,
+                    phase=others[0].phase,
+                ))
+
+    @api.constrains('phase', 'odoo_type', 'active')
+    def _check_phase_type_consistency(self):
+        """All entries of a phase share one Odoo type: the forward direction
+        writes exactly one type per phase. Inactive entries count too, so a
+        divergent type cannot slip in through a later activation."""
+        for record in self:
+            others = self.with_context(active_test=False).search([
+                ('phase', '=', record.phase),
+                ('odoo_type', '!=', record.odoo_type),
+                ('id', '!=', record.id),
+            ], limit=1)
+            if others:
+                raise ValidationError(_(
+                    "Phase '%s' is already mapped as type '%s'; all entries "
+                    "of a phase must share the same Odoo type.",
+                    record.phase, others.odoo_type,
                 ))
 
     @api.constrains('phase', 'is_default_for_phase')
@@ -94,6 +134,27 @@ class EviePhaseStageMap(models.Model):
                 label += f" / {record.odoo_stage_id.name}"
             record.display_name = label
 
+
+    # ------------------------------------------------------------------
+    # Lane subtitles for the Evie Pipeline kanban
+    # ------------------------------------------------------------------
+
+    @api.model
+    def stage_subtitles(self):
+        """Return {phase: [stage names, default first]} for active entries
+        with a stage — the subtitle source for the Evie Pipeline kanban
+        lane headers (sales-accepted-phase-funnel-mapping)."""
+        entries = self.search(
+            [('odoo_stage_id', '!=', False)], order='phase, id')
+        subtitles = {}
+        for entry in entries:
+            names = subtitles.setdefault(entry.phase, [])
+            name = entry.odoo_stage_id.name
+            if entry.is_default_for_phase:
+                names.insert(0, name)
+            else:
+                names.append(name)
+        return subtitles
 
     # ------------------------------------------------------------------
     # Lookup helpers (used by crm.lead automation paths)
