@@ -20,14 +20,19 @@
  *     <widget name="evie_capsule_documents"/>
  */
 
-import { Component, onWillStart, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { formatDateTime } from "@web/core/l10n/dates";
+import { browser } from "@web/core/browser/browser";
 import { _t } from "@web/core/l10n/translation";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 
 const { DateTime } = luxon;
+
+// Transient "Copied" feedback on the copy tracked link button
+// (copy-tracked-document-link).
+const COPIED_FEEDBACK_MS = 2000;
 
 const FILE_ICONS = {
     pdf: "fa-file-pdf-o",
@@ -74,8 +79,11 @@ export class EvieCapsuleDocuments extends Component {
             openingPicker: false,
             savingShare: null,
             unlinking: null,
+            copying: null,
+            copied: null,
         });
         this.loading = false;
+        this._copiedTimer = null;
 
         onWillStart(() => this.load(this.props));
         onWillUpdateProps((next) => {
@@ -86,6 +94,11 @@ export class EvieCapsuleDocuments extends Component {
             }
         });
         useExternalListener(window, "focus", () => this.load(this.props));
+        onWillUnmount(() => {
+            if (this._copiedTimer) {
+                browser.clearTimeout(this._copiedTimer);
+            }
+        });
     }
 
     async load(props) {
@@ -125,6 +138,27 @@ export class EvieCapsuleDocuments extends Component {
         // The shared-in-outreach flag only makes sense on activities
         // (tracked-document-links): outreach is composed per activity.
         return this.props.resModel === "mail.activity";
+    }
+
+    // The copy tracked link button lives in the same activity-only
+    // context as the share flag; the document must also be shareable
+    // (copy-tracked-document-link).
+    showCopy(document) {
+        return this.showShare && Boolean(document.shareable);
+    }
+
+    viewCountLabel(document) {
+        const count = document.tracked_link?.view_count || 0;
+        return count === 1 ? _t("1 view") : _t("%s views", count);
+    }
+
+    lastViewedTitle(document) {
+        const at = document.tracked_link?.last_viewed_at;
+        if (!at) {
+            return _t("Not viewed yet");
+        }
+        const value = DateTime.fromISO(at, { zone: "utc" });
+        return value.isValid ? _t("Last viewed: %s", formatDateTime(value)) : "";
     }
 
     get showActions() {
@@ -193,6 +227,44 @@ export class EvieCapsuleDocuments extends Component {
             },
             cancel: () => {},
         });
+    }
+
+    async copyTrackedLink(document) {
+        // Copy the document's tracked short link, minting it on first use
+        // (copy-tracked-document-link). The counters appear in the row as
+        // soon as the alias exists.
+        if (this.state.copying) {
+            return;
+        }
+        this.state.copying = document.relation_id;
+        try {
+            if (!document.tracked_link?.short_url) {
+                const result = await this.orm.call(
+                    "evie.capsule.documents", "copy_tracked_link",
+                    [this.props.resModel, this.props.resId, document.relation_id,
+                        this.props.capsuleIdField || "x_evie_capsule_id"]);
+                document.tracked_link = {
+                    short_url: result.short_url,
+                    view_count: result.view_count || 0,
+                    last_viewed_at: result.last_viewed_at || null,
+                };
+            }
+            await navigator.clipboard.writeText(document.tracked_link.short_url);
+            this.state.copied = document.relation_id;
+            if (this._copiedTimer) {
+                browser.clearTimeout(this._copiedTimer);
+            }
+            this._copiedTimer = browser.setTimeout(() => {
+                this.state.copied = null;
+                this._copiedTimer = null;
+            }, COPIED_FEEDBACK_MS);
+        } catch (error) {
+            this.notification.add(
+                error.data?.message || _t("Could not copy the tracked link."),
+                { type: "danger" });
+        } finally {
+            this.state.copying = null;
+        }
     }
 
     async toggleShared(document) {

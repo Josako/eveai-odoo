@@ -402,6 +402,54 @@ $o-evie-lilac: #9c8ae1;
     white-space: nowrap;
 }
 
+// Copy tracked link: same card chrome as unlink, Evie purple accent
+// (copy-tracked-document-link).
+.o_evie_documents__copy {
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 4.25rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: $o-view-background-color;
+    color: $text-muted;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.15;
+    transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+
+    > .fa {
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+        color: $o-evie-purple;
+        border-color: rgba($o-evie-purple, 0.4);
+        background: rgba($o-evie-purple, 0.06);
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: progress;
+    }
+}
+
+.o_evie_documents__copy-label {
+    white-space: nowrap;
+}
+
+// View counter of a tracked link (copy-tracked-document-link).
+.o_evie_documents__views {
+    font-variant-numeric: tabular-nums;
+}
+
 .o_evie_documents__actions {
     margin-top: 0.75rem;
 }

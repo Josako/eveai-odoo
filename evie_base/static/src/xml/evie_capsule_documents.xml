@@ -31,9 +31,26 @@
                                 <span class="o_evie_documents__meta">
                                     <t t-esc="formatDate(document)"/>
                                     <t t-if="document.processing"> · processing…</t>
+                                    <span t-if="document.tracked_link" class="o_evie_documents__views"
+                                          t-att-title="lastViewedTitle(document)">
+                                         · <t t-esc="viewCountLabel(document)"/>
+                                    </span>
                                 </span>
                             </span>
                             <i class="fa fa-external-link o_evie_documents__open" role="img" aria-hidden="true"/>
+                        </button>
+                        <button t-if="showCopy(document)" type="button"
+                                class="o_evie_documents__copy"
+                                title="Copy tracked link"
+                                aria-label="Copy tracked link"
+                                t-att-disabled="state.copying ? true : null"
+                                t-on-click="() => this.copyTrackedLink(document)">
+                            <i t-attf-class="fa {{ state.copying === document.relation_id ? 'fa-circle-o-notch fa-spin' : (state.copied === document.relation_id ? 'fa-check' : 'fa-link') }}"
+                               role="img" aria-hidden="true"/>
+                            <span class="o_evie_documents__copy-label">
+                                <t t-if="state.copied === document.relation_id">Copied</t>
+                                <t t-else="">Copy link</t>
+                            </span>
                         </button>
                         <button t-if="showActions" type="button"
                                 class="o_evie_documents__unlink"

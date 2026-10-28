@@ -133,6 +133,31 @@ class EvieCapsuleDocuments(models.AbstractModel):
         return True
 
     @api.model
+    def copy_tracked_link(self, res_model, res_id, relation_id,
+                          capsule_id_field=None):
+        """Mint or reuse the tracked short link of one of the record's
+        document relations (copy-tracked-document-link) and return it.
+
+        Only meaningful for activity records: Evie rejects the mint for
+        anything but a CRM_ACTIVITY logged on an active lead. Returns the
+        mint response (short URL + view counters); raises on Evie failures
+        so the widget can notify.
+        """
+        result = self.get_documents(res_model, res_id, capsule_id_field)
+        if not result['ok']:
+            raise UserError(_("Evie is unreachable; try again in a moment."))
+        if not any(document['relation_id'] == int(relation_id)
+                   for document in result['documents']):
+            raise UserError(_("This document is not linked to the record."))
+        ok, data = self.env['evie.webhook'].post_for_json(
+            '/capsule-document-shortlink', {'relation_id': int(relation_id)})
+        if not ok:
+            _logger.warning("Evie tracked link mint failed for relation %s: %s",
+                            relation_id, data)
+            raise UserError(_("Could not create the tracked link (%s).") % data)
+        return data
+
+    @api.model
     def set_shared_in_outreach(self, res_model, res_id, relation_id, shared,
                                capsule_id_field=None):
         """Toggle the shared-in-outreach flag on one of the record's
