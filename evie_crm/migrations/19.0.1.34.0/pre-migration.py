@@ -85,7 +85,7 @@ def migrate(cr, version):
     cr.execute(
         """
         INSERT INTO ir_model_data (module, name, model, res_id, noupdate,
-                                   date_init, date_update)
+                                   create_date, write_date)
         VALUES ('evie_crm', %s, 'evie.phase_stage_map', %s, TRUE,
                 NOW() AT TIME ZONE 'UTC', NOW() AT TIME ZONE 'UTC')
         """,
