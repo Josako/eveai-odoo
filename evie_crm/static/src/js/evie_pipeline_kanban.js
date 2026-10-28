@@ -9,44 +9,35 @@
  * (default stage first). Lead phases and stages without a mapping render
  * without a subtitle.
  *
- * The subtitle map is fetched once per page load (module-level promise) —
- * mapping edits surface on the next board reload, which matches how often an
- * admin touches the mapping.
+ * The subtitle map is fetched once per board mount by the renderer into a
+ * shared reactive store; headers read it synchronously. Doing this in a
+ * per-header onWillStart deadlocks the kanban's own render/update cycle
+ * (silent blank board — verified on Odoo 19), so the async work lives one
+ * level up.
  *
  * Odoo 19 note: the kanban column header lives in `KanbanHeader`
  * (`web.KanbanHeader` template); there is no separate KanbanColumn component
  * any more.
  */
 
-import { onWillStart, useState } from "@odoo/owl";
+import { onWillStart, reactive } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 import { kanbanView } from "@web/views/kanban/kanban_view";
 import { KanbanHeader } from "@web/views/kanban/kanban_header";
 import { KanbanRenderer } from "@web/views/kanban/kanban_renderer";
 
-let subtitlesPromise = null;
-
-function loadStageSubtitles(orm) {
-    subtitlesPromise ||= orm.call("evie.phase_stage_map", "stage_subtitles", []);
-    return subtitlesPromise;
-}
+// Shared reactive store, (re)filled by the renderer on each board mount.
+// Read during header rendering, so subtitles appear as soon as the RPC lands.
+const subtitleStore = reactive({ map: {} });
 
 export class EviePipelineKanbanHeader extends KanbanHeader {
     static template = "evie_crm.EviePipelineKanbanHeader";
 
-    setup() {
-        super.setup();  // provides this.orm among others
-        this.subtitleState = useState({ subtitle: "" });
-        onWillStart(async () => {
-            const subtitles = await loadStageSubtitles(this.orm);
-            const value = this.props.group && this.props.group.value;
-            const names = (value && subtitles[value]) || [];
-            this.subtitleState.subtitle = names.join(" · ");
-        });
-    }
-
     get stageSubtitle() {
-        return this.subtitleState.subtitle;
+        const value = this.props.group && this.props.group.value;
+        const names = (value && subtitleStore.map[value]) || [];
+        return names.join(" · ");
     }
 }
 
@@ -55,6 +46,15 @@ export class EviePipelineKanbanRenderer extends KanbanRenderer {
         ...KanbanRenderer.components,
         KanbanHeader: EviePipelineKanbanHeader,
     };
+
+    setup() {
+        super.setup();
+        this.orm = useService("orm");
+        onWillStart(async () => {
+            subtitleStore.map = await this.orm.call(
+                "evie.phase_stage_map", "stage_subtitles", []);
+        });
+    }
 }
 
 export const eviePipelineKanbanView = {
