@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
     <!-- Evie Pipeline lane header: native phase title plus the mapped Odoo
-         stage name(s) as a muted subtitle (sales-accepted-phase-funnel-mapping). -->
-    <t t-name="evie_crm.EviePipelineKanbanColumn"
-       t-inherit="web.KanbanColumn" t-inherit-mode="extension">
+         stage name(s) as a muted subtitle (sales-accepted-phase-funnel-mapping).
+         Inherits the Odoo 19 web.KanbanHeader template. -->
+    <t t-name="evie_crm.EviePipelineKanbanHeader"
+       t-inherit="web.KanbanHeader" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('o_kanban_header_title')]" position="after">
             <div t-if="stageSubtitle"
                  class="o_evie_stage_subtitle small text-muted text-truncate"

@@ -13,15 +13,15 @@
  * mapping edits surface on the next board reload, which matches how often an
  * admin touches the mapping.
  *
- * Written against the Odoo 19 kanban internals (`web.KanbanColumn` template,
- * `@web/views/kanban/*` export paths); smoke-checked per module upgrade.
+ * Odoo 19 note: the kanban column header lives in `KanbanHeader`
+ * (`web.KanbanHeader` template); there is no separate KanbanColumn component
+ * any more.
  */
 
 import { onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { useService } from "@web/core/utils/hooks";
 import { kanbanView } from "@web/views/kanban/kanban_view";
-import { KanbanColumn } from "@web/views/kanban/kanban_column";
+import { KanbanHeader } from "@web/views/kanban/kanban_header";
 import { KanbanRenderer } from "@web/views/kanban/kanban_renderer";
 
 let subtitlesPromise = null;
@@ -31,12 +31,11 @@ function loadStageSubtitles(orm) {
     return subtitlesPromise;
 }
 
-export class EviePipelineKanbanColumn extends KanbanColumn {
-    static template = "evie_crm.EviePipelineKanbanColumn";
+export class EviePipelineKanbanHeader extends KanbanHeader {
+    static template = "evie_crm.EviePipelineKanbanHeader";
 
     setup() {
-        super.setup();
-        this.orm = useService("orm");
+        super.setup();  // provides this.orm among others
         this.subtitleState = useState({ subtitle: "" });
         onWillStart(async () => {
             const subtitles = await loadStageSubtitles(this.orm);
@@ -54,7 +53,7 @@ export class EviePipelineKanbanColumn extends KanbanColumn {
 export class EviePipelineKanbanRenderer extends KanbanRenderer {
     static components = {
         ...KanbanRenderer.components,
-        KanbanColumn: EviePipelineKanbanColumn,
+        KanbanHeader: EviePipelineKanbanHeader,
     };
 }
 
