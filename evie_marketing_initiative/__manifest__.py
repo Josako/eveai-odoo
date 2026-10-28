@@ -1,6 +1,6 @@
 {
     'name': 'Evie Marketing Initiative',
-    'version': '19.0.1.10.0',
+    'version': '19.0.1.11.0',
     'category': 'Marketing',
     'summary': 'Mirror models for Evie marketing initiatives, channels, capture forms and captures',
     'description': """
@@ -65,6 +65,11 @@ models.
   directions with the capsule's CHANNEL_ASSIGNS_LEAD_TO relation via the
   assignee contract; the rule steers future lead creation only. On the
   channel form's Definition group and on the upsert automation watchlist
+
+* Kanban lanes (1.11.0): the initiative board always shows all five
+  state lanes — Draft, Planned, Active, Completed, Archived — in
+  lifecycle order, including empty lanes (``group_expand`` on the
+  selection, the ``x_evie_phase`` precedent in evie_crm)
 
 The sync itself (field mappings, per-field ownership, UTM
 materialisation, reconciliation) lives Evie-side in the ODOO_CRM

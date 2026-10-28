@@ -43,7 +43,12 @@ class MarketingInitiative(models.Model):
     state = fields.Selection(
         [('draft', 'Draft'), ('planned', 'Planned'), ('active', 'Active'),
          ('completed', 'Completed'), ('archived', 'Archived')],
-        string='State', default='draft', tracking=True)
+        string='State', default='draft', tracking=True,
+        # Kanban expansion: one lane per state, in definition (= lifecycle)
+        # order, including empty lanes — without it read_group orders the
+        # selection alphabetically by key and hides empty columns (the
+        # x_evie_phase precedent in evie_crm).
+        group_expand=True)
     description = fields.Text(string='Description')
     user_id = fields.Many2one(
         'res.users', string='Owner', tracking=True,

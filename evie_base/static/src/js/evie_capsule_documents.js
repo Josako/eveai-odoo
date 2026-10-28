@@ -249,7 +249,7 @@ export class EvieCapsuleDocuments extends Component {
                     last_viewed_at: result.last_viewed_at || null,
                 };
             }
-            await navigator.clipboard.writeText(document.tracked_link.short_url);
+            await this.writeClipboardText(document.tracked_link.short_url);
             this.state.copied = document.relation_id;
             if (this._copiedTimer) {
                 browser.clearTimeout(this._copiedTimer);
@@ -259,11 +259,36 @@ export class EvieCapsuleDocuments extends Component {
                 this._copiedTimer = null;
             }, COPIED_FEEDBACK_MS);
         } catch (error) {
+            browser.console.error("Evie copy tracked link failed:", error);
             this.notification.add(
                 error.data?.message || _t("Could not copy the tracked link."),
                 { type: "danger" });
         } finally {
             this.state.copying = null;
+        }
+    }
+
+    async writeClipboardText(text) {
+        // The Clipboard API only exists in secure contexts (HTTPS or
+        // localhost); over plain HTTP fall back to the hidden-textarea
+        // trick. Note: the method argument is named `document`, so the DOM
+        // document is reached through `window.document` here.
+        if (window.isSecureContext && window.navigator.clipboard) {
+            await window.navigator.clipboard.writeText(text);
+            return;
+        }
+        const textarea = window.document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        window.document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            if (!window.document.execCommand("copy")) {
+                throw new Error("execCommand('copy') was rejected");
+            }
+        } finally {
+            textarea.remove();
         }
     }
 
