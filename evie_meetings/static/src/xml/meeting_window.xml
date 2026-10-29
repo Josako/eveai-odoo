@@ -592,8 +592,30 @@
                                                             <span t-if="segment.speaker" class="o_evie_meeting__segment-speaker"><t t-foreach="segment.speakerParts" t-as="part" t-key="part_index"><mark t-if="part.match >= 0"
                                                                 t-att-class="'o_evie_meeting__mark' + (isCurrentMatch(segment.index, part.match, true) ? ' is-current' : '')"
                                                                 t-att-data-match="matchKey(segment.index, part.match, true)" t-esc="part.text"/><t t-else="" t-esc="part.text"/></t></span>
+                                                            <button t-if="canEditTranscript and state.editingSegment !== segment.index" type="button"
+                                                                    class="btn btn-sm btn-link o_evie_meeting__segment-edit"
+                                                                    title="Edit this part" aria-label="Edit this part"
+                                                                    t-att-disabled="state.savingSegment or state.replacing"
+                                                                    t-on-click="() => this.startSegmentEdit(segment)">
+                                                                <i class="fa fa-pencil" aria-hidden="true"/>
+                                                            </button>
                                                         </div>
-                                                        <p class="o_evie_meeting__segment-text"><t t-foreach="segment.parts" t-as="part" t-key="part_index"><mark t-if="part.match >= 0"
+                                                        <div t-if="state.editingSegment === segment.index" class="o_evie_meeting__segment-editor">
+                                                            <textarea class="form-control form-control-sm" rows="3" maxlength="5000"
+                                                                      aria-label="Transcript text" t-ref="segmentEditor"
+                                                                      t-model="state.segmentDraft"
+                                                                      t-att-disabled="state.savingSegment"
+                                                                      t-on-keydown="onSegmentEditorKeydown"/>
+                                                            <div class="d-flex justify-content-end gap-2 mt-1">
+                                                                <button type="button" class="btn btn-sm btn-link"
+                                                                        t-att-disabled="state.savingSegment"
+                                                                        t-on-click="() => this.cancelSegmentEdit()">Cancel</button>
+                                                                <button type="button" class="btn btn-sm btn-primary"
+                                                                        t-att-disabled="state.savingSegment or !state.segmentDraft.trim() or state.segmentDraft.trim() === segment.text"
+                                                                        t-on-click="() => this.saveSegmentEdit()">Save</button>
+                                                            </div>
+                                                        </div>
+                                                        <p t-else="" class="o_evie_meeting__segment-text"><t t-foreach="segment.parts" t-as="part" t-key="part_index"><mark t-if="part.match >= 0"
                                                             t-att-class="'o_evie_meeting__mark' + (isCurrentMatch(segment.index, part.match) ? ' is-current' : '')"
                                                             t-att-data-match="matchKey(segment.index, part.match)" t-esc="part.text"/><t t-else="" t-esc="part.text"/></t></p>
                                                     </li>

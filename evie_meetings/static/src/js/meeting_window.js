@@ -195,6 +195,9 @@ export class MeetingWindow extends Component {
             replaceWith: "",
             matchIndex: 0,
             replacing: false,
+            editingSegment: null,
+            segmentDraft: "",
+            savingSegment: false,
             transcriptStatus: "",
             transcriptStatusError: false,
             speaking: null, // { documentId, segment, loading }
@@ -208,6 +211,7 @@ export class MeetingWindow extends Component {
         this.planPollTimer = null;
         this.liveInput = useRef("liveNoteInput");
         this.transcriptList = useRef("transcriptList");
+        this.segmentEditor = useRef("segmentEditor");
         this.speechUrls = new Map();
         this.speechAudio = null;
         this.speechToken = 0;
@@ -674,6 +678,7 @@ export class MeetingWindow extends Component {
     selectRecording(recording) {
         this.state.selectedId = recording.document_id;
         this.state.matchIndex = 0;
+        this.cancelSegmentEdit();
         this.setTranscriptStatus("");
         this.stopSpeaking();
         this.ensureSelectedLoaded();
@@ -895,6 +900,54 @@ export class MeetingWindow extends Component {
             this.setTranscriptStatus(errorMessage(error), true);
         } finally {
             this.state.replacing = false;
+        }
+    }
+
+    startSegmentEdit(segment) {
+        this.state.editingSegment = segment.index;
+        this.state.segmentDraft = segment.text;
+        this.setTranscriptStatus("");
+        browser.requestAnimationFrame(() => this.segmentEditor.el?.focus());
+    }
+
+    cancelSegmentEdit() {
+        this.state.editingSegment = null;
+        this.state.segmentDraft = "";
+    }
+
+    onSegmentEditorKeydown(ev) {
+        if (ev.key === "Escape") {
+            ev.preventDefault();
+            this.cancelSegmentEdit();
+        } else if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) {
+            ev.preventDefault();
+            this.saveSegmentEdit();
+        }
+    }
+
+    async saveSegmentEdit() {
+        const documentId = this.state.selectedId;
+        const segment = this.selectedTranscript?.segments?.find((s) => s.index === this.state.editingSegment);
+        const text = this.state.segmentDraft.trim();
+        if (!segment || !text || text === segment.text || this.state.savingSegment) {
+            return;
+        }
+        this.state.savingSegment = true;
+        this.setTranscriptStatus("");
+        try {
+            const data = await this.orm.silent.call(MODEL, "evie_meeting_edit_transcript_segment", [
+                [this.activityId],
+                documentId,
+                segment.index,
+                text,
+            ]);
+            this.applyTranscriptContent(documentId, data);
+            this.cancelSegmentEdit();
+            this.setTranscriptStatus(_t("Transcript updated."));
+        } catch (error) {
+            this.setTranscriptStatus(errorMessage(error), true);
+        } finally {
+            this.state.savingSegment = false;
         }
     }
 

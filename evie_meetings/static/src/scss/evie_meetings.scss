@@ -498,6 +498,38 @@ $evie-recording-red: #e03131;
         overflow-wrap: anywhere;
     }
 
+    &__segment-edit {
+        margin-left: auto;
+        padding: 0 0.3rem;
+        color: var(--text-muted, #6c757d);
+        opacity: 0;
+        transition: opacity 0.15s ease;
+
+        &:hover,
+        &:focus-visible {
+            color: $evie-purple;
+        }
+    }
+
+    &__segment:hover &__segment-edit,
+    &__segment-edit:focus-visible {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        &__segment-edit {
+            opacity: 1;
+        }
+    }
+
+    &__segment-editor {
+        margin-left: 2.05rem;
+
+        textarea {
+            resize: vertical;
+        }
+    }
+
     &__mark {
         padding: 0 0.1em;
         border-radius: 0.2em;

@@ -269,6 +269,16 @@ class MailActivity(models.Model):
             'occurrence': occurrence,
         })
 
+    def evie_meeting_edit_transcript_segment(self, document_id, segment, text):
+        """Rewrite the spoken text of one transcript fragment."""
+        activity = self._evie_meeting_activity('write')
+        return activity._evie_meeting_call('/meeting/transcript/segment', {
+            'capsule_id': activity._evie_meeting_capsule_id(),
+            'document_id': int(document_id),
+            'segment': int(segment),
+            'text': text or '',
+        })
+
     def evie_meeting_speak_segment(self, document_id, segment):
         """One transcript fragment read aloud by Evie ({audio_base64, mime_type})."""
         activity = self._evie_meeting_activity()
