@@ -86,6 +86,15 @@
                            invisible="not x_evie_capsule_id">
                         <widget name="evie_capsule_documents" colspan="2"/>
                     </group>
+                    <!-- External web references linked to the lead's capsule
+                         (odoo-lead-linked-urls): read-only listing, rows
+                         open the external URL in a new tab. Sits right after
+                         the linked documents, before the consent plumbing. -->
+                    <group string="Linked URLs" name="evie_linked_urls"
+                           class="o_evie_card" colspan="2"
+                           invisible="not x_evie_capsule_id">
+                        <widget name="evie_capsule_urls" colspan="2"/>
+                    </group>
                     <!-- Marketing opt-in (privacy-lead-capture): the only
                          consent control, as first-class consent data. -->
                     <group string="Consent" name="evie_consent" class="o_evie_card">

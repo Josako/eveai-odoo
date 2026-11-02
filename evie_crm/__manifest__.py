@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.34.0',
+    'version': '19.0.1.35.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -99,6 +99,13 @@ Everything Evie adds to Odoo CRM:
   Personal link group of the lead form, watched by the lead upsert
   automation, and synced inbound-only to Evie (mapping
   CRM_LEAD_ODOO_CRM 1.12.0)
+
+* Linked URLs (odoo-lead-linked-urls, requires evie_base 19.0.1.46.0):
+  a read-only "Linked URLs" group on the lead's Evie tab listing the URL
+  capsules linked to the lead's capsule (CRM_ENTITY_HAS_URL) — label, kind
+  and source, each row opening the external reference in a new tab; the
+  listing is fetched live from Evie and refreshes on window focus, like
+  the linked documents above it
 
 * Evie form branding (odoo-evie-form-branding): the activity popup shows
   the same recognisable Evie section as the lead's Evie tab —

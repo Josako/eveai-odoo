@@ -836,3 +836,95 @@ $o-evie-lilac: #9c8ae1;
         }
     }
 }
+
+// EvieCapsuleUrls (odoo-lead-linked-urls): read-only external link rows,
+// same card chrome as the linked documents rows.
+.o_evie_urls__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.o_evie_urls__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    background: $o-view-background-color;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s, background-color 0.15s;
+
+    &:hover,
+    &:focus-visible {
+        border-color: $o-evie-lilac;
+        background: rgba($o-evie-lilac, 0.06);
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+.o_evie_urls__icon {
+    flex: 0 0 auto;
+    margin-top: 0.15rem;
+    color: $o-evie-purple;
+}
+
+.o_evie_urls__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.o_evie_urls__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.o_evie_urls__name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.o_evie_urls__kind {
+    flex: 0 0 auto;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: rgba($o-evie-lilac, 0.14);
+    border: 1px solid rgba($o-evie-purple, 0.22);
+    color: #334155;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.o_evie_urls__meta {
+    color: $text-muted;
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.o_evie_urls__open {
+    flex: 0 0 auto;
+    color: $text-muted;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    margin-top: 0.2rem;
+    transition: opacity 0.15s;
+
+    .o_evie_urls__item:hover & {
+        opacity: 1;
+    }
+}
