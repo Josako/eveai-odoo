@@ -113,8 +113,10 @@ class EvieActions(models.AbstractModel):
         ``lang`` travels along so the popup speaks the user's language.
         Returns the endpoint's result data on success — for interactive
         actions that is ``{'kind': 'chat'|'form', 'url', ...}`` (the popup
-        URL to open); raises ``UserError`` with the endpoint's message on
-        failure so the user sees a meaningful dialog.
+        URL to open); for an unresolvable multi-specialist pool it is
+        ``{'choice_required': True, 'specialists': [...]}`` (the widget
+        offers the picker and re-executes); raises ``UserError`` with the
+        endpoint's message on failure so the user sees a meaningful dialog.
         """
         user = self.env.user
         payload = {
@@ -137,6 +139,17 @@ class EvieActions(models.AbstractModel):
         ok, data = self.env['evie.webhook'].post_for_json('/action-execute', payload)
         if not ok:
             raise UserError(_("Could not execute the Evie action: %s") % data)
+        # Selector-first specialist flow (odoo-selector-first-specialist-
+        # flow): the platform could not resolve a specialist (pool > 1, no
+        # selector rule matched) — not an error, but a question. Pass the
+        # candidates through; the widget opens the picker and re-executes
+        # with the chosen specialist_id.
+        if isinstance(data, dict) and data.get('choice_required'):
+            _logger.info(
+                "Evie action %s requires a specialist choice (remote id %s)",
+                action_type, remote_id)
+            return {'choice_required': True,
+                    'specialists': data.get('specialists') or []}
         # Interactive actions (interactive-activity-proposal-entry-points,
         # capture-form-action, odoo-external-capture-review): the endpoint
         # returned a popup URL instead of enqueueing a background run — pass

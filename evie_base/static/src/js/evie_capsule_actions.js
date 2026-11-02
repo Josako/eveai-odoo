@@ -70,6 +70,14 @@ export class EvieSpecialistDialog extends Component {
         });
     }
 
+    onSpecialistChange(ev) {
+        // parseInt lives in component code: bare identifiers in OWL
+        // template expressions resolve against the component context, so
+        // global functions are undefined there (compiled to
+        // ctx['parseInt'] — the "v2 is not a function" crash).
+        this.state.specialistId = parseInt(ev.target.value, 10);
+    }
+
     onConfirm() {
         this.props.onConfirm(this.state.specialistId);
         this.props.close();
@@ -329,22 +337,12 @@ export class EvieCapsuleActions extends Component {
         if (this.isDisabled(action)) {
             return;
         }
-        // Interactive actions resolve their specialist per capsule (the
-        // activity type's item configuration) — no picker.
-        if (this.isInteractive(action)) {
-            await this._execute(action, null);
-            return;
-        }
-        const specialists = action.specialists || [];
-        if (specialists.length > 1) {
-            this.dialogService.add(EvieSpecialistDialog, {
-                title: action.text,
-                specialists,
-                onConfirm: (specialistId) => this._execute(action, specialistId),
-            });
-        } else {
-            await this._execute(action, null);
-        }
+        // Selector-first specialist flow (odoo-selector-first-specialist-
+        // flow): never offer a pre-emptive choice. The platform resolves
+        // the specialist through the shared ladder (explicit id -> single
+        // active -> selector rules); only when it answers choice_required
+        // does the picker open as the fallback (see _execute).
+        await this._execute(action, null);
     }
 
     async _execute(action, specialistId) {
@@ -358,6 +356,17 @@ export class EvieCapsuleActions extends Component {
                     remote_id: this.remoteId || null,
                     specialist_id: specialistId,
                 });
+            if (data && data.choice_required) {
+                // Pool > 1 and no selector rule matched this capsule: the
+                // picker is the fallback, mirroring the Evie UI's
+                // specialist_choice_required flow. Nothing was started.
+                this.dialogService.add(EvieSpecialistDialog, {
+                    title: action.text,
+                    specialists: data.specialists || [],
+                    onConfirm: (chosenId) => this._execute(action, chosenId),
+                });
+                return;
+            }
             if (data && POPUP_WINDOWS[data.kind] && data.url) {
                 window.open(data.url, POPUP_WINDOWS[data.kind], "width=520,height=720,popup=yes");
                 return;
