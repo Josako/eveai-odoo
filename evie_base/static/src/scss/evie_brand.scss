@@ -67,6 +67,119 @@
 $o-evie-purple: #99498f;
 $o-evie-lilac: #9c8ae1;
 
+// Form sheet (every form view, md and up; dialogs and mobile keep the core
+// look): a softly rounded card with a light shadow. Layout and spacing stay
+// Odoo's own.
+.o_action_manager .o_form_view .o_form_sheet_bg > .o_form_sheet {
+    @include media-breakpoint-up(md) {
+        --formView-sheet-border-radius-md: 0.85rem;
+        border-color: rgba($o-evie-purple, 0.14);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -14px rgba($o-evie-purple, 0.28);
+    }
+
+    .oe_title h1 {
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+    .o_horizontal_separator {
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba($o-evie-lilac, 0.35);
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: $o-evie-purple;
+    }
+
+    // Inputs: every editable input, select and textarea of the sheet is the
+    // same soft rounded box (styled on the input itself, so it holds for any
+    // widget: char, address lines, email, many2one, date, selection, tags,
+    // ...). Read-only values get the same inner padding so their text starts
+    // where typed text starts. Editable lists keep Odoo's own cells.
+    $o-evie-input-pad-y: 0.35rem;
+    $o-evie-input-pad-x: 0.65rem;
+
+    .o_inner_group {
+        @include media-breakpoint-up(md) {
+            --inner-group-row-gap: 0.6rem;
+        }
+
+        .o_wrap_label .o_form_label {
+            padding-top: calc(#{$o-evie-input-pad-y} + 1px);
+            color: $gray-600;
+            font-weight: 500;
+        }
+
+        .o_wrap_input > .o_field_widget.o_readonly_modifier {
+            padding: calc(#{$o-evie-input-pad-y} + 1px) calc(#{$o-evie-input-pad-x} + 1px);
+        }
+    }
+
+    input.o_input,
+    textarea.o_input,
+    select.o_input {
+        border: 1px solid $border-color;
+        border-radius: 0.5rem;
+        padding: $o-evie-input-pad-y $o-evie-input-pad-x;
+        background-color: rgba($o-evie-lilac, 0.05);
+        transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+
+        &:hover {
+            border-color: rgba($o-evie-lilac, 0.75);
+        }
+
+        &:focus {
+            border-color: $o-evie-purple;
+            background-color: $o-view-background-color;
+            box-shadow: 0 0 0 3px rgba($o-evie-purple, 0.14);
+            outline: none;
+        }
+    }
+
+    .o_required_modifier {
+        input.o_input,
+        textarea.o_input,
+        select.o_input {
+            border-color: rgba($o-evie-purple, 0.45);
+        }
+    }
+
+    .o_field_invalid {
+        input.o_input,
+        textarea.o_input,
+        select.o_input {
+            border-color: map-get($theme-colors, 'danger');
+            background-color: $o-input-invalid-bg;
+        }
+    }
+
+    .oe_title,
+    .o_list_renderer {
+        input.o_input,
+        textarea.o_input,
+        select.o_input {
+            border: 0;
+            border-radius: 0;
+            padding: $o-input-padding-y $o-input-padding-x;
+            background-color: transparent;
+            box-shadow: none;
+        }
+    }
+
+    .o_notebook .nav-tabs .nav-link {
+        transition: color 0.15s, box-shadow 0.15s;
+
+        &:hover {
+            color: $o-evie-purple;
+        }
+
+        &.active {
+            color: $o-evie-purple;
+            box-shadow: inset 0 -2px 0 $o-evie-purple;
+        }
+    }
+}
+
 .o_form_view {
     .o_evie_card {
         margin: 0 0 1rem;

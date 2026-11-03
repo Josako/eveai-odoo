@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.48.0',
+    'version': '19.0.1.49.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -25,6 +25,12 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   notebook tab branding (pure CSS on the core ``[name]`` tab hook) and
   the ``evie_brand_header`` view widget (odoo-evie-form-branding) for
   forms without a core notebook, where Odoo hides a single tab
+* An Evie-styled form sheet on every form view (1.49.0, md and up, not in
+  dialogs): rounded card with a soft shadow; every input, select and
+  textarea of the sheet is the same soft rounded box (lilac hover, purple
+  focus ring, purple border on required fields; titles and editable lists
+  keep Odoo's style), read-only values padded to the same text start,
+  purple section headings and active notebook tabs
 * The generic ``evie_actions`` field widget (odoo-capsule-actions): renders
   the data capsule actions discovered live from Evie for the record's
   capsule type, with specialist selection and running-state feedback —
