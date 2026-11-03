@@ -12,7 +12,8 @@ import logging
 from odoo import _, api, models
 from odoo.exceptions import UserError
 
-from odoo.addons.evie_base.tools import evie_open_action, evie_record_capsule_id
+from odoo.addons.evie_base.tools import (
+    evie_check_record_write, evie_open_action, evie_record_can_write, evie_record_capsule_id)
 
 _logger = logging.getLogger(__name__)
 
@@ -22,14 +23,7 @@ class EvieCapsuleDocuments(models.AbstractModel):
     _description = 'Evie Capsule Documents'
 
     def _evie_check_write(self, res_model, res_id):
-        """The record when the user may write it, else raise."""
-        if res_model not in self.env or not res_id:
-            raise UserError(_("Unknown record."))
-        record = self.env[res_model].with_context(active_test=False).browse(int(res_id)).exists()
-        if not record:
-            raise UserError(_("The record no longer exists."))
-        record.check_access('write')
-        return record
+        return evie_check_record_write(self.env, res_model, res_id)
 
     @api.model
     def get_documents(self, res_model, res_id, capsule_id_field=None):
@@ -41,11 +35,7 @@ class EvieCapsuleDocuments(models.AbstractModel):
             dict: ``{'ok': bool, 'documents': [...], 'linked': bool,
             'can_write': bool}``
         """
-        can_write = False
-        if res_model in self.env and res_id:
-            record = self.env[res_model].with_context(
-                active_test=False).browse(int(res_id)).exists()
-            can_write = bool(record) and record.has_access('write')
+        can_write = evie_record_can_write(self.env, res_model, res_id)
         capsule_id = evie_record_capsule_id(self.env, res_model, res_id, capsule_id_field)
         if not capsule_id:
             return {'ok': True, 'documents': [], 'linked': False, 'can_write': can_write}

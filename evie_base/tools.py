@@ -35,6 +35,25 @@ def evie_record_capsule_id(env, res_model, res_id, capsule_id_field=None):
         raise UserError(_("This record has an invalid Evie link.")) from None
 
 
+def evie_record_can_write(env, res_model, res_id):
+    """Whether the current user may write the record (False when unknown)."""
+    if res_model not in env or not res_id:
+        return False
+    record = env[res_model].with_context(active_test=False).browse(int(res_id)).exists()
+    return bool(record) and record.has_access('write')
+
+
+def evie_check_record_write(env, res_model, res_id):
+    """The record when the current user may write it, else raise."""
+    if res_model not in env or not res_id:
+        raise UserError(_("Unknown record."))
+    record = env[res_model].with_context(active_test=False).browse(int(res_id)).exists()
+    if not record:
+        raise UserError(_("The record no longer exists."))
+    record.check_access('write')
+    return record
+
+
 def evie_open_action(env, kind, reference):
     """URL action opening an Evie entity of a registered kind in a new tab.
 

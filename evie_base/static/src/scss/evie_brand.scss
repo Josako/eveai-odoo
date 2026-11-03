@@ -347,12 +347,14 @@ $o-evie-lilac: #9c8ae1;
     gap: 0.15rem;
 }
 
-.o_evie_documents__line {
+.o_evie_documents__line,
+.o_evie_urls__line {
     display: flex;
     align-items: stretch;
     gap: 0.4rem;
 
-    .o_evie_documents__item {
+    .o_evie_documents__item,
+    .o_evie_urls__item {
         flex: 1 1 auto;
         min-width: 0;
     }
@@ -360,8 +362,9 @@ $o-evie-lilac: #9c8ae1;
 
 // Row unlink: stretches with the document card so the control reads as
 // part of the row (not a tiny pill beside a multi-line item). Soft muted
-// chrome; danger colour on hover.
-.o_evie_documents__unlink {
+// chrome; danger colour on hover. Shared by linked documents and URLs.
+.o_evie_documents__unlink,
+.o_evie_urls__unlink {
     display: inline-flex;
     flex: 0 0 auto;
     flex-direction: column;
@@ -398,7 +401,8 @@ $o-evie-lilac: #9c8ae1;
     }
 }
 
-.o_evie_documents__unlink-label {
+.o_evie_documents__unlink-label,
+.o_evie_urls__unlink-label {
     white-space: nowrap;
 }
 
@@ -450,37 +454,38 @@ $o-evie-lilac: #9c8ae1;
     font-variant-numeric: tabular-nums;
 }
 
-.o_evie_documents__actions {
+.o_evie_documents__actions,
+.o_evie_urls__actions {
     margin-top: 0.75rem;
 }
 
-// Link document: same card chrome as the rows, Evie purple accent.
-.o_evie_documents__link {
+// Link document / Link URL: solid Evie purple, white label and icon.
+.o_evie_documents__link,
+.o_evie_urls__link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    min-height: 2.35rem;
-    padding: 0.5rem 0.95rem;
-    border: 1px solid rgba($o-evie-purple, 0.35);
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    border: 0;
     border-radius: $border-radius-lg;
-    background: rgba($o-evie-purple, 0.05);
-    color: $o-evie-purple;
-    font-size: 0.875rem;
+    background: $o-evie-purple;
+    color: #fff;
+    font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.2;
-    transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+    transition: background-color 0.15s;
 
     > .fa {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         line-height: 1;
+        color: #fff;
     }
 
     &:hover:not(:disabled),
     &:focus-visible {
-        border-color: rgba($o-evie-purple, 0.55);
-        background: rgba($o-evie-purple, 0.12);
-        color: $o-evie-purple;
+        background: darken($o-evie-purple, 8%);
+        color: #fff;
     }
 
     &:disabled {
@@ -837,8 +842,9 @@ $o-evie-lilac: #9c8ae1;
     }
 }
 
-// EvieCapsuleUrls (odoo-lead-linked-urls): read-only external link rows,
-// same card chrome as the linked documents rows.
+// EvieCapsuleUrls (odoo-lead-linked-urls): external link rows, same card
+// chrome as the linked documents rows; the row unlink and Link URL buttons
+// share the linked documents' rules above.
 .o_evie_urls__list {
     display: flex;
     flex-direction: column;

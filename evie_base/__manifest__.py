@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.47.0',
+    'version': '19.0.1.48.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -47,11 +47,13 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   opened in the Evie document view; also the ``evie_capsule_documents``
   form view widget), backed by ``evie.actions.get_record_actions`` and
   ``evie.capsule.documents``
-* ``EvieCapsuleUrls`` (odoo-lead-linked-urls, 1.46.0): the read-only
-  counterpart for external web references — the URL capsules linked to the
-  record's capsule (CRM_ENTITY_HAS_URL) rendered as external links opening
-  in a new tab, via ``evie.capsule.urls`` and the ``evie_capsule_urls``
-  form view widget
+* ``EvieCapsuleUrls`` (odoo-lead-linked-urls, 1.46.0): the counterpart
+  for external web references — the URL capsules linked to the record's
+  capsule (CRM_ENTITY_HAS_URL) rendered as external links opening in a new
+  tab, via ``evie.capsule.urls`` and the ``evie_capsule_urls`` form view
+  widget. From 1.48.0 users who may write the record link a URL (dialog:
+  URL, label, kind) and unlink URLs, with the same Link / Unlink buttons
+  as the linked documents
 * The ``evie.capsule.link`` abstract mixin (odoo-marketing-adapter):
   reusable link state for mirror models (``capsule_id``,
   ``capsule_version``, ``capsule_url``, ``sync_state``,

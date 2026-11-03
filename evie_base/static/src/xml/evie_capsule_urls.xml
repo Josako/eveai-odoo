@@ -13,25 +13,76 @@
             <ul t-else="" class="o_evie_urls__list list-unstyled mb-0">
                 <li t-foreach="state.urls" t-as="entry" t-key="entry.relation_id"
                     class="o_evie_urls__row">
-                    <a t-att-href="entry.url" target="_blank" rel="noopener noreferrer"
-                       class="o_evie_urls__item"
-                       t-att-title="entry.url">
-                        <i class="fa fa-link o_evie_urls__icon" role="img" aria-hidden="true"/>
-                        <span class="o_evie_urls__body">
-                            <span class="o_evie_urls__head">
-                                <span class="o_evie_urls__name" t-esc="entry.label or entry.url"/>
-                                <span class="o_evie_urls__kind" t-esc="kindLabel(entry)"/>
+                    <div class="o_evie_urls__line">
+                        <a t-att-href="entry.url" target="_blank" rel="noopener noreferrer"
+                           class="o_evie_urls__item"
+                           t-att-title="entry.url">
+                            <i class="fa fa-link o_evie_urls__icon" role="img" aria-hidden="true"/>
+                            <span class="o_evie_urls__body">
+                                <span class="o_evie_urls__head">
+                                    <span class="o_evie_urls__name" t-esc="entry.label or entry.url"/>
+                                    <span class="o_evie_urls__kind" t-esc="kindLabel(entry)"/>
+                                </span>
+                                <span class="o_evie_urls__meta">
+                                    <t t-esc="entry.url"/>
+                                    · <t t-esc="sourceLabel(entry)"/>
+                                </span>
                             </span>
-                            <span class="o_evie_urls__meta">
-                                <t t-esc="entry.url"/>
-                                · <t t-esc="sourceLabel(entry)"/>
-                            </span>
-                        </span>
-                        <i class="fa fa-external-link o_evie_urls__open" role="img" aria-hidden="true"/>
-                    </a>
+                            <i class="fa fa-external-link o_evie_urls__open" role="img" aria-hidden="true"/>
+                        </a>
+                        <button t-if="showActions" type="button"
+                                class="o_evie_urls__unlink"
+                                title="Unlink from this record"
+                                aria-label="Unlink from this record"
+                                t-att-disabled="state.unlinking ? true : null"
+                                t-on-click="() => this.unlinkUrl(entry)">
+                            <i t-attf-class="fa {{ state.unlinking === entry.relation_id ? 'fa-circle-o-notch fa-spin' : 'fa-unlink' }}"
+                               role="img" aria-hidden="true"/>
+                            <span class="o_evie_urls__unlink-label">Unlink</span>
+                        </button>
+                    </div>
                 </li>
             </ul>
+            <div t-if="showActions" class="o_evie_urls__actions">
+                <button type="button" class="o_evie_urls__link" t-on-click="openLinkDialog">
+                    <i class="fa fa-link" role="img" aria-hidden="true"/>
+                    <span>Link URL</span>
+                </button>
+            </div>
         </div>
+    </t>
+
+    <t t-name="evie_base.EvieLinkUrlDialog">
+        <Dialog title="'Link URL'" size="'md'">
+            <div class="mb-3">
+                <label class="form-label" for="evie_link_url_url">URL</label>
+                <input id="evie_link_url_url" type="url" class="form-control"
+                       placeholder="https://"
+                       t-model="state.url"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="evie_link_url_label">Label</label>
+                <input id="evie_link_url_label" type="text" class="form-control"
+                       placeholder="e.g. Company website"
+                       t-model="state.label"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="evie_link_url_kind">Kind</label>
+                <select id="evie_link_url_kind" class="form-select" t-model="state.kind">
+                    <option t-foreach="kinds" t-as="kind" t-key="kind.value"
+                            t-att-value="kind.value" t-esc="kind.label"/>
+                </select>
+            </div>
+            <p t-if="state.error" class="text-danger mb-0" t-esc="state.error"/>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-att-disabled="state.saving ? true : null"
+                        t-on-click="onConfirm">
+                    <i t-if="state.saving" class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-hidden="true"/>
+                    Link
+                </button>
+                <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
     </t>
 
     <t t-name="evie_base.EvieCapsuleUrlsWidget">

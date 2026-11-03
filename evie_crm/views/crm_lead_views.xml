@@ -87,8 +87,9 @@
                         <widget name="evie_capsule_documents" colspan="2"/>
                     </group>
                     <!-- External web references linked to the lead's capsule
-                         (odoo-lead-linked-urls): read-only listing, rows
-                         open the external URL in a new tab. Sits right after
+                         (odoo-lead-linked-urls): rows open the external URL
+                         in a new tab; link / unlink like the linked
+                         documents. Sits right after
                          the linked documents, before the consent plumbing. -->
                     <group string="Linked URLs" name="evie_linked_urls"
                            class="o_evie_card" colspan="2"
