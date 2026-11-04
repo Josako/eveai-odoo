@@ -1,0 +1,54 @@
+/*
+ * Evie kanban design — the single source of the board look, shared by the
+ * Odoo Evie kanban views (.o_evie_kanban, evie_brand.scss) and the admin
+ * client's CapsuleKanbanBoard (.evie-kanban, imported by nginx main.js).
+ * Change the board design here only; both sides read these values.
+ */
+.o_evie_kanban,
+.evie-kanban {
+    --evie-kanban-brand: #99498f;
+    --evie-kanban-brand-soft: #9c8ae1;
+
+    --evie-kanban-text: #0f172a;
+    --evie-kanban-text-soft: #334155;
+    --evie-kanban-muted: #64748b;
+    --evie-kanban-border: #e2e8f0;
+    --evie-kanban-chip-border: #cbd5e1;
+    --evie-kanban-surface: #fff;
+
+    /* Board + columns */
+    --evie-kanban-gap: 0.85rem;
+    --evie-kanban-column-bg: #f8fafc;
+    --evie-kanban-column-radius: 12px;
+    --evie-kanban-column-drop-border: color-mix(in srgb, var(--evie-kanban-brand) 55%, #fff);
+    --evie-kanban-column-drop-bg: color-mix(in srgb, var(--evie-kanban-brand) 10%, #fff);
+    --evie-kanban-column-drop-ring: inset 0 0 0 1px color-mix(in srgb, var(--evie-kanban-brand-soft) 30%, transparent);
+
+    /* Column header */
+    --evie-kanban-title-size: 0.8125rem;
+    --evie-kanban-dot: linear-gradient(135deg, var(--evie-kanban-brand), var(--evie-kanban-brand-soft));
+    --evie-kanban-count-bg: color-mix(in srgb, var(--evie-kanban-brand) 10%, #fff);
+    --evie-kanban-count-border: color-mix(in srgb, var(--evie-kanban-brand) 20%, #e2e8f0);
+
+    /* Cards */
+    --evie-kanban-card-radius: 10px;
+    --evie-kanban-card-accent: 3px solid var(--evie-kanban-brand);
+    --evie-kanban-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --evie-kanban-card-shadow-hover: 0 6px 16px rgba(15, 23, 42, 0.08);
+    --evie-kanban-card-border-hover: color-mix(in srgb, var(--evie-kanban-brand) 35%, #e2e8f0);
+    --evie-kanban-card-title-size: 0.875rem;
+    --evie-kanban-focus-ring: 0 0 0 3px color-mix(in srgb, var(--evie-kanban-brand) 28%, transparent);
+    --evie-kanban-meta-size: 0.75rem;
+
+    /* Chips and stat pills */
+    --evie-kanban-chip-bg: #f8fafc;
+    --evie-kanban-stat-bg: color-mix(in srgb, var(--evie-kanban-brand-soft) 14%, transparent);
+    --evie-kanban-stat-border: color-mix(in srgb, var(--evie-kanban-brand) 22%, transparent);
+
+    /* Qualification score pill: the Bootstrap success / warning / danger
+       badges Odoo's lead cards use (green 70+, orange 40-69, red below). */
+    --evie-kanban-score-high: #198754;
+    --evie-kanban-score-mid: #ffc107;
+    --evie-kanban-score-mid-text: #000;
+    --evie-kanban-score-low: #dc3545;
+}

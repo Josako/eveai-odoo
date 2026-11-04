@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.49.0',
+    'version': '19.0.1.50.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -31,6 +31,9 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   focus ring, purple border on required fields; titles and editable lists
   keep Odoo's style), read-only values padded to the same text start,
   purple section headings and active notebook tabs
+* The Evie kanban design values (1.50.0) live in one shared stylesheet,
+  ``static/src/css/evie_kanban.css`` (``--evie-kanban-*``), read by the
+  Odoo Evie kanban views and by the admin client's capsule kanban boards
 * The generic ``evie_actions`` field widget (odoo-capsule-actions): renders
   the data capsule actions discovered live from Evie for the record's
   capsule type, with specialist selection and running-state feedback —
@@ -107,6 +110,7 @@ This module contains no business logic itself; vertical modules
     ],
     'assets': {
         'web.assets_backend': [
+            'evie_base/static/src/css/evie_kanban.css',
             'evie_base/static/src/scss/evie_brand.scss',
             'evie_base/static/src/js/evie_link_field.js',
             'evie_base/static/src/xml/evie_link_field.xml',

@@ -716,8 +716,10 @@ $o-evie-lilac: #9c8ae1;
 
 // ---------------------------------------------------------------------------
 // Evie kanban boards (Marketing Initiatives, Evie Lead Pipeline, …)
-// Echoes the admin CapsuleKanbanBoard / .dcl-kanban look: soft slate
-// columns, cards with a brand left accent, muted meta, compact stat pills.
+// Soft slate columns, cards with a brand left accent, muted meta, compact
+// stat pills. Every design value comes from the shared
+// static/src/css/evie_kanban.css (--evie-kanban-*), which the admin client's
+// CapsuleKanbanBoard reads too, so both boards share one design.
 //
 // IMPORTANT: the <kanban class="…"> attribute lands on the controller root
 // (same as o_kanban_small_column), NOT on .o_kanban_renderer. Scope from
@@ -734,16 +736,16 @@ $o-evie-lilac: #9c8ae1;
 .o_evie_kanban {
     // Space the board away from the control-panel header + between columns
     .o_kanban_renderer.o_kanban_grouped {
-        gap: 0.85rem;
+        gap: var(--evie-kanban-gap);
         padding: 0.75rem 0.65rem 0.9rem;
         background: transparent;
     }
 
-    // Soft column shells — admin .dcl-kanban__column
+    // Soft column shells
     .o_kanban_group {
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
+        background: var(--evie-kanban-column-bg) !important;
+        border: 1px solid var(--evie-kanban-border) !important;
+        border-radius: var(--evie-kanban-column-radius) !important;
         // Explicit padding so side inset isn’t lost if vars lose the cascade
         padding: 0 var(--KanbanGroup-padding-h, 1rem) var(--KanbanGroup-padding-bottom, 0.85rem) !important;
         margin-inline: 0 !important;
@@ -758,9 +760,9 @@ $o-evie-lilac: #9c8ae1;
 
         &.o_kanban_hover,
         &.o_kanban_group_show {
-            border-color: rgba($o-evie-purple, 0.55) !important;
-            background: mix(#fff, $o-evie-purple, 90%) !important;
-            box-shadow: inset 0 0 0 1px rgba($o-evie-lilac, 0.3);
+            border-color: var(--evie-kanban-column-drop-border) !important;
+            background: var(--evie-kanban-column-drop-bg) !important;
+            box-shadow: var(--evie-kanban-column-drop-ring);
         }
     }
 
@@ -785,10 +787,10 @@ $o-evie-lilac: #9c8ae1;
             align-items: center !important; // override core align-top
             gap: 0.4rem !important;
             font-weight: 700 !important;
-            font-size: 0.8125rem !important;
+            font-size: var(--evie-kanban-title-size) !important;
             letter-spacing: 0.01em;
             text-transform: none !important;
-            color: #0f172a !important;
+            color: var(--evie-kanban-text) !important;
             line-height: 1.25 !important;
             min-width: 0;
         }
@@ -801,7 +803,7 @@ $o-evie-lilac: #9c8ae1;
             width: 0.45rem;
             height: 0.45rem;
             border-radius: 999px;
-            background: linear-gradient(135deg, $o-evie-purple, $o-evie-lilac);
+            background: var(--evie-kanban-dot);
         }
 
         // Count "(N)" → compact brand chip like admin column-count
@@ -814,9 +816,9 @@ $o-evie-lilac: #9c8ae1;
             font-weight: 700 !important;
             line-height: 1.25;
             text-align: center;
-            color: $o-evie-purple;
-            background: rgba($o-evie-purple, 0.1);
-            border: 1px solid rgba($o-evie-purple, 0.2);
+            color: var(--evie-kanban-brand);
+            background: var(--evie-kanban-count-bg);
+            border: 1px solid var(--evie-kanban-count-border);
         }
 
         // Settings gear + quick-add: keep them on the title baseline
@@ -843,7 +845,7 @@ $o-evie-lilac: #9c8ae1;
         }
     }
 
-    // Cards — admin .dcl-kanban__card
+    // Cards
     // Grouped mode already sets width: 100%; stay inside the padded group.
     .o_kanban_record {
         box-sizing: border-box;
@@ -855,11 +857,11 @@ $o-evie-lilac: #9c8ae1;
         min-width: 0 !important; // override core min-width: 150px in tight cols
         margin: 0 0 0.55rem !important; // no side margins — group padding is the inset
         padding: 0.7rem 0.75rem 0.65rem !important;
-        border-radius: 10px !important;
-        border: 1px solid #e2e8f0 !important;
-        border-left: 3px solid $o-evie-purple !important;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-        background: #fff !important;
+        border-radius: var(--evie-kanban-card-radius) !important;
+        border: 1px solid var(--evie-kanban-border) !important;
+        border-left: var(--evie-kanban-card-accent) !important;
+        box-shadow: var(--evie-kanban-card-shadow);
+        background: var(--evie-kanban-surface) !important;
         overflow: hidden;
         transition:
             transform 0.14s ease,
@@ -868,20 +870,20 @@ $o-evie-lilac: #9c8ae1;
 
         &:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-            border-color: mix(#e2e8f0, $o-evie-purple, 65%) !important;
+            box-shadow: var(--evie-kanban-card-shadow-hover);
+            border-color: var(--evie-kanban-card-border-hover) !important;
         }
 
         &:focus-visible {
             outline: none;
-            box-shadow: 0 0 0 3px rgba($o-evie-purple, 0.28);
+            box-shadow: var(--evie-kanban-focus-ring);
         }
 
         .o_kanban_record_title,
         .fw-bold.fs-5 {
-            font-size: 0.875rem !important;
+            font-size: var(--evie-kanban-card-title-size) !important;
             font-weight: 700 !important;
-            color: #0f172a !important;
+            color: var(--evie-kanban-text) !important;
             line-height: 1.25 !important;
             margin: 0 !important;
         }
@@ -900,10 +902,10 @@ $o-evie-lilac: #9c8ae1;
         max-width: 100%;
         margin-top: 0.15rem;
         padding: 0.1rem 0.45rem;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--evie-kanban-chip-border);
         border-radius: 999px;
-        background: #f8fafc;
-        color: #334155;
+        background: var(--evie-kanban-chip-bg);
+        color: var(--evie-kanban-text-soft);
         font-size: 0.68rem;
         font-weight: 600;
         line-height: 1.25;
@@ -914,14 +916,14 @@ $o-evie-lilac: #9c8ae1;
 
     .o_evie_kanban__meta {
         margin-top: 0.15rem;
-        font-size: 0.75rem;
+        font-size: var(--evie-kanban-meta-size);
         line-height: 1.3;
-        color: #64748b;
+        color: var(--evie-kanban-muted);
 
         .fa {
             margin-right: 0.25rem;
             opacity: 0.75;
-            color: $o-evie-purple;
+            color: var(--evie-kanban-brand);
         }
     }
 
@@ -932,7 +934,7 @@ $o-evie-lilac: #9c8ae1;
         width: 100%;
         margin-top: 0.45rem;
         padding-top: 0.45rem !important;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid var(--evie-kanban-border);
     }
 
     .o_evie_kanban__stat {
@@ -941,15 +943,15 @@ $o-evie-lilac: #9c8ae1;
         gap: 0.3rem;
         padding: 0.15rem 0.45rem;
         border-radius: 999px;
-        background: rgba($o-evie-lilac, 0.14);
-        border: 1px solid rgba($o-evie-purple, 0.22);
-        color: #334155;
+        background: var(--evie-kanban-stat-bg);
+        border: 1px solid var(--evie-kanban-stat-border);
+        color: var(--evie-kanban-text-soft);
         font-size: 0.6875rem;
         font-weight: 700;
         line-height: 1.2;
 
         .fa {
-            color: $o-evie-purple;
+            color: var(--evie-kanban-brand);
             opacity: 0.95;
         }
     }
