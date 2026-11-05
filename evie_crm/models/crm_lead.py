@@ -144,28 +144,18 @@ class CrmLead(models.Model):
              "read-only view of the conversation in Evie.",
     )
 
-    # Personal outreach link target (19.0.1.27.0,
-    # lead-level-outreach-link-target; role narrowed in 19.0.1.29.0,
-    # dual-personal-link-surfaces): the rep's per-lead default for where
-    # personal outreach links land the visitor in automated flows
-    # (proposal mails, legacy live-resolving links). Editable; synced to
-    # Evie inbound-only (Evie never writes it back). Empty follows the
-    # tenant make default (website configured → website, else chat
-    # client). The copy surfaces always offer both link variants, so this
-    # field no longer influences what the rep copies. Activity links
-    # follow the activity's own stamped target first.
-    x_evie_outreach_link_target = fields.Selection(
-        selection=[('WEBSITE', 'Website (chat widget)'),
-                   ('CHAT_DIRECT', 'Chat client (direct)')],
-        string='Outreach Link Target',
+    # Preferred outreach destination (landing-page-improvement): an encoded
+    # empty / CHAT_DIRECT / LANDING_PAGE:<capsule_id> value, edited through
+    # the dynamic destination widget and reconciled inbound into the lead's
+    # destination kind and preferred-page relation.
+    x_evie_outreach_link_target = fields.Char(
+        string='Preferred Outreach Destination',
         copy=False,
         tracking=True,
-        help="Default for where personal outreach links land the visitor "
-             "in automated flows (proposal mails): the website running "
-             "the Evie chat widget, or the standalone chat client "
-             "directly. An activity's own stamped target wins. Empty "
-             "follows the tenant make default. The Personal links below "
-             "always offer both variants to copy, whatever this value.",
+        help="Preferred destination for automated outreach: empty for no "
+             "lead preference, direct chat, or a named landing page. "
+             "Choices are loaded from Evie; activity and channel choices "
+             "take precedence. The preference is synced inbound only.",
     )
 
     # Marketing opt-in (19.0.1.21.0, privacy-lead-capture): the only

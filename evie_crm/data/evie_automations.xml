@@ -68,6 +68,7 @@
             (4, ref('crm.field_crm_lead__phone')),
             (4, ref('crm.field_crm_lead__function')),
             (4, ref('crm.field_crm_lead__partner_name')),
+            (4, ref('crm.field_crm_lead__description')),
             (4, ref('crm.field_crm_lead__street')),
             (4, ref('crm.field_crm_lead__street2')),
             (4, ref('crm.field_crm_lead__zip')),

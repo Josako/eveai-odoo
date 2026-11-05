@@ -3,7 +3,7 @@
 
     <t t-name="evie_base.EviePersonalLinkField">
         <div class="o_evie_personal_link">
-            <div t-if="!state.variants" class="d-flex align-items-center gap-2">
+            <div t-if="!state.destinations" class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-secondary btn-sm"
                         t-att-disabled="state.loading or null"
                         t-on-click="onFetch">
@@ -13,7 +13,7 @@
                 </button>
                 <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
             </div>
-            <div t-if="state.variants" class="d-flex flex-column gap-2 w-100">
+            <div t-if="state.destinations" class="d-flex flex-column gap-2 w-100">
                 <div t-foreach="rows" t-as="row" t-key="row.key"
                      class="o_evie_personal_link__row w-100">
                     <div class="d-flex align-items-center gap-2 mb-1">

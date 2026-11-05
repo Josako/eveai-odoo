@@ -1,15 +1,12 @@
 /** @odoo-module */
 
 /**
- * evie_personal_link field widget (dual-personal-link-surfaces).
+ * evie_personal_link field widget (landing-page-improvement).
  *
- * Fetches the record's short personal outreach links from Evie on demand —
- * both pinned variants at once (website and chat-direct, no target
- * pre-selection) — and offers each for copying on its own full-width row
- * with its click count, for use in ad-hoc messages (mail, LinkedIn, …)
- * written by the rep. The links are never stored in Odoo: every fetch goes
- * to the Evie copy-surface endpoint. When Evie is unreachable the widget
- * shows a clear, non-blocking message; the form always keeps working.
+ * Fetches every active named outreach destination and direct chat on
+ * demand, with preferred/Make labels and independent click counts. Links
+ * are never stored in Odoo. Failures are non-blocking and the form keeps
+ * working.
  *
  * Usage in a form view (bound to the capsule anchor field):
  *     <field name="x_evie_capsule_id" widget="evie_personal_link"
@@ -36,33 +33,27 @@ export class EviePersonalLinkField extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        // variants: null until fetched; afterwards per-variant dicts
-        // ({url, target_url, resolved_target, clicks}) or null when that
-        // variant could not be composed.
-        this.state = useState({ loading: false, error: "", variants: null });
+        // destinations: null until fetched; afterwards the API's ordered
+        // destination collection with short/long URLs and click counts.
+        this.state = useState({ loading: false, error: "", destinations: null });
     }
 
     get rows() {
-        // Both variants side by side, each on its own full-width row. A
-        // variant the endpoint returned as null is skipped.
-        if (!this.state.variants) {
+        if (!this.state.destinations) {
             return [];
         }
-        const { website, chat } = this.state.variants;
-        const rows = [];
-        if (website) {
-            rows.push({
-                key: "website", icon: "fa fa-globe",
-                label: _t("Website (chat widget)"), ...website,
-            });
-        }
-        if (chat) {
-            rows.push({
-                key: "chat", icon: "fa fa-comments",
-                label: _t("Chat client (direct)"), ...chat,
-            });
-        }
-        return rows;
+        return this.state.destinations.map((destination) => ({
+            ...destination,
+            key: destination.key || "default",
+            icon: destination.kind === "CHAT_DIRECT" ? "fa fa-comments" : "fa fa-globe",
+            label: this.destinationLabel(destination),
+        }));
+    }
+
+    destinationLabel(destination) {
+        const make = destination.make ? ` (${destination.make.name})` : "";
+        const preferred = destination.preferred ? ` — ${_t("Preferred")}` : "";
+        return `${destination.name}${make}${preferred}`;
     }
 
     get capsuleId() {
@@ -77,9 +68,7 @@ export class EviePersonalLinkField extends Component {
                 "evie.personal.link", "get_personal_link",
                 [this.props.kind, this.capsuleId]);
             if (result.ok) {
-                this.state.variants = {
-                    website: result.website, chat: result.chat,
-                };
+                this.state.destinations = result.destinations;
             } else {
                 this.state.error = result.message
                     || _t("No personal link could be resolved.");

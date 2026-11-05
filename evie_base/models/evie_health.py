@@ -67,6 +67,8 @@ EXPECTED_FIELDS = {
             'x_evie_action_message',
             # Mirrored language (evie_crm 19.0.1.13.0, crm-sync-polish)
             'x_evie_language',
+            # Dynamic preferred outreach destination (landing-page-improvement)
+            'x_evie_outreach_link_target',
         ],
         # Activities (evie_crm 19.0.1.6.0, add-crm-activity-sync)
         'mail.activity': [
@@ -76,6 +78,8 @@ EXPECTED_FIELDS = {
             'x_evie_outcome',
             # Last-synced anchor (evie_crm 19.0.1.10.0, odoo-evie-form-branding)
             'x_evie_last_synced',
+            # Read-only activity destination label (landing-page-improvement)
+            'x_evie_outreach_link_target',
         ],
     },
     # crm.lead extension (evie_marketing_initiative 19.0.1.0.0,

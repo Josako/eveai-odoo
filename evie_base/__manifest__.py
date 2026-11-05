@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.49.0',
+    'version': '19.0.1.50.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -122,6 +122,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/xml/evie_brand_header.xml',
             'evie_base/static/src/js/evie_personal_link_field.js',
             'evie_base/static/src/xml/evie_personal_link_field.xml',
+            'evie_base/static/src/js/evie_outreach_destination_field.js',
+            'evie_base/static/src/xml/evie_outreach_destination_field.xml',
         ],
     },
     'installable': True,
