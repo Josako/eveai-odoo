@@ -3,10 +3,10 @@
 /**
  * evie_personal_link field widget (landing-page-improvement).
  *
- * Fetches every active named outreach destination and direct chat on
- * demand, with preferred/Make labels and independent click counts. Links
- * are never stored in Odoo. Failures are non-blocking and the form keeps
- * working.
+ * Loads every active named outreach destination and direct chat on form
+ * open and refreshes on window focus, with preferred/Make labels and
+ * independent click counts. Links are never stored in Odoo. Failures are
+ * non-blocking and the form keeps working.
  *
  * Usage in a form view (bound to the capsule anchor field):
  *     <field name="x_evie_capsule_id" widget="evie_personal_link"
@@ -17,7 +17,7 @@
  *         endpoint variant (lead-only links vs. (lead, activity) links).
  */
 
-import { Component, useState } from "@odoo/owl";
+import { Component, onBeforeUnmount, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
@@ -36,6 +36,15 @@ export class EviePersonalLinkField extends Component {
         // destinations: null until fetched; afterwards the API's ordered
         // destination collection with short/long URLs and click counts.
         this.state = useState({ loading: false, error: "", destinations: null });
+        this.onFocus = this.onFocus.bind(this);
+        onWillStart(() => this.onFetch());
+        window.addEventListener("focus", this.onFocus);
+    }
+
+    onFocus() {
+        if (!this.state.loading) {
+            this.onFetch();
+        }
     }
 
     get rows() {
@@ -61,6 +70,9 @@ export class EviePersonalLinkField extends Component {
     }
 
     async onFetch() {
+        if (this.state.loading) {
+            return;
+        }
         this.state.loading = true;
         this.state.error = "";
         try {
@@ -78,6 +90,10 @@ export class EviePersonalLinkField extends Component {
         } finally {
             this.state.loading = false;
         }
+    }
+
+    onBeforeUnmount() {
+        window.removeEventListener("focus", this.onFocus);
     }
 
     async onCopy(url) {

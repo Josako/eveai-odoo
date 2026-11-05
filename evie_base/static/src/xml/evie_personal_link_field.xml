@@ -3,16 +3,12 @@
 
     <t t-name="evie_base.EviePersonalLinkField">
         <div class="o_evie_personal_link">
-            <div t-if="!state.destinations" class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-secondary btn-sm"
-                        t-att-disabled="state.loading or null"
-                        t-on-click="onFetch">
-                    <i t-att-class="state.loading ? 'fa fa-circle-o-notch fa-spin me-1' : 'fa fa-link me-1'"
-                       role="img" aria-hidden="true"/>
-                    <t t-esc="state.loading ? 'Fetching…' : 'Get personal links'"/>
-                </button>
-                <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
+            <div t-if="state.loading" class="text-muted small" role="status">
+                <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-hidden="true"/>
+                Loading personal links…
             </div>
+            <div t-if="state.error and !state.loading" class="alert alert-warning small" role="alert"
+                 t-esc="state.error"/>
             <div t-if="state.destinations" class="d-flex flex-column gap-2 w-100">
                 <div t-foreach="rows" t-as="row" t-key="row.key"
                      class="o_evie_personal_link__row w-100">
