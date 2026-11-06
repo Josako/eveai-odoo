@@ -33,7 +33,7 @@
                            class="o_evie_card" invisible="not x_evie_capsule_id">
                         <field name="x_evie_outreach_link_target"
                                widget="evie_outreach_destination"/>
-                        <field name="x_evie_capsule_id" nolabel="1"
+                        <field name="x_evie_capsule_id" nolabel="1" colspan="2"
                                widget="evie_personal_link" options="{'kind': 'lead'}"/>
                     </group>
                     <!-- Canonical order (crm-sync-polish): Actions → Evie

@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.36.0',
+    'version': '19.0.1.37.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -99,6 +99,10 @@ Everything Evie adds to Odoo CRM:
   Personal link group of the lead form, watched by the lead upsert
   automation, and synced inbound-only to Evie (mapping
   CRM_LEAD_ODOO_CRM 1.12.0)
+
+* Dynamic personal outreach destinations (landing-page-improvement):
+  named landing pages and direct chat with independent click counts,
+  loaded automatically and rendered across the full lead/activity width
 
 * Linked URLs (odoo-lead-linked-urls, requires evie_base 19.0.1.46.0):
   a read-only "Linked URLs" group on the lead's Evie tab listing the URL

@@ -34,9 +34,9 @@
                     <field name="x_evie_action_message" readonly="1" colspan="2"
                            invisible="not x_evie_action_message"/>
                 </group>
-                <!-- Personal outreach links (dual-personal-link-surfaces):
-                     both pinned variants (website + chat-direct), fetched
-                     on demand from Evie — copyable when the rep sends the
+                <!-- Personal outreach links (landing-page-improvement):
+                     every active named destination and direct chat, loaded
+                     on form open and window focus — copyable when the rep sends the
                      message through their own client instead of the
                      proposal flow. The stamped target is Evie-master and
                      read-only here. -->

@@ -6,7 +6,9 @@
  * CHAT_DIRECT or LANDING_PAGE:<capsule_id>. Empty means no preference.
  */
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import {
+    Component, onMounted, onPatched, onWillStart, useRef, useState,
+} from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
@@ -19,7 +21,10 @@ export class EvieOutreachDestinationField extends Component {
     setup() {
         this.orm = useService("orm");
         this.state = useState({ loading: true, error: "", destinations: [] });
+        this.destinationSelect = useRef("destinationSelect");
         onWillStart(async () => this.loadOptions());
+        onMounted(() => this.syncSelectValue());
+        onPatched(() => this.syncSelectValue());
     }
 
     get capsuleId() {
@@ -28,6 +33,13 @@ export class EvieOutreachDestinationField extends Component {
 
     get currentValue() {
         return this.props.record.data[this.props.name] || "";
+    }
+
+    syncSelectValue() {
+        const select = this.destinationSelect.el;
+        if (select && select.value !== this.currentValue) {
+            select.value = this.currentValue;
+        }
     }
 
     optionLabel(destination) {

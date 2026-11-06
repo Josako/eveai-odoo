@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.50.0',
+    'version': '19.0.1.51.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -89,6 +89,10 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   the Evie preferred language; preference writes are pushed to Evie via
   the ``/user-preferences`` webhook (echo-guarded), and Evie's outbound
   writes land here through the JSON-2 API
+
+* Dynamic personal outreach widgets (landing-page-improvement): the lead
+  preference stores the encoded value supplied by Evie, while personal links
+  and their click counts load automatically on form open and window focus
 
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.
