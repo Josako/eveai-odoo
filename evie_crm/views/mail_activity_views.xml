@@ -36,11 +36,21 @@
                 </group>
                 <!-- Proposal content comes before the personal links so the
                      rep sees the message before its destination and copy rows. -->
+                <group string="Email subject (final — editable)" colspan="2"
+                       invisible="x_evie_activity_type != 'Email'">
+                    <field name="x_evie_final_subject" nolabel="1" colspan="2"
+                           placeholder="Write or adjust the Email envelope subject…"/>
+                </group>
                 <group string="Evie proposal (final — editable)" colspan="2"
                        invisible="not x_evie_capsule_id">
                     <field name="x_evie_final_content" nolabel="1"
                            colspan="2"
                            placeholder="Write or adjust the final proposal here — it syncs back to Evie…"/>
+                </group>
+                <group string="Original Email subject (specialist draft)" colspan="2"
+                       invisible="x_evie_activity_type != 'Email'">
+                    <field name="x_evie_proposed_subject" readonly="1" nolabel="1"
+                           colspan="2"/>
                 </group>
                 <group string="Original proposal (specialist draft)" colspan="2"
                        invisible="not x_evie_proposed_content or (x_evie_final_content and x_evie_proposed_content == x_evie_final_content)">

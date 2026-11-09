@@ -269,6 +269,22 @@ $o-evie-lilac: #9c8ae1;
     }
 }
 
+// Minimal Email activity preview dialog: bounded scrolling, native controls.
+.o_evie_email_delivery {
+  &__text {
+    max-height: 24rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+
+  &__frame {
+    width: 100%;
+    min-height: 24rem;
+    border: 1px solid var(--border-color, #dee2e6);
+    background: var(--o-view-background-color, #fff);
+  }
+}
+
 // EvieCapsuleActions: wrapping button row by default (CRM forms), or
 // stacked full-width rows (meeting window, stacked=true). YAML ``ui_group``
 // clusters actions into visibly divided sections.

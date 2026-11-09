@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.52.0',
+    'version': '19.0.1.53.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -10,6 +10,10 @@ Evie Base
 Foundation module for all Evie (Ask Eve AI) Odoo modules.
 
 * Namespace conventions: modules ``evie_*``, models ``evie.*``, fields ``x_evie_*``
+* Minimal Email activity preview/send dialog (19.0.1.53.0): the shared
+  ``evie_actions`` primitive opens template choice, exact preview, explicit
+  plain-website consent and sent/failure presentation through the generic
+  action-execute channel with asserted acting identity
 * Evie settings (webhook URL + TenantProject API key) under Settings
 * Health/diagnostic surface (``evie.health``) so the Evie platform can verify
   installed module versions and required fields remotely; also reports the
@@ -116,6 +120,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/xml/evie_link_field.xml',
             'evie_base/static/src/js/evie_capsule_actions.js',
             'evie_base/static/src/xml/evie_capsule_actions.xml',
+            'evie_base/static/src/js/evie_email_delivery_dialog.js',
+            'evie_base/static/src/xml/evie_email_delivery_dialog.xml',
             'evie_base/static/src/js/evie_actions_field.js',
             'evie_base/static/src/xml/evie_actions_field.xml',
             'evie_base/static/src/js/evie_capsule_documents.js',

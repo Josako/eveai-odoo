@@ -87,6 +87,23 @@ class MailActivity(models.Model):
              "Informational for Odoo — it does not alter Odoo behaviour.",
     )
 
+    # Email envelope subjects (add-activity-email-delivery): plain text,
+    # independent of the native task summary. Proposed is an Evie-owned
+    # learning baseline; final is rep-editable and mirrored inbound.
+    x_evie_proposed_subject = fields.Char(
+        string='Evie Email Subject (specialist draft)',
+        copy=False,
+        readonly=True,
+        help="Specialist-drafted Email envelope subject for Email activities. "
+             "Read-only learning baseline, distinct from the task summary.",
+    )
+    x_evie_final_subject = fields.Char(
+        string='Evie Email Subject (final)',
+        copy=False,
+        help="Final Email envelope subject for Email activities. Editable; "
+             "changes sync back to Evie. Distinct from the task summary.",
+    )
+
     # Proposal content (sync-activity-proposal-to-odoo): Evie-master,
     # read-only in Odoo. The specialist's draft and the rep-approved text
     # are shown as two separate fields so the rep can see both what the

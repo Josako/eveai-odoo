@@ -80,6 +80,13 @@ EXPECTED_FIELDS = {
             'x_evie_last_synced',
             # Editable activity destination override (CRM_ACTIVITY sync 1.10.0)
             'x_evie_outreach_link_target',
+            # Email envelope subjects (evie_crm 19.0.1.39.0)
+            'x_evie_proposed_subject',
+            'x_evie_final_subject',
+        ],
+        # Provider-neutral delivery idempotency (evie_crm 19.0.1.40.0)
+        'mail.mail': [
+            'x_evie_delivery_key',
         ],
     },
     # crm.lead extension (evie_marketing_initiative 19.0.1.0.0,
