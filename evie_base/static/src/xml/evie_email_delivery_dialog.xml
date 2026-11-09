@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="evie_base.EvieEmailDeliveryDialog">
+        <Dialog title="_t('Preview Email')" size="lg">
+            <div class="o_evie_email_delivery">
+                <p t-if="state.error" class="alert alert-warning" role="alert" t-esc="state.error"/>
+                <div t-if="state.templates.length and !state.preview" class="mb-3">
+                    <label class="form-label" for="evie-email-template">Template</label>
+                    <select id="evie-email-template" class="form-select"
+                            t-on-change="(ev) => this.state.selectedTemplateId = ev.target.value">
+                        <option value="">Choose a template</option>
+                        <t t-foreach="state.templates" t-as="template" t-key="template.id">
+                            <option t-att-value="template.id" t-esc="template.name"/>
+                        </t>
+                    </select>
+                </div>
+                <button t-if="!state.preview" type="button" class="btn btn-secondary"
+                        t-att-disabled="state.loading or (state.templates.length > 0 and !state.selectedTemplateId) or null"
+                        t-on-click="composePreview">
+                    <t t-esc="state.loading ? 'Composing…' : 'Preview Email'"/>
+                </button>
+                <div t-if="state.needsPlainConsent" class="form-check mt-3">
+                    <input id="evie-plain-website" class="form-check-input" type="checkbox"
+                           t-on-change="(ev) => this.state.allowPlainWebsite = ev.target.checked"/>
+                    <label for="evie-plain-website" class="form-check-label">
+                        Use the plain Make website without engagement tracking.
+                    </label>
+                </div>
+                <div t-if="state.preview" class="mt-3">
+                    <dl>
+                        <dt>To</dt><dd t-esc="state.preview.rendered.to_email"/>
+                        <dt>From</dt><dd><t t-esc="state.preview.rendered.from_name"/> &lt;<t t-esc="state.preview.rendered.from_email"/>&gt;</dd>
+                        <dt>Reply-to</dt><dd t-esc="state.preview.rendered.reply_to"/>
+                        <dt>Subject</dt><dd t-esc="state.preview.rendered.subject"/>
+                    </dl>
+                    <div t-if="state.preview.website_link_mode === 'PLAIN_WEBSITE_CONFIRMED'"
+                         class="alert alert-warning" role="alert">
+                        The website is not tracked because you explicitly confirmed the plain-website fallback.
+                    </div>
+                    <div t-if="state.preview.outreach_url">
+                        Website: <a t-att-href="state.preview.outreach_url" target="_blank"
+                                    rel="noopener noreferrer" t-esc="state.preview.outreach_url"/>
+                    </div>
+                    <ul t-if="state.preview.document_links.length">
+                        <li t-foreach="state.preview.document_links" t-as="link" t-key="link.alias_id">
+                            <a t-att-href="link.url" target="_blank" rel="noopener noreferrer" t-esc="link.name"/>
+                        </li>
+                    </ul>
+                    <pre class="o_evie_email_delivery__text" t-esc="state.preview.rendered.text_body"/>
+                    <details>
+                        <summary>HTML preview</summary>
+                        <iframe class="o_evie_email_delivery__frame" sandbox=""
+                                t-att-srcdoc="state.preview.rendered.html_body" title="HTML Email preview"/>
+                    </details>
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="button" class="btn btn-primary"
+                                t-att-disabled="state.sending or null" t-on-click="confirmSend">
+                            <t t-esc="state.sending ? 'Sending…' : 'Confirm and send'"/>
+                        </button>
+                        <button type="button" class="btn btn-secondary"
+                                t-att-disabled="state.sending or null" t-on-click="recompose">Recompose</button>
+                    </div>
+                </div>
+                <div t-if="state.delivery" class="mt-3" role="status">
+                    <h4>Delivery result</h4>
+                    <p>Status: <strong t-esc="state.delivery.status"/></p>
+                    <p t-if="state.providerResult.remote_reference">
+                        Remote reference: <t t-esc="state.providerResult.remote_reference"/>
+                    </p>
+                    <p t-if="state.providerResult.error_message" class="alert alert-warning" role="alert"
+                       t-esc="state.providerResult.error_message"/>
+                </div>
+            </div>
+        </Dialog>
+    </t>
+</templates>
