@@ -1,9 +1,9 @@
 /** @odoo-module */
 
 /**
- * Dynamic preferred outreach destination editor. Loads active landing pages
- * and direct chat from Evie, storing one encoded value:
- * CHAT_DIRECT or LANDING_PAGE:<capsule_id>. Empty means no preference.
+ * Dynamic outreach destination editor. Loads active landing pages and direct
+ * chat from Evie, storing CHAT_DIRECT or LANDING_PAGE:<capsule_id>. On an
+ * activity, an empty stored value displays the effective inherited choice.
  */
 
 import {
@@ -20,7 +20,13 @@ export class EvieOutreachDestinationField extends Component {
 
     setup() {
         this.orm = useService("orm");
-        this.state = useState({ loading: true, error: "", destinations: [] });
+        this.state = useState({
+            loading: true,
+            error: "",
+            destinations: [],
+            effectiveValue: "",
+            useEffectiveValue: true,
+        });
         this.destinationSelect = useRef("destinationSelect");
         onWillStart(async () => this.loadOptions());
         onMounted(() => this.syncSelectValue());
@@ -32,7 +38,16 @@ export class EvieOutreachDestinationField extends Component {
     }
 
     get currentValue() {
-        return this.props.record.data[this.props.name] || "";
+        const storedValue = this.props.record.data[this.props.name] || "";
+        if (this.props.record.resModel !== "mail.activity") {
+            return storedValue;
+        }
+        const explicitValue = storedValue === "CHAT_DIRECT"
+            || storedValue.startsWith("LANDING_PAGE:") ? storedValue : "";
+        if (explicitValue || !this.state.useEffectiveValue) {
+            return explicitValue;
+        }
+        return this.state.effectiveValue;
     }
 
     syncSelectValue() {
@@ -56,6 +71,7 @@ export class EvieOutreachDestinationField extends Component {
                 "evie.personal.link", "get_destination_options", [this.capsuleId]);
             if (result.ok) {
                 this.state.destinations = result.destinations;
+                this.state.effectiveValue = result.effective_value || "";
             } else {
                 this.state.error = result.message
                     || _t("Could not load outreach destinations. Try again later.");
@@ -69,6 +85,7 @@ export class EvieOutreachDestinationField extends Component {
 
     onChange(event) {
         const value = event.target.value || false;
+        this.state.useEffectiveValue = false;
         this.props.record.update({ [this.props.name]: value });
     }
 }

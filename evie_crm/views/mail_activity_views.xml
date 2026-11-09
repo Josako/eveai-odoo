@@ -2,9 +2,9 @@
 <odoo>
     <!-- Evie section on the activity form (popup): branded with the
          evie_brand_header widget (odoo-evie-form-branding) and laid out
-         with the canonical Evie groups — Actions, Evie Context,
-         Synchronisation (content before plumbing, crm-sync-polish) —
-         mirroring the lead's Evie tab. The activity popup has
+         with proposal content directly after Actions, followed by Personal
+         links, Evie Context, documents and Synchronisation — mirroring the
+         lead's Evie tab. The activity popup has
          no core notebook, and Odoo hides a single tab, so the branded
          tab trick from crm.lead is unavailable here. -->
     <record id="mail_activity_view_form_popup_evie" model="ir.ui.view">
@@ -34,15 +34,26 @@
                     <field name="x_evie_action_message" readonly="1" colspan="2"
                            invisible="not x_evie_action_message"/>
                 </group>
-                <!-- Personal outreach links (landing-page-improvement):
-                     every active named destination and direct chat, loaded
-                     on form open and window focus — copyable when the rep sends the
-                     message through their own client instead of the
-                     proposal flow. The stamped target is Evie-master and
-                     read-only here. -->
+                <!-- Proposal content comes before the personal links so the
+                     rep sees the message before its destination and copy rows. -->
+                <group string="Evie proposal (final — editable)" colspan="2"
+                       invisible="not x_evie_capsule_id">
+                    <field name="x_evie_final_content" nolabel="1"
+                           colspan="2"
+                           placeholder="Write or adjust the final proposal here — it syncs back to Evie…"/>
+                </group>
+                <group string="Original proposal (specialist draft)" colspan="2"
+                       invisible="not x_evie_proposed_content or (x_evie_final_content and x_evie_proposed_content == x_evie_final_content)">
+                    <field name="x_evie_proposed_content" readonly="1" nolabel="1"
+                           colspan="2"/>
+                </group>
+                <!-- Personal outreach links: the destination starts at the
+                     effective inherited value and accepts an activity-only
+                     override. Clearing it restores the fallback chain. -->
                 <group string="Personal links" name="evie_personal_link" colspan="2"
                        invisible="not x_evie_capsule_id">
-                    <field name="x_evie_outreach_link_target" colspan="2"/>
+                    <field name="x_evie_outreach_link_target" colspan="2"
+                           widget="evie_outreach_destination"/>
                     <field name="x_evie_capsule_id" nolabel="1" colspan="2"
                            widget="evie_personal_link" options="{'kind': 'activity'}"/>
                 </group>
@@ -74,23 +85,6 @@
                     <field name="x_evie_capsule_id" readonly="1"
                            widget="evie_link" options="{'kind': 'capsule'}"/>
                     <field name="x_evie_last_synced" readonly="1"/>
-                </group>
-                <!-- Proposal content: two separate fields so the rep sees
-                     both the specialist's original draft and the final
-                     text (design D2). The final field is EDITABLE (Odoo is
-                     the rep's playground) and always visible on Evie-linked
-                     activities: the rep must be able to write or adjust
-                     the final text even when no specialist draft exists. -->
-                <group string="Evie proposal (final — editable)" colspan="2"
-                       invisible="not x_evie_capsule_id">
-                    <field name="x_evie_final_content" nolabel="1"
-                           colspan="2"
-                           placeholder="Write or adjust the final proposal here — it syncs back to Evie…"/>
-                </group>
-                <group string="Original proposal (specialist draft)" colspan="2"
-                       invisible="not x_evie_proposed_content or (x_evie_final_content and x_evie_proposed_content == x_evie_final_content)">
-                    <field name="x_evie_proposed_content" readonly="1" nolabel="1"
-                           colspan="2"/>
                 </group>
             </xpath>
         </field>

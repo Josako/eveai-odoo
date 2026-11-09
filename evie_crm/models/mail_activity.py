@@ -67,16 +67,15 @@ class MailActivity(models.Model):
         help="Timestamp of the last Evie → Odoo sync for this record "
              "(odoo-evie-form-branding — same anchor as on crm.lead).",
     )
-    # Effective outreach destination (landing-page-improvement): meaningful
-    # landing-page/Make label or direct chat/fallback, resolved outbound by
-    # Evie and always read-only here (CRM_ACTIVITY_ODOO_CRM 1.9.0).
+    # Explicit activity destination override (CRM_ACTIVITY_ODOO_CRM 1.10.0).
+    # The editor displays the effective inherited value until the rep chooses
+    # an override; clearing it restores the channel/lead/Make fallback.
     x_evie_outreach_link_target = fields.Char(
         string='Evie Outreach Destination',
         copy=False,
-        readonly=True,
-        help="The activity's effective personal outreach destination: a "
-             "named landing page and its Make, or direct chat. Resolved "
-             "and written by Evie only; never editable from Odoo.",
+        help="Personal outreach destination for this activity. Choose direct "
+             "chat or a named landing page to override the inherited value; "
+             "clear the choice to follow the channel, lead and Make defaults.",
     )
     x_evie_outcome = fields.Selection(
         string='Evie Outcome',

@@ -52,4 +52,5 @@ class EviePersonalLink(models.AbstractModel):
             _logger.warning('Evie destination options fetch failed: %s', data)
             return {'ok': False, 'message': str(data)}
         return {'ok': True,
-                'destinations': data.get('destinations') or []}
+                'destinations': data.get('destinations') or [],
+                'effective_value': data.get('effective_value') or ''}
