@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.53.0',
+    'version': '19.0.1.53.1',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -13,7 +13,9 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
 * Minimal Email activity preview/send dialog (19.0.1.53.0): the shared
   ``evie_actions`` primitive opens template choice, exact preview, explicit
   plain-website consent and sent/failure presentation through the generic
-  action-execute channel with asserted acting identity
+  action-execute channel with asserted acting identity. Version 19.0.1.53.1
+  fixes dialog rendering by using QWeb's static-text translation instead of
+  calling an unavailable JavaScript ``_t`` from the OWL template context
 * Evie settings (webhook URL + TenantProject API key) under Settings
 * Health/diagnostic surface (``evie.health``) so the Evie platform can verify
   installed module versions and required fields remotely; also reports the
