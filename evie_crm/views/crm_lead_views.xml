@@ -25,18 +25,15 @@
                                widget="evie_actions"
                                options="{'capsule_type': 'CRM_LEAD'}"/>
                     </group>
-                    <!-- Personal outreach links
-                         (dual-personal-link-surfaces): both pinned variants
-                         (website + chat-direct) with click counts, fetched
-                         on demand from Evie, copyable for ad-hoc messages
-                         (mail, LinkedIn, …). Never stored in Odoo. The
-                         target default (lead-level-outreach-link-target)
-                         is rep-editable and syncs inbound to Evie; it only
-                         steers automated flows, not the copy surfaces. -->
+                    <!-- Personal outreach destinations
+                         (landing-page-improvement): a dynamic preferred
+                         destination plus every active named landing page
+                         and direct chat with independent click counts. -->
                     <group string="Personal links" name="evie_personal_link"
                            class="o_evie_card" invisible="not x_evie_capsule_id">
-                        <field name="x_evie_outreach_link_target"/>
-                        <field name="x_evie_capsule_id" nolabel="1"
+                        <field name="x_evie_outreach_link_target"
+                               widget="evie_outreach_destination"/>
+                        <field name="x_evie_capsule_id" nolabel="1" colspan="2"
                                widget="evie_personal_link" options="{'kind': 'lead'}"/>
                     </group>
                     <!-- Canonical order (crm-sync-polish): Actions → Evie

@@ -1,14 +1,9 @@
-"""Server side of the personal outreach link copy widget
-(dual-personal-link-surfaces).
+"""Server-side personal outreach destination and copy-widget calls.
 
-Fetches a record's short personal links — both pinned variants (website
-and chat-direct) — from the Evie copy-surface endpoints on demand. The
-personal link code itself is never stored in Odoo — only the composed
-short URLs pass through on fetch (the "never synced" rule stays
-intact).
-
-The fetch never raises: failures return ``ok: False`` with a message so
-the OWL widget degrades gracefully and the form keeps working.
+Fetches dynamic named destinations and preference choices from Evie on
+demand. Personal link codes are never stored in Odoo; only short aliases,
+long target URLs and destination metadata pass through these methods.
+Failures return ``ok: False`` so forms keep working.
 """
 
 import logging
@@ -17,8 +12,6 @@ from odoo import api, models
 
 _logger = logging.getLogger(__name__)
 
-#: Copy-surface endpoint per record kind, relative to the configured Evie
-#: base URL.
 _ENDPOINTS = {
     'lead': '/personal-link',
     'activity': '/activity-personal-link',
@@ -31,19 +24,7 @@ class EviePersonalLink(models.AbstractModel):
 
     @api.model
     def get_personal_link(self, kind, capsule_id):
-        """Fetch both short personal link variants for a record from Evie.
-
-        Args:
-            kind: 'lead' or 'activity' — selects the endpoint variant.
-            capsule_id: the record's Evie capsule id (x_evie_capsule_id).
-
-        Returns:
-            dict: ``{'ok': True, 'website': {...}, 'chat': {...}}`` on
-            success (each variant a dict with ``url``, ``target_url``,
-            ``resolved_target`` and ``clicks``, or None when that variant
-            could not be composed), ``{'ok': False, 'message': ...}``
-            otherwise. Never raises.
-        """
+        """Return the dynamic destination collection for a record."""
         endpoint = _ENDPOINTS.get(kind)
         if not endpoint or not capsule_id:
             return {'ok': False,
@@ -52,12 +33,24 @@ class EviePersonalLink(models.AbstractModel):
             endpoint, params={'capsule_id': str(capsule_id)})
         if not ok:
             _logger.warning(
-                "Evie personal link fetch failed (%s, capsule %s): %s",
+                'Evie personal link fetch failed (%s, capsule %s): %s',
                 kind, capsule_id, data)
             return {'ok': False, 'message': str(data)}
-        website = data.get('website')
-        chat = data.get('chat')
-        if not website and not chat:
+        destinations = data.get('destinations') or []
+        if not destinations:
             return {'ok': False,
                     'message': data.get('message') or 'no link resolvable'}
-        return {'ok': True, 'website': website, 'chat': chat}
+        return {'ok': True, 'destinations': destinations}
+
+    @api.model
+    def get_destination_options(self, capsule_id=None):
+        """Return preference choices without minting tracked aliases."""
+        params = ({'capsule_id': str(capsule_id)} if capsule_id else {})
+        ok, data = self.env['evie.webhook'].get_for_json(
+            '/outreach-destination-options', params=params)
+        if not ok:
+            _logger.warning('Evie destination options fetch failed: %s', data)
+            return {'ok': False, 'message': str(data)}
+        return {'ok': True,
+                'destinations': data.get('destinations') or [],
+                'effective_value': data.get('effective_value') or ''}

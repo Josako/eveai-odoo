@@ -68,6 +68,7 @@
             (4, ref('crm.field_crm_lead__phone')),
             (4, ref('crm.field_crm_lead__function')),
             (4, ref('crm.field_crm_lead__partner_name')),
+            (4, ref('crm.field_crm_lead__description')),
             (4, ref('crm.field_crm_lead__street')),
             (4, ref('crm.field_crm_lead__street2')),
             (4, ref('crm.field_crm_lead__zip')),
@@ -203,6 +204,8 @@
             (4, ref('mail.field_mail_activity__active')),
             (4, ref('mail.field_mail_activity__feedback')),
             (4, ref('field_mail_activity__x_evie_final_content')),
+            (4, ref('field_mail_activity__x_evie_final_subject')),
+            (4, ref('field_mail_activity__x_evie_outreach_link_target')),
         ]"/>
         <field name="action_server_ids" eval="[(4, ref('action_evie_activity_updated'))]"/>
         <field name="active" eval="True"/>

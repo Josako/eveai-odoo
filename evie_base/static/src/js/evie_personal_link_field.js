@@ -1,15 +1,12 @@
 /** @odoo-module */
 
 /**
- * evie_personal_link field widget (dual-personal-link-surfaces).
+ * evie_personal_link field widget (landing-page-improvement).
  *
- * Fetches the record's short personal outreach links from Evie on demand —
- * both pinned variants at once (website and chat-direct, no target
- * pre-selection) — and offers each for copying on its own full-width row
- * with its click count, for use in ad-hoc messages (mail, LinkedIn, …)
- * written by the rep. The links are never stored in Odoo: every fetch goes
- * to the Evie copy-surface endpoint. When Evie is unreachable the widget
- * shows a clear, non-blocking message; the form always keeps working.
+ * Loads every active named outreach destination and direct chat on form
+ * open and refreshes on window focus, with preferred/Make labels and
+ * independent click counts. Links are never stored in Odoo. Failures are
+ * non-blocking and the form keeps working.
  *
  * Usage in a form view (bound to the capsule anchor field):
  *     <field name="x_evie_capsule_id" widget="evie_personal_link"
@@ -20,7 +17,7 @@
  *         endpoint variant (lead-only links vs. (lead, activity) links).
  */
 
-import { Component, useState } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
@@ -36,33 +33,49 @@ export class EviePersonalLinkField extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        // variants: null until fetched; afterwards per-variant dicts
-        // ({url, target_url, resolved_target, clicks}) or null when that
-        // variant could not be composed.
-        this.state = useState({ loading: false, error: "", variants: null });
+        // destinations: null until fetched; afterwards the API's ordered
+        // destination collection with short/long URLs and click counts.
+        this.state = useState({ loading: false, error: "", destinations: null, copied: null });
+        this.onFocus = this.onFocus.bind(this);
+        onWillStart(() => this.onFetch());
+        window.addEventListener("focus", this.onFocus);
+        onWillUnmount(() => {
+            window.removeEventListener("focus", this.onFocus);
+            clearTimeout(this.copiedTimer);
+        });
+    }
+
+    onFocus() {
+        if (!this.state.loading) {
+            this.onFetch();
+        }
     }
 
     get rows() {
-        // Both variants side by side, each on its own full-width row. A
-        // variant the endpoint returned as null is skipped.
-        if (!this.state.variants) {
+        if (!this.state.destinations) {
             return [];
         }
-        const { website, chat } = this.state.variants;
-        const rows = [];
-        if (website) {
-            rows.push({
-                key: "website", icon: "fa fa-globe",
-                label: _t("Website (chat widget)"), ...website,
-            });
+        return this.state.destinations.map((destination) => {
+            const clicks = Number(destination.clicks) || 0;
+            return {
+                ...destination,
+                key: destination.key || "default",
+                icon: destination.kind === "CHAT_DIRECT" ? "fa fa-comments" : "fa fa-globe",
+                clicksLabel: clicks === 1 ? _t("1 click") : _t("%s clicks", clicks),
+                clicksClass: this.clicksClass(clicks),
+            };
+        });
+    }
+
+    /** Grey when unopened, orange for a first look (1–2), green once engaged (3+). */
+    clicksClass(clicks) {
+        if (clicks >= 3) {
+            return "o_evie_personal_link__clicks--high";
         }
-        if (chat) {
-            rows.push({
-                key: "chat", icon: "fa fa-comments",
-                label: _t("Chat client (direct)"), ...chat,
-            });
+        if (clicks >= 1) {
+            return "o_evie_personal_link__clicks--low";
         }
-        return rows;
+        return "o_evie_personal_link__clicks--none";
     }
 
     get capsuleId() {
@@ -70,6 +83,9 @@ export class EviePersonalLinkField extends Component {
     }
 
     async onFetch() {
+        if (this.state.loading) {
+            return;
+        }
         this.state.loading = true;
         this.state.error = "";
         try {
@@ -77,9 +93,7 @@ export class EviePersonalLinkField extends Component {
                 "evie.personal.link", "get_personal_link",
                 [this.props.kind, this.capsuleId]);
             if (result.ok) {
-                this.state.variants = {
-                    website: result.website, chat: result.chat,
-                };
+                this.state.destinations = result.destinations;
             } else {
                 this.state.error = result.message
                     || _t("No personal link could be resolved.");
@@ -91,9 +105,14 @@ export class EviePersonalLinkField extends Component {
         }
     }
 
-    async onCopy(url) {
+    async onCopy(row) {
         try {
-            await navigator.clipboard.writeText(url);
+            await navigator.clipboard.writeText(row.url);
+            this.state.copied = row.key;
+            clearTimeout(this.copiedTimer);
+            this.copiedTimer = setTimeout(() => {
+                this.state.copied = null;
+            }, 2000);
             this.notification.add(_t("Personal link copied to the clipboard."),
                 { type: "success" });
         } catch {

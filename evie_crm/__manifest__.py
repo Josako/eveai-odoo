@@ -1,6 +1,6 @@
 {
     'name': 'Evie CRM',
-    'version': '19.0.1.35.0',
+    'version': '19.0.1.40.0',
     'category': 'Sales/CRM',
     'summary': 'Evie (Ask Eve AI) CRM integration: phase mapping, anchor fields and automation',
     'description': """
@@ -85,6 +85,18 @@ Everything Evie adds to Odoo CRM:
   *Approve Proposal* run straight from the activity (mapping
   CRM_ACTIVITY_ODOO_CRM 1.2.0)
 
+* Odoo email delivery key (19.0.1.40.0, add-activity-email-delivery):
+  unique ``x_evie_delivery_key`` on ``mail.mail`` for adopt/reconcile after
+  uncertain provider outcomes, plus health metadata and least-privilege
+  read/create/write (never unlink) access for the integration salesperson.
+
+* Email proposal subjects (19.0.1.39.0, add-activity-email-delivery):
+  ``x_evie_proposed_subject`` (read-only, outbound-only) and
+  ``x_evie_final_subject`` (editable and mirrored inbound) on
+  ``mail.activity``. Both are plain text, independent of ``summary`` and
+  visible only for Email activities. Only the final subject joins the
+  upsert watchlist (mapping CRM_ACTIVITY_ODOO_CRM 1.11.0).
+
 * Activity action completed hook (19.0.1.26.0): the automation
   ``[AUTO] Evie: activity action completed`` fires on writes of
   ``x_evie_action_status`` into DONE/FAILED, mirroring the lead; the
@@ -99,6 +111,10 @@ Everything Evie adds to Odoo CRM:
   Personal link group of the lead form, watched by the lead upsert
   automation, and synced inbound-only to Evie (mapping
   CRM_LEAD_ODOO_CRM 1.12.0)
+
+* Dynamic personal outreach destinations (landing-page-improvement):
+  named landing pages and direct chat with independent click counts,
+  loaded automatically and rendered across the full lead/activity width
 
 * Linked URLs (odoo-lead-linked-urls, requires evie_base 19.0.1.46.0):
   a read-only "Linked URLs" group on the lead's Evie tab listing the URL

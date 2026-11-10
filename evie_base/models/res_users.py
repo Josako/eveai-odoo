@@ -1,14 +1,14 @@
 """res.users extension: Evie-synced user preferences
 (odoo-user-preferences-sync).
 
-Makes the two user preferences Evie acts on editable from Odoo's own My
+Makes the user preferences Evie acts on editable from Odoo's own My
 Preferences screen and keeps them in sync bi-directionally:
 
 * the native ``lang`` field doubles as the Evie preferred language —
   translated through the tenant's shared ``evie.language_map`` before
   notifying Evie (an unmapped language is skipped, never cleared);
-* ``x_evie_booking_page_url`` mirrors the USER_CUSTOMISATION
-  ``booking_page_url`` option — Evie stays the validating authority.
+* ``x_evie_booking_page_url`` and the Evie Email signature fields mirror
+  their USER_CUSTOMISATION options — Evie stays the validating authority.
 
 Loop prevention (design D5): writes carrying the ``evie_sync_origin``
 context flag (Evie's own outbound writes) never notify Evie back, and a
@@ -25,8 +25,15 @@ _logger = logging.getLogger(__name__)
 #: not echo them back to Evie.
 EVIE_SYNC_CONTEXT_KEY = 'evie_sync_origin'
 
+#: Odoo fields to USER_CUSTOMISATION keys mirrored to Evie.
+EVIE_CUSTOMISATION_FIELDS = {
+    'x_evie_booking_page_url': 'booking_page_url',
+    'x_evie_email_signature_html': 'evie_email_signature_html',
+    'x_evie_email_signature_text': 'evie_email_signature_text',
+}
+
 #: res.users fields mirrored to the Evie user preferences.
-EVIE_SYNCED_FIELDS = ('lang', 'x_evie_booking_page_url')
+EVIE_SYNCED_FIELDS = ('lang', *EVIE_CUSTOMISATION_FIELDS)
 
 
 class ResUsers(models.Model):
@@ -39,16 +46,29 @@ class ResUsers(models.Model):
              "Synced with Evie, which offers it to visitors who request an "
              "appointment, in preference over the company booking page.",
     )
+    x_evie_email_signature_html = fields.Html(
+        string='Evie Email Signature',
+        copy=False,
+        help="Optional signature for Email activities sent through Evie. "
+             "Use {{ website }} for your tracked personal website link. "
+             "This is separate from your native Odoo signature.",
+    )
+    x_evie_email_signature_text = fields.Text(
+        string='Evie Email Signature Plain Text',
+        copy=False,
+        help="Optional plain-text signature for Email activities sent through "
+             "Evie. Use {{ website }} for your tracked personal website link.",
+    )
 
     @property
     def SELF_READABLE_FIELDS(self):
         """Odoo 19 pattern: extend the property so a user may read their
         own booking page URL without administrator rights."""
-        return super().SELF_READABLE_FIELDS + ['x_evie_booking_page_url']
+        return super().SELF_READABLE_FIELDS + list(EVIE_CUSTOMISATION_FIELDS)
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['x_evie_booking_page_url']
+        return super().SELF_WRITEABLE_FIELDS + list(EVIE_CUSTOMISATION_FIELDS)
 
     def write(self, vals):
         watched = {key for key in EVIE_SYNCED_FIELDS if key in vals}
@@ -81,11 +101,14 @@ class ResUsers(models.Model):
                 'email': self.email or self.login,
             },
         }
-        if 'x_evie_booking_page_url' in changed_fields:
+        customisation_options = {
+            option: self[field_name] or None
+            for field_name, option in EVIE_CUSTOMISATION_FIELDS.items()
+            if field_name in changed_fields
+        }
+        if customisation_options:
             # None clears the option Evie-side.
-            payload['customisation_options'] = {
-                'booking_page_url': self.x_evie_booking_page_url or None,
-            }
+            payload['customisation_options'] = customisation_options
         if 'lang' in changed_fields:
             evie_code = self._evie_language_code()
             if evie_code:

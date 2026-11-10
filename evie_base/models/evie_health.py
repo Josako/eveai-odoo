@@ -49,6 +49,8 @@ EXPECTED_FIELDS = {
     'evie_base': {
         'res.users': [
             'x_evie_booking_page_url',
+            'x_evie_email_signature_html',
+            'x_evie_email_signature_text',
         ],
     },
     'evie_crm': {
@@ -67,6 +69,8 @@ EXPECTED_FIELDS = {
             'x_evie_action_message',
             # Mirrored language (evie_crm 19.0.1.13.0, crm-sync-polish)
             'x_evie_language',
+            # Dynamic preferred outreach destination (landing-page-improvement)
+            'x_evie_outreach_link_target',
         ],
         # Activities (evie_crm 19.0.1.6.0, add-crm-activity-sync)
         'mail.activity': [
@@ -76,6 +80,15 @@ EXPECTED_FIELDS = {
             'x_evie_outcome',
             # Last-synced anchor (evie_crm 19.0.1.10.0, odoo-evie-form-branding)
             'x_evie_last_synced',
+            # Editable activity destination override (CRM_ACTIVITY sync 1.10.0)
+            'x_evie_outreach_link_target',
+            # Email envelope subjects (evie_crm 19.0.1.39.0)
+            'x_evie_proposed_subject',
+            'x_evie_final_subject',
+        ],
+        # Provider-neutral delivery idempotency (evie_crm 19.0.1.40.0)
+        'mail.mail': [
+            'x_evie_delivery_key',
         ],
     },
     # crm.lead extension (evie_marketing_initiative 19.0.1.0.0,

@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.50.0',
+    'version': '19.0.1.54.3',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -10,6 +10,21 @@ Evie Base
 Foundation module for all Evie (Ask Eve AI) Odoo modules.
 
 * Namespace conventions: modules ``evie_*``, models ``evie.*``, fields ``x_evie_*``
+* Minimal Email activity preview/send dialog (19.0.1.53.0): the shared
+  ``evie_actions`` primitive opens template choice, exact preview, explicit
+  plain-website consent and sent/failure presentation through the generic
+  action-execute channel with asserted acting identity. Versions 19.0.1.53.1
+  and 19.0.1.53.2 fix dialog rendering by using a literal translated string
+  expression instead of calling an unavailable JavaScript ``_t`` from the OWL
+  template context. Version 19.0.1.53.3 forwards preview/send arguments and
+  template-choice responses through the generic Odoo action executor
+* Evie Email signatures (19.0.1.54.0): self-service HTML and plain-text
+  signatures on My Preferences → Evie, mirrored bidirectionally through
+  ``USER_CUSTOMISATION`` and kept separate from the native Odoo signature.
+  Versions 19.0.1.54.1 and 19.0.1.54.2 keep both fields editable and give
+  their HTML/plain-text editors bounded, visible click targets. Version
+  19.0.1.54.3 places labels above full-width editors so Odoo 19's Preferences
+  grid cannot collapse their input areas in the modal
 * Evie settings (webhook URL + TenantProject API key) under Settings
 * Health/diagnostic surface (``evie.health``) so the Evie platform can verify
   installed module versions and required fields remotely; also reports the
@@ -93,6 +108,10 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   the ``/user-preferences`` webhook (echo-guarded), and Evie's outbound
   writes land here through the JSON-2 API
 
+* Dynamic personal outreach widgets (landing-page-improvement): the lead
+  preference stores the encoded value supplied by Evie, while personal links
+  and their click counts load automatically on form open and window focus
+
 This module contains no business logic itself; vertical modules
 (``evie_crm``, ...) build on it.
 """,
@@ -116,6 +135,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/xml/evie_link_field.xml',
             'evie_base/static/src/js/evie_capsule_actions.js',
             'evie_base/static/src/xml/evie_capsule_actions.xml',
+            'evie_base/static/src/js/evie_email_delivery_dialog.js',
+            'evie_base/static/src/xml/evie_email_delivery_dialog.xml',
             'evie_base/static/src/js/evie_actions_field.js',
             'evie_base/static/src/xml/evie_actions_field.xml',
             'evie_base/static/src/js/evie_capsule_documents.js',
@@ -126,6 +147,8 @@ This module contains no business logic itself; vertical modules
             'evie_base/static/src/xml/evie_brand_header.xml',
             'evie_base/static/src/js/evie_personal_link_field.js',
             'evie_base/static/src/xml/evie_personal_link_field.xml',
+            'evie_base/static/src/js/evie_outreach_destination_field.js',
+            'evie_base/static/src/xml/evie_outreach_destination_field.xml',
         ],
     },
     'installable': True,

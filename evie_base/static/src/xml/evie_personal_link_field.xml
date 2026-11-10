@@ -3,39 +3,39 @@
 
     <t t-name="evie_base.EviePersonalLinkField">
         <div class="o_evie_personal_link">
-            <div t-if="!state.variants" class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-secondary btn-sm"
-                        t-att-disabled="state.loading or null"
-                        t-on-click="onFetch">
-                    <i t-att-class="state.loading ? 'fa fa-circle-o-notch fa-spin me-1' : 'fa fa-link me-1'"
-                       role="img" aria-hidden="true"/>
-                    <t t-esc="state.loading ? 'Fetching…' : 'Get personal links'"/>
-                </button>
-                <span t-if="state.error" class="text-danger small" t-esc="state.error"/>
-            </div>
-            <div t-if="state.variants" class="d-flex flex-column gap-2 w-100">
-                <div t-foreach="rows" t-as="row" t-key="row.key"
-                     class="o_evie_personal_link__row w-100">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <i t-att-class="row.icon" role="img" aria-hidden="true"/>
-                        <span class="fw-bold small" t-esc="row.label"/>
-                        <span class="text-muted small"
-                              t-esc="row.clicks + ' clicks'"/>
+            <span t-if="state.loading and !state.destinations" class="text-muted" role="status">
+                <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-hidden="true"/>
+                Loading personal links…
+            </span>
+            <span t-if="state.error and !state.loading" class="text-muted fst-italic" t-esc="state.error"/>
+            <ul t-if="state.destinations" class="o_evie_personal_link__list list-unstyled mb-0">
+                <li t-foreach="rows" t-as="row" t-key="row.key" class="o_evie_personal_link__line">
+                    <div class="o_evie_personal_link__item" t-att-title="row.target_url">
+                        <i t-att-class="row.icon + ' o_evie_personal_link__icon'" role="img" aria-hidden="true"/>
+                        <span class="o_evie_personal_link__body">
+                            <span class="o_evie_personal_link__head">
+                                <span class="o_evie_personal_link__name" t-esc="row.name"/>
+                                <span t-if="row.make" class="o_evie_personal_link__tag" t-esc="row.make.name"/>
+                                <span t-if="row.preferred" class="o_evie_personal_link__tag">Preferred</span>
+                                <span t-att-class="'o_evie_personal_link__clicks ' + row.clicksClass"
+                                      t-esc="row.clicksLabel"/>
+                            </span>
+                            <span class="o_evie_personal_link__url" t-esc="row.url"/>
+                        </span>
                     </div>
-                    <div class="input-group input-group-sm w-100">
-                        <input type="text" class="form-control" readonly="1"
-                               t-att-value="row.url"
-                               t-att-title="row.target_url"
-                               t-att-aria-label="row.label"/>
-                        <button type="button" class="btn btn-outline-secondary"
-                                t-on-click="() => this.onCopy(row.url)"
-                                title="Copy to clipboard"
-                                aria-label="Copy to clipboard">
-                            <i class="fa fa-clipboard" role="img" aria-hidden="true"/>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    <button type="button" class="o_evie_personal_link__copy"
+                            title="Copy to clipboard"
+                            aria-label="Copy to clipboard"
+                            t-on-click="() => this.onCopy(row)">
+                        <i t-attf-class="fa {{ state.copied === row.key ? 'fa-check' : 'fa-clipboard' }}"
+                           role="img" aria-hidden="true"/>
+                        <span class="o_evie_personal_link__copy-label">
+                            <t t-if="state.copied === row.key">Copied</t>
+                            <t t-else="">Copy</t>
+                        </span>
+                    </button>
+                </li>
+            </ul>
         </div>
     </t>
 

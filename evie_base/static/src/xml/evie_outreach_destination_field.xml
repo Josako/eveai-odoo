@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="evie_base.EvieOutreachDestinationField">
+        <div class="o_evie_outreach_destination">
+            <select class="form-select form-select-sm w-100"
+                    t-ref="destinationSelect"
+                    t-att-value="currentValue"
+                    t-att-disabled="state.loading or null"
+                    t-att-aria-label="props.record.fields[props.name].string"
+                    t-on-change="onChange">
+                <option t-foreach="state.destinations" t-as="destination"
+                        t-key="destination.key || 'default'"
+                        t-att-value="destination.value">
+                    <t t-esc="this.optionLabel(destination)"/>
+                </option>
+            </select>
+            <span t-if="state.loading" class="text-muted small">
+                <i class="fa fa-circle-o-notch fa-spin me-1" role="img" aria-hidden="true"/>
+                Loading destinations…
+            </span>
+            <span t-if="state.error" class="text-warning small" role="alert" t-esc="state.error"/>
+        </div>
+    </t>
+</templates>

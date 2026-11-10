@@ -67,21 +67,15 @@ class MailActivity(models.Model):
         help="Timestamp of the last Evie → Odoo sync for this record "
              "(odoo-evie-form-branding — same anchor as on crm.lead).",
     )
-    # Outreach link target (19.0.1.29.0, dual-personal-link-surfaces): the
-    # activity's stamped outreach link target, synced outbound from Evie
-    # (Evie-master, system-stamped at activity creation — campaign default
-    # or tenant make default). Read-only display; Odoo is never an
-    # editing surface for it (mapping CRM_ACTIVITY_ODOO_CRM 1.8.0).
-    x_evie_outreach_link_target = fields.Selection(
-        selection=[('WEBSITE', 'Website (chat widget)'),
-                   ('CHAT_DIRECT', 'Chat client (direct)')],
-        string='Evie Outreach Link Target',
+    # Explicit activity destination override (CRM_ACTIVITY_ODOO_CRM 1.10.0).
+    # The editor displays the effective inherited value until the rep chooses
+    # an override; clearing it restores the channel/lead/Make fallback.
+    x_evie_outreach_link_target = fields.Char(
+        string='Evie Outreach Destination',
         copy=False,
-        readonly=True,
-        help="Where the activity's personal outreach link lands the "
-             "visitor: the website running the Evie chat widget, or the "
-             "standalone chat client directly. Stamped by Evie at activity "
-             "creation; read-only here.",
+        help="Personal outreach destination for this activity. Choose direct "
+             "chat or a named landing page to override the inherited value; "
+             "clear the choice to follow the channel, lead and Make defaults.",
     )
     x_evie_outcome = fields.Selection(
         string='Evie Outcome',
@@ -91,6 +85,23 @@ class MailActivity(models.Model):
              "Set it before marking the activity done: the stable key syncs "
              "to Evie with the completion and drives sequence branching. "
              "Informational for Odoo — it does not alter Odoo behaviour.",
+    )
+
+    # Email envelope subjects (add-activity-email-delivery): plain text,
+    # independent of the native task summary. Proposed is an Evie-owned
+    # learning baseline; final is rep-editable and mirrored inbound.
+    x_evie_proposed_subject = fields.Char(
+        string='Evie Email Subject (specialist draft)',
+        copy=False,
+        readonly=True,
+        help="Specialist-drafted Email envelope subject for Email activities. "
+             "Read-only learning baseline, distinct from the task summary.",
+    )
+    x_evie_final_subject = fields.Char(
+        string='Evie Email Subject (final)',
+        copy=False,
+        help="Final Email envelope subject for Email activities. Editable; "
+             "changes sync back to Evie. Distinct from the task summary.",
     )
 
     # Proposal content (sync-activity-proposal-to-odoo): Evie-master,

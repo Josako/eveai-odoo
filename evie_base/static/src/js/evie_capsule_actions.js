@@ -35,8 +35,11 @@ import { Component, onMounted, onWillStart, onWillUnmount, onWillUpdateProps, re
 import { Dialog } from "@web/core/dialog/dialog";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { EvieEmailDeliveryDialog } from "@evie_base/js/evie_email_delivery_dialog";
 
 const POLL_INTERVAL_MS = 5000;
+const PREVIEW_EMAIL_ACTION = "PREVIEW_ACTIVITY_EMAIL_ACTION";
+const SEND_EMAIL_ACTION = "SEND_ACTIVITY_EMAIL_ACTION";
 
 // Popup-opening result kinds (whitelist — capture-form-action,
 // odoo-external-capture-review): chat opens the proposal session, form the
@@ -337,12 +340,32 @@ export class EvieCapsuleActions extends Component {
         if (this.isDisabled(action)) {
             return;
         }
+        if ([PREVIEW_EMAIL_ACTION, SEND_EMAIL_ACTION].includes(action.action_type)) {
+            this.dialogService.add(EvieEmailDeliveryDialog, {
+                onPreview: (args) => this._executeEmailAction(PREVIEW_EMAIL_ACTION, args),
+                onSend: (args) => this._executeEmailAction(SEND_EMAIL_ACTION, args),
+                onSettled: this.props.onSettled,
+            });
+            return;
+        }
         // Selector-first specialist flow (odoo-selector-first-specialist-
         // flow): never offer a pre-emptive choice. The platform resolves
         // the specialist through the shared ladder (explicit id -> single
         // active -> selector rules); only when it answers choice_required
         // does the picker open as the fallback (see _execute).
         await this._execute(action, null);
+    }
+
+    async _executeEmailAction(actionType, args) {
+        // The generic integration endpoint asserts the current Odoo identity
+        // and returns the same preview/send DTO as the Evie admin channel.
+        return this.orm.call(
+            "evie.actions", "execute_action", [actionType],
+            {
+                capsule_id: this.capsuleId || null,
+                remote_id: this.remoteId || null,
+                arguments: args,
+            });
     }
 
     async _execute(action, specialistId) {
