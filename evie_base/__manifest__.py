@@ -1,6 +1,6 @@
 {
     'name': 'Evie Base',
-    'version': '19.0.1.53.3',
+    'version': '19.0.1.54.0',
     'category': 'Technical',
     'summary': 'Base layer for the Ask Eve AI (Evie) integration: conventions, settings and health surface',
     'description': """
@@ -18,6 +18,9 @@ Foundation module for all Evie (Ask Eve AI) Odoo modules.
   expression instead of calling an unavailable JavaScript ``_t`` from the OWL
   template context. Version 19.0.1.53.3 forwards preview/send arguments and
   template-choice responses through the generic Odoo action executor
+* Evie Email signatures (19.0.1.54.0): self-service HTML and plain-text
+  signatures on My Preferences → Evie, mirrored bidirectionally through
+  ``USER_CUSTOMISATION`` and kept separate from the native Odoo signature
 * Evie settings (webhook URL + TenantProject API key) under Settings
 * Health/diagnostic surface (``evie.health``) so the Evie platform can verify
   installed module versions and required fields remotely; also reports the

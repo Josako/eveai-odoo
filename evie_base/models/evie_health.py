@@ -49,6 +49,8 @@ EXPECTED_FIELDS = {
     'evie_base': {
         'res.users': [
             'x_evie_booking_page_url',
+            'x_evie_email_signature_html',
+            'x_evie_email_signature_text',
         ],
     },
     'evie_crm': {

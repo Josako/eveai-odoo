@@ -34,6 +34,12 @@ class TestEvieUserPreferences(TransactionCase):
                       self.env['res.users'].SELF_READABLE_FIELDS)
         self.assertIn('x_evie_booking_page_url',
                       self.env['res.users'].SELF_WRITEABLE_FIELDS)
+        for field_name in (
+                'x_evie_email_signature_html', 'x_evie_email_signature_text'):
+            self.assertIn(field_name,
+                          self.env['res.users'].SELF_READABLE_FIELDS)
+            self.assertIn(field_name,
+                          self.env['res.users'].SELF_WRITEABLE_FIELDS)
 
     def test_own_preferences_editable_without_admin(self):
         with patch(WEBHOOK_POST, return_value=(True, 'event-id')):
@@ -58,6 +64,25 @@ class TestEvieUserPreferences(TransactionCase):
                          'prefs.tester@example.com')
         self.assertEqual(payload['customisation_options'],
                          {'booking_page_url': 'https://calendly.com/tester'})
+
+    def test_email_signatures_are_sent_as_customisation_options(self):
+        with patch(WEBHOOK_POST, return_value=(True, 'event-id')) as post:
+            self.user.write({
+                'x_evie_email_signature_html': '<p>Regards<br>{{ website }}</p>',
+                'x_evie_email_signature_text': 'Regards\n{{ website }}',
+            })
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(post.call_args[0][1]['customisation_options'], {
+            'evie_email_signature_html': '<p>Regards<br>{{ website }}</p>',
+            'evie_email_signature_text': 'Regards\n{{ website }}',
+        })
+
+    def test_clearing_signature_sends_null(self):
+        self.user.x_evie_email_signature_text = 'Regards'
+        with patch(WEBHOOK_POST, return_value=(True, 'event-id')) as post:
+            self.user.write({'x_evie_email_signature_text': False})
+        self.assertEqual(post.call_args[0][1]['customisation_options'],
+                         {'evie_email_signature_text': None})
 
     def test_clearing_sends_null(self):
         self.user.x_evie_booking_page_url = 'https://calendly.com/tester'
