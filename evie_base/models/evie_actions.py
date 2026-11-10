@@ -103,7 +103,7 @@ class EvieActions(models.AbstractModel):
 
     @api.model
     def execute_action(self, action_type, capsule_id=None, remote_id=None,
-                       specialist_id=None):
+                       specialist_id=None, arguments=None):
         """Execute an action via the generic action-execute endpoint.
 
         The current Odoo user is sent as audit information only (Evie never
@@ -135,6 +135,8 @@ class EvieActions(models.AbstractModel):
             payload['remote_id'] = int(remote_id)
         if specialist_id:
             payload['specialist_id'] = int(specialist_id)
+        if arguments is not None:
+            payload['arguments'] = arguments
 
         ok, data = self.env['evie.webhook'].post_for_json('/action-execute', payload)
         if not ok:
@@ -148,8 +150,12 @@ class EvieActions(models.AbstractModel):
             _logger.info(
                 "Evie action %s requires a specialist choice (remote id %s)",
                 action_type, remote_id)
-            return {'choice_required': True,
-                    'specialists': data.get('specialists') or []}
+            result = {'choice_required': True,
+                      'specialists': data.get('specialists') or []}
+            for key in ('templates', 'message'):
+                if key in data:
+                    result[key] = data[key]
+            return result
         # Interactive actions (interactive-activity-proposal-entry-points,
         # capture-form-action, odoo-external-capture-review): the endpoint
         # returned a popup URL instead of enqueueing a background run — pass
