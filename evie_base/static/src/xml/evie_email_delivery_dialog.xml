@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="evie_base.EvieEmailDeliveryDialog">
-        <Dialog title="Preview Email" size="lg">
+        <Dialog title="'Preview Email'" size="'lg'">
             <div class="o_evie_email_delivery">
                 <p t-if="state.error" class="alert alert-warning" role="alert" t-esc="state.error"/>
                 <div t-if="state.templates.length and !state.preview" class="mb-3">
