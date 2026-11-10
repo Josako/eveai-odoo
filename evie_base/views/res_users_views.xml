@@ -19,8 +19,10 @@
                     </group>
                     <group string="Email Signature">
                         <field name="x_evie_email_signature_html" readonly="0"
+                               options="{'codeview': true, 'height': 180, 'resizable': true}"
+                               class="border border-secondary"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
-                        <field name="x_evie_email_signature_text" readonly="0"
+                        <field name="x_evie_email_signature_text" readonly="0" rows="6"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
                         <p class="text-muted">
                             Used only for Email activities sent through Evie.

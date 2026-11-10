@@ -269,6 +269,22 @@ $o-evie-lilac: #9c8ae1;
     }
 }
 
+// My Preferences Evie signatures: keep both editors visible and clickable.
+// Odoo's text autosizer otherwise stretches the textarea to the WYSIWYG grid
+// row's computed height (observed at 740px), while the empty HTML editor has
+// no useful click target.
+.o_form_view {
+    .o_field_widget[name="x_evie_email_signature_html"] .note-editable {
+        min-height: 180px;
+    }
+
+    .o_field_widget[name="x_evie_email_signature_text"] textarea.o_input {
+        height: 8rem !important;
+        max-height: 16rem;
+        resize: vertical;
+    }
+}
+
 // Minimal Email activity preview dialog: bounded scrolling, native controls.
 .o_evie_email_delivery {
   &__text {
