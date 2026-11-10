@@ -17,7 +17,7 @@
  *         endpoint variant (lead-only links vs. (lead, activity) links).
  */
 
-import { Component, onBeforeUnmount, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
@@ -35,10 +35,14 @@ export class EviePersonalLinkField extends Component {
         this.notification = useService("notification");
         // destinations: null until fetched; afterwards the API's ordered
         // destination collection with short/long URLs and click counts.
-        this.state = useState({ loading: false, error: "", destinations: null });
+        this.state = useState({ loading: false, error: "", destinations: null, copied: null });
         this.onFocus = this.onFocus.bind(this);
         onWillStart(() => this.onFetch());
         window.addEventListener("focus", this.onFocus);
+        onWillUnmount(() => {
+            window.removeEventListener("focus", this.onFocus);
+            clearTimeout(this.copiedTimer);
+        });
     }
 
     onFocus() {
@@ -51,18 +55,27 @@ export class EviePersonalLinkField extends Component {
         if (!this.state.destinations) {
             return [];
         }
-        return this.state.destinations.map((destination) => ({
-            ...destination,
-            key: destination.key || "default",
-            icon: destination.kind === "CHAT_DIRECT" ? "fa fa-comments" : "fa fa-globe",
-            label: this.destinationLabel(destination),
-        }));
+        return this.state.destinations.map((destination) => {
+            const clicks = Number(destination.clicks) || 0;
+            return {
+                ...destination,
+                key: destination.key || "default",
+                icon: destination.kind === "CHAT_DIRECT" ? "fa fa-comments" : "fa fa-globe",
+                clicksLabel: clicks === 1 ? _t("1 click") : _t("%s clicks", clicks),
+                clicksClass: this.clicksClass(clicks),
+            };
+        });
     }
 
-    destinationLabel(destination) {
-        const make = destination.make ? ` (${destination.make.name})` : "";
-        const preferred = destination.preferred ? ` — ${_t("Preferred")}` : "";
-        return `${destination.name}${make}${preferred}`;
+    /** Grey when unopened, orange for a first look (1–2), green once engaged (3+). */
+    clicksClass(clicks) {
+        if (clicks >= 3) {
+            return "o_evie_personal_link__clicks--high";
+        }
+        if (clicks >= 1) {
+            return "o_evie_personal_link__clicks--low";
+        }
+        return "o_evie_personal_link__clicks--none";
     }
 
     get capsuleId() {
@@ -92,13 +105,14 @@ export class EviePersonalLinkField extends Component {
         }
     }
 
-    onBeforeUnmount() {
-        window.removeEventListener("focus", this.onFocus);
-    }
-
-    async onCopy(url) {
+    async onCopy(row) {
         try {
-            await navigator.clipboard.writeText(url);
+            await navigator.clipboard.writeText(row.url);
+            this.state.copied = row.key;
+            clearTimeout(this.copiedTimer);
+            this.copiedTimer = setTimeout(() => {
+                this.state.copied = null;
+            }, 2000);
             this.notification.add(_t("Personal link copied to the clipboard."),
                 { type: "success" });
         } catch {
