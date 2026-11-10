@@ -18,13 +18,17 @@
                                readonly="0" placeholder="https://calendly.com/…"/>
                     </group>
                     <group string="Email Signature">
+                        <label for="x_evie_email_signature_html" colspan="2"/>
                         <field name="x_evie_email_signature_html" readonly="0"
+                               nolabel="1" colspan="2"
                                options="{'codeview': true, 'height': 180, 'resizable': true}"
                                class="border border-secondary"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
+                        <label for="x_evie_email_signature_text" colspan="2"/>
                         <field name="x_evie_email_signature_text" readonly="0" rows="6"
+                               nolabel="1" colspan="2"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
-                        <p class="text-muted">
+                        <p class="text-muted" colspan="2">
                             Used only for Email activities sent through Evie.
                             The {{ website }} placeholder becomes your tracked
                             personal website link. Your native Odoo signature
