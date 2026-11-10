@@ -18,9 +18,9 @@
                                readonly="0" placeholder="https://calendly.com/…"/>
                     </group>
                     <group string="Email Signature">
-                        <field name="x_evie_email_signature_html"
+                        <field name="x_evie_email_signature_html" readonly="0"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
-                        <field name="x_evie_email_signature_text"
+                        <field name="x_evie_email_signature_text" readonly="0"
                                placeholder="Kind regards,&#10;Your name&#10;{{ website }}"/>
                         <p class="text-muted">
                             Used only for Email activities sent through Evie.
